@@ -3,7 +3,7 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { useRef, useState, useEffect } from "react";
 import { Sparkles, ShoppingBag, Music, Volume2, VolumeX, Download, Share2, MapPin, Phone } from "lucide-react";
-import html2canvas from "html2canvas";
+import { toPng } from "html-to-image";
 import { cn } from "@/lib/utils";
 
 interface VideoGeneratorProps {
@@ -24,6 +24,7 @@ export default function VideoGenerator({ offerText, productName, discount, shopT
     const [isMuting, setIsMuting] = useState(true);
     const [hasInteracted, setHasInteracted] = useState(false);
     const [isSceneLocked, setIsSceneLocked] = useState(false);
+    const [isCapturing, setIsCapturing] = useState(false);
 
     // Scene advancement logic - PROTECTED
     const nextScene = () => {
@@ -322,12 +323,19 @@ export default function VideoGenerator({ offerText, productName, discount, shopT
                     onClick={async () => {
                         const element = bannerRef.current;
                         if (!element) return;
-                        const canvas = await html2canvas(element, { scale: 2 });
-                        const link = document.createElement('a');
-                        link.download = `offer-frame-${Date.now()}.png`;
-                        link.href = canvas.toDataURL();
-                        link.click();
-                        onShare?.();
+                        setIsCapturing(true);
+                        try {
+                            const dataUrl = await toPng(element, { quality: 0.95, pixelRatio: 2 });
+                            const link = document.createElement('a');
+                            link.download = `offer-frame-${Date.now()}.png`;
+                            link.href = dataUrl;
+                            link.click();
+                            onShare?.();
+                        } catch (e) {
+                            console.error("Frame capture failed", e);
+                        } finally {
+                            setIsCapturing(false);
+                        }
                     }}
                     className="flex-1 bg-white/10 backdrop-blur-md text-white py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest border border-white/10 hover:bg-white/20 transition-all flex items-center justify-center gap-2"
                 >
@@ -337,20 +345,31 @@ export default function VideoGenerator({ offerText, productName, discount, shopT
                     onClick={async () => {
                         const element = bannerRef.current;
                         if (!element) return;
-                        const canvas = await html2canvas(element, { scale: 2 });
-                        const blob = await new Promise<Blob | null>(r => canvas.toBlob(r));
-                        if (!blob) return;
-                        const file = new File([blob], 'offer-ad.png', { type: 'image/png' });
-                        if (navigator.share && navigator.canShare({ files: [file] })) {
-                            await navigator.share({
-                                files: [file],
-                                title: 'Video Offer Ad',
-                                text: 'Check out our new business ad!'
-                            });
-                            onShare?.();
-                        } else {
-                            onShare?.();
-                            alert("Sharing not supported on this browser. Use the 'Save Frame' button instead.");
+                        setIsCapturing(true);
+                        try {
+                            const dataUrl = await toPng(element, { quality: 0.95, pixelRatio: 2 });
+                            const blob = await (await fetch(dataUrl)).blob();
+                            const file = new File([blob], 'offer-ad.png', { type: 'image/png' });
+
+                            if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+                                await navigator.share({
+                                    files: [file],
+                                    title: 'Video Offer Ad',
+                                    text: 'Check out our new business ad!'
+                                });
+                                onShare?.();
+                            } else {
+                                const link = document.createElement('a');
+                                link.download = `offer-frame-${Date.now()}.png`;
+                                link.href = dataUrl;
+                                link.click();
+                                onShare?.();
+                                alert("Poster saved to gallery! You can now share it manually on WhatsApp.");
+                            }
+                        } catch (e) {
+                            console.error("Frame share failed", e);
+                        } finally {
+                            setIsCapturing(false);
                         }
                     }}
                     className="flex-1 bg-green-500 text-white py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-lg hover:bg-green-600 transition-all flex items-center justify-center gap-2"

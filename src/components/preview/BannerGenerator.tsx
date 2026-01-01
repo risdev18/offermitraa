@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
-import html2canvas from "html2canvas";
+import { toPng } from "html-to-image";
 import { Download, Share2, Loader2, Image as ImageIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -39,19 +39,21 @@ export default function BannerGenerator({ text, shopType, shopName, isPro, langu
         setIsCapturing(true);
 
         try {
-            const canvas = await html2canvas(bannerRef.current, {
-                scale: 3, // Premium quality
-                backgroundColor: null,
+            // Using toPng for better reliability
+            const dataUrl = await toPng(bannerRef.current, {
+                quality: 0.95,
+                pixelRatio: 2,
+                cacheBust: true,
             });
 
-            const image = canvas.toDataURL("image/png");
             const link = document.createElement("a");
-            link.href = image;
             link.download = `offer-mitra-poster-${Date.now()}.png`;
+            link.href = dataUrl;
             link.click();
             onShare?.();
         } catch (err) {
             console.error("Capture failed", err);
+            alert("Download failed. Please try again or take a screenshot.");
         } finally {
             setIsCapturing(false);
         }
@@ -62,17 +64,16 @@ export default function BannerGenerator({ text, shopType, shopName, isPro, langu
         setIsCapturing(true);
 
         try {
-            const canvas = await html2canvas(bannerRef.current, {
-                scale: 3,
-                backgroundColor: null,
+            const dataUrl = await toPng(bannerRef.current, {
+                quality: 0.95,
+                pixelRatio: 2,
+                cacheBust: true,
             });
 
-            const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, 'image/png'));
-            if (!blob) return;
-
+            const blob = await (await fetch(dataUrl)).blob();
             const file = new File([blob], `offer-${Date.now()}.png`, { type: 'image/png' });
 
-            if (navigator.share && navigator.canShare({ files: [file] })) {
+            if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
                 await navigator.share({
                     files: [file],
                     title: 'My Business Offer',
@@ -80,12 +81,17 @@ export default function BannerGenerator({ text, shopType, shopName, isPro, langu
                 });
                 onShare?.();
             } else {
-                handleDownload();
+                // Fallback for browsers that don't support file sharing
+                const link = document.createElement("a");
+                link.download = `offer-mitra-poster-${Date.now()}.png`;
+                link.href = dataUrl;
+                link.click();
+                alert("Poster saved to gallery! You can now share it manually on WhatsApp.");
                 onShare?.();
-                alert("Image downloaded! You can now share it on WhatsApp.");
             }
         } catch (err) {
             console.error("Share failed", err);
+            alert("Sharing failed. Try downloading instead.");
         } finally {
             setIsCapturing(false);
         }

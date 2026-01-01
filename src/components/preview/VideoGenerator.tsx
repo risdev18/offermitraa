@@ -143,23 +143,32 @@ export default function VideoGenerator({
                     const langLower = (language || 'hi').toLowerCase();
                     const isHindi = langLower === 'hi' || langLower === 'hindi';
 
-                    let selectedVoice = null;
                     const availableVoices = window.speechSynthesis.getVoices();
+                    let selectedVoice = null;
+
+                    // PREFER MALE FACING VOICES
+                    // Windows: "Microsoft Hemant" (hi-IN, Male), "Microsoft Ravi" (en-IN, Male)
+                    // Chrome: Often only has "Google Hindi" (Female). We must Pitch-Shift for "Men Deep Voice".
 
                     if (isHindi) {
                         // Strict Hindi (Devanagari)
-                        selectedVoice = availableVoices.find(v => v.lang === 'hi-IN' && v.name.includes('Neural')) ||
-                            availableVoices.find(v => v.lang === 'hi-IN' && v.name.includes('Google')) ||
-                            availableVoices.find(v => v.lang === 'hi-IN');
+                        // Try finding a Male Hindi voice first
+                        selectedVoice = availableVoices.find(v => v.lang === 'hi-IN' && (v.name.includes('Male') || v.name.includes('Hemant') || v.name.includes('Kalpana') === false));
+                        // Fallback to any Hindi
+                        if (!selectedVoice) selectedVoice = availableVoices.find(v => v.lang === 'hi-IN');
                     } else {
-                        // English / Hinglish -> Prefer Indian English, then US English
-                        // Use safe navigational checks and prioritize Neural voices
+                        // English / Hinglish -> Prefer Indian English Male
                         selectedVoice =
-                            availableVoices.find(v => v.lang === 'en-IN' && v.name.includes('Neural')) ||
-                            availableVoices.find(v => v.lang === 'en-IN' && v.name.includes('Google')) ||
-                            availableVoices.find(v => v.lang === 'en-IN') ||
-                            availableVoices.find(v => v.lang === 'en-US' && v.name.includes('Neural')) ||
-                            availableVoices.find(v => v.lang === 'en-US');
+                            availableVoices.find(v => v.lang === 'en-IN' && (v.name.includes('Male') || v.name.includes('Ravi'))) ||
+                            availableVoices.find(v => v.lang === 'en-IN' && v.name.includes('India')) ||
+                            // Fallback to US Male if Indian accent not found (better than robotic default?) 
+                            // actually stick to en-IN for accent, just pitch shift it.
+                            availableVoices.find(v => v.lang === 'en-IN');
+                    }
+
+                    if (!selectedVoice && !isHindi) {
+                        // Ultimate fallback for Hinglish/English
+                        selectedVoice = availableVoices.find(v => v.lang === 'en-US');
                     }
 
                     if (selectedVoice) {
@@ -167,10 +176,15 @@ export default function VideoGenerator({
                         utterance.lang = selectedVoice.lang;
                     }
 
-                    // Professional Speaking Rate - slightly faster for flow, no dead air
-                    utterance.rate = 1.1;
-                    utterance.pitch = 1.0; // Natural pitch
-                    utterance.volume = 1;
+                    // MEN DEEP VOICE SIMULATION
+                    // If the voice name strictly implies Female (like 'Google Hindi' is usually fem), 
+                    // or if we just want to force the style:
+                    // Lower pitch = Deeper voice. 
+                    // 1.0 = Normal. 0.8 = Deep. 0.5 = Very Deep.
+
+                    // "High Energy" = Slightly faster rate.
+                    utterance.rate = 1.15;
+                    utterance.pitch = 0.85; // Deep Male Effect
 
                     utterance.onend = () => {
                         setIsSceneLocked(false);

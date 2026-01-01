@@ -23,6 +23,11 @@ async function processVideo(
     outputPath: string
 ): Promise<void> {
     return new Promise((resolve, reject) => {
+        if (!ffmpegPath) {
+            reject(new Error("FFmpeg binary not found in ffmpeg-static"));
+            return;
+        }
+
         // Create inputs.txt for images
         const concatTxtPath = path.join(tempDir, "inputs.txt");
         const fileContent = imagePaths.map(img => `file '${img.replace(/\\/g, '/')}'\nduration 4`).join('\n') + `\nfile '${imagePaths[imagePaths.length - 1].replace(/\\/g, '/')}'`;
@@ -77,7 +82,7 @@ async function processVideo(
             } else {
                 console.error("FFmpeg process exited with code " + code);
                 console.error("FFmpeg stderr:", stderrData);
-                reject(new Error(`FFmpeg exited with code ${code}`));
+                reject(new Error(`FFmpeg exited with code ${code}. Error: ${stderrData}`));
             }
         });
 
@@ -116,10 +121,13 @@ export async function POST(req: NextRequest) {
             try {
                 const text = script[i];
                 if (text) {
-                    // Force normal speed (slow: false)
-                    // "Remove pause": We utilize google-tts-api defaults which are generally continuous.
-                    // We map 'hinglish' to 'hi' as well for better accent, or 'en' if specifically requested.
-                    const targetLang = (language === 'english') ? 'en' : 'hi';
+                    // Logic:
+                    // Hinglish -> 'en-IN' (Indian English accent reading Latin script)
+                    // Hindi -> 'hi' (Standard Hindi reading Devanagari)
+                    // Fallback -> 'hi'
+                    let targetLang = 'hi';
+                    if (language === 'hinglish') targetLang = 'en-IN';
+                    if (language === 'english') targetLang = 'en';
 
                     const url = googleTTS.getAudioUrl(text, {
                         lang: targetLang,
@@ -153,11 +161,15 @@ export async function POST(req: NextRequest) {
             }
         });
 
-    } catch (e) {
-        console.error("Render error:", e);
+    } catch (e: any) {
+        console.error("Render error logic:", e);
         // Attempt cleanup in case of error
         if (tempDir) fs.promises.rm(tempDir, { recursive: true, force: true }).catch(console.error);
 
-        return NextResponse.json({ error: "Internal Render Error" }, { status: 500 });
+        // Return specific error message for debugging
+        return NextResponse.json({
+            error: "Internal Render Error",
+            details: e.message || String(e)
+        }, { status: 500 });
     }
 }

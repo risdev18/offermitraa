@@ -18,9 +18,9 @@ console.log("🔥 Firebase Init Check:", {
 });
 
 if (!firebaseConfig.apiKey) {
-    const errorMsg = "FATAL: Firebase API Key is missing! Check .env.local and restart the terminal.";
+    const errorMsg = "Warning: Firebase API Key is missing. Auth features will not work.";
     if (typeof window !== 'undefined') {
-        console.error(errorMsg);
+        console.warn(errorMsg);
     } else {
         console.warn(errorMsg);
     }

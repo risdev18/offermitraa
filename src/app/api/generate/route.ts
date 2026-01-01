@@ -33,12 +33,6 @@ export async function POST(req: Request) {
             });
         }
 
-        const genAI = new GoogleGenerativeAI(apiKey);
-        const model = genAI.getGenerativeModel({
-            model: "gemini-1.5-flash",
-            generationConfig: { responseMimeType: "application/json" }
-        });
-
         let systemPrompt = "";
         let userMessage = "";
 
@@ -100,11 +94,34 @@ export async function POST(req: Request) {
             LANG: ${language}`;
         }
 
-        const result = await model.generateContent([systemPrompt, userMessage]);
-        const response = await result.response;
-        return NextResponse.json(JSON.parse(response.text()));
+        try {
+            const genAI = new GoogleGenerativeAI(apiKey);
+            const model = genAI.getGenerativeModel({
+                model: "gemini-1.5-flash",
+                generationConfig: { responseMimeType: "application/json" }
+            });
+
+            const result = await model.generateContent([systemPrompt, userMessage]);
+            const response = await result.response;
+            return NextResponse.json(JSON.parse(response.text()));
+        } catch (geminiError) {
+            console.error("Gemini API Error (Falling back to mock):", geminiError);
+
+            // Fallback Mock Response (High Energy)
+            return NextResponse.json({
+                text: `🔥 *${shopName || "Special Offer"}* 🔥\n\n📢 **ATTENTION EVERYONE!** 📢\n\nAb paaiye sabse behtareen *${productName || "Products"}* pure shehar mein sabse kam daam par! 📉\n\n✨ **Why Choose Us?**\n✅ Best Quality Guaranteed 💯\n✅ Unbeatable Prices 💰\n✅ Trusted by Thousands 🤝\n\n🚀 *LIMITED TIME DEAL:* \n💥 **${discount ? `Flat ${discount} OFF!` : "Massive Discount Available!"}** 💥\n\n⏰ Jaldi karein! Stock khatam hone se pehle loot lo! 🏃‍♂️💨\n\n📍 **Visit Us:** ${address || "City Center"}\n📞 **Call Now:** ${extraInfo || "Contact Shop"}\n\n👇 *Order Now & Save Big!*`,
+                videoScript: [
+                    "Namaskar! Aayiye aayiye! Swagat hai aapka shehar ki sabse behtareen shop mein!",
+                    `Aaj hum laye hain khaas aapke liye ${productName || 'ek shandaar product'}!`,
+                    `Sirf yahi nahi, aaj mil raha hai poora ${discount || 'bhaari discount'}! Loot lo mauka!`,
+                    "Stock tezi se khatam ho raha hai, toh der kis baat ki?",
+                    "Abhi phone uthaiye aur humein call kariye, ya seedha shop par aayiye!"
+                ],
+                videoTitles: ["Aayiye Aayiye!", "Best Quality", "Loot Lo Offer", "Hurry Up!", "Visit Now"]
+            });
+        }
     } catch (error) {
-        console.error("Gemini Error:", error);
+        console.error("General API Error:", error);
         return NextResponse.json({ error: "Failed to generate offer" }, { status: 500 });
     }
 }

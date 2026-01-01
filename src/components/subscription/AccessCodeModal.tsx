@@ -55,65 +55,87 @@ export default function AccessCodeModal({ isOpen, onClose }: AccessCodeModalProp
                 </div>
 
                 <div className="p-6 space-y-6">
+                    {/* Plans Grid */}
+                    <div className="grid grid-cols-1 gap-3">
+                        <div className="p-4 rounded-2xl border-2 border-slate-100 hover:border-indigo-100 transition-all cursor-pointer group relative overflow-hidden">
+                            <div className="flex justify-between items-center relative z-10">
+                                <div>
+                                    <h3 className="font-bold text-slate-700">Monthly Plan</h3>
+                                    <p className="text-xs text-slate-400">Perfect for starters</p>
+                                </div>
+                                <div className="text-right">
+                                    <div className="text-xl font-black text-indigo-600">₹99</div>
+                                    <div className="text-[10px] text-slate-400">/month</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="p-4 rounded-2xl border-2 border-slate-100 hover:border-indigo-100 transition-all cursor-pointer group relative overflow-hidden">
+                            <div className="flex justify-between items-center relative z-10">
+                                <div>
+                                    <h3 className="font-bold text-slate-700">6 Months</h3>
+                                    <p className="text-xs text-slate-400">Save 20% instantly</p>
+                                </div>
+                                <div className="text-right">
+                                    <div className="text-xl font-black text-indigo-600">₹469</div>
+                                    <div className="text-[10px] text-slate-400">/6 months</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="p-4 rounded-2xl border-2 border-amber-400 bg-amber-50/50 hover:bg-amber-50 transition-all cursor-pointer relative overflow-hidden">
+                            <div className="absolute top-0 right-0 bg-amber-400 text-white text-[10px] font-black px-2 py-1 rounded-bl-xl uppercase tracking-widest">
+                                Best Value
+                            </div>
+                            <div className="flex justify-between items-center relative z-10">
+                                <div>
+                                    <h3 className="font-bold text-amber-900">Yearly Pro</h3>
+                                    <p className="text-xs text-amber-700/70">Maximum savings</p>
+                                </div>
+                                <div className="text-right">
+                                    <div className="text-2xl font-black text-amber-600">₹949</div>
+                                    <div className="text-[10px] text-amber-700/50">/year</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     {/* Access Code Form */}
-                    <form onSubmit={handleSubmit} className="space-y-4">
+                    <form onSubmit={handleSubmit} className="space-y-4 pt-4 border-t border-dashed">
                         <div>
-                            <label className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 block">
-                                Enter Access Code
+                            <label className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 block flex justify-between">
+                                <span>Have a Code?</span>
+                                <a href="https://wa.me/919876543210?text=I%20want%20to%20buy%20OfferMitra%20Pro" target="_blank" className="text-indigo-500 hover:text-indigo-600">Buy Code on WhatsApp &rarr;</a>
                             </label>
-                            <input
-                                type="text"
-                                value={code}
-                                onChange={(e) => setCode(e.target.value.toUpperCase())}
-                                placeholder="e.g. OM-PRO-XXXXX"
-                                className="w-full bg-slate-50 border-2 border-slate-100 rounded-xl px-4 py-3 text-lg font-mono font-bold text-center focus:border-indigo-500 outline-none transition-all"
-                                disabled={status.type === 'loading' || status.type === 'success'}
-                            />
+                            <div className="flex gap-2">
+                                <input
+                                    type="text"
+                                    value={code}
+                                    onChange={(e) => setCode(e.target.value.toUpperCase())}
+                                    placeholder="Enter Code Here"
+                                    className="flex-1 bg-slate-50 border-2 border-slate-100 rounded-xl px-4 py-3 text-sm font-mono font-bold uppercase focus:border-indigo-500 outline-none transition-all"
+                                    disabled={status.type === 'loading' || status.type === 'success'}
+                                />
+                                <button
+                                    type="submit"
+                                    disabled={status.type === 'loading' || status.type === 'success' || !code}
+                                    className="bg-indigo-600 hover:bg-indigo-700 disabled:bg-slate-200 text-white font-bold px-6 rounded-xl shadow-lg shadow-indigo-100 transition-all flex items-center justify-center"
+                                >
+                                    {status.type === 'loading' ? (
+                                        <Loader2 className="w-5 h-5 animate-spin" />
+                                    ) : status.type === 'success' ? (
+                                        <Check className="w-5 h-5" />
+                                    ) : "Unlock"}
+                                </button>
+                            </div>
                         </div>
 
                         {status.message && (
-                            <p className={`text-center text-sm font-medium ${status.type === 'success' ? 'text-green-600' : 'text-red-500'}`}>
+                            <p className={`text-center text-xs font-bold ${status.type === 'success' ? 'text-green-600' : 'text-red-500'}`}>
                                 {status.message}
                             </p>
                         )}
-
-                        <button
-                            type="submit"
-                            disabled={status.type === 'loading' || status.type === 'success' || !code}
-                            className="w-full bg-indigo-600 hover:bg-indigo-700 disabled:bg-slate-200 text-white font-bold py-4 rounded-xl shadow-lg shadow-indigo-100 transition-all flex items-center justify-center gap-2"
-                        >
-                            {status.type === 'loading' ? (
-                                <Loader2 className="w-5 h-5 animate-spin" />
-                            ) : status.type === 'success' ? (
-                                <Check className="w-5 h-5" />
-                            ) : "Unlock Now"}
-                        </button>
                     </form>
-
-                    <div className="relative">
-                        <div className="absolute inset-0 flex items-center">
-                            <div className="w-full border-t border-gray-100"></div>
-                        </div>
-                        <div className="relative flex justify-center text-xs uppercase">
-                            <span className="bg-white px-2 text-gray-400 font-bold">OR</span>
-                        </div>
-                    </div>
-
-                    {/* Buy Section */}
-                    <div className="text-center space-y-4 pb-2">
-                        <p className="text-sm text-gray-500">Don't have a code yet?</p>
-                        <a
-                            href="https://forms.gle/your-google-form-link" // Replace with actual link
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="inline-flex items-center gap-2 text-indigo-600 font-bold hover:text-indigo-800 transition-colors"
-                        >
-                            Get Pro Access Code <ExternalLink className="w-4 h-4" />
-                        </a>
-                        <p className="text-[10px] text-gray-400 mt-2">
-                            Manual payment via UPI handled on the next page.
-                        </p>
-                    </div>
                 </div>
 
                 <button

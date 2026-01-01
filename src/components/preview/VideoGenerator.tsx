@@ -2,7 +2,7 @@
 
 import { motion, AnimatePresence } from "framer-motion";
 import { useRef, useState, useEffect } from "react";
-import { Sparkles, ShoppingBag, Music, Volume2, VolumeX, Download, Share2, MapPin, Phone } from "lucide-react";
+import { Sparkles, ShoppingBag, Music, Volume2, VolumeX, Download, Share2, MapPin, Phone, Link as LinkIcon } from "lucide-react";
 import { toPng } from "html-to-image";
 import { cn } from "@/lib/utils";
 
@@ -135,40 +135,48 @@ export default function VideoGenerator({
                 let voices = window.speechSynthesis.getVoices();
 
                 const applyVoice = () => {
-                    // Try to find a Deep/Male voice for Amitabh-style impact
-                    const hindiVoice = voices.find(v =>
-                        (v.lang.startsWith('hi') || v.name.includes('Hindi')) &&
-                        (v.name.includes('Male') || v.name.includes('Premium')) &&
-                        !v.name.includes('English')
-                    ) || voices.find(v => (v.lang.startsWith('hi') || v.name.includes('Hindi')));
-
-                    const indianEng = voices.find(v => v.lang.includes('en-IN') && v.name.includes('Male')) ||
-                        voices.find(v => v.lang.includes('en-IN'));
+                    // PRIORITIZE PREMIUM/NATURAL VOICES (Neural voices sound human)
+                    // Windows: Microsoft Madhur (Hindi), Microsoft Hemant (Hindi)
+                    // Google: Google Hindi, Google UK English Male
 
                     const isHindiRequest = language === 'hi' || language === 'hindi' || language === 'hinglish';
-                    const isPureEnglish = language === 'english';
 
-                    if (isHindiRequest && hindiVoice) {
-                        utterance.voice = hindiVoice;
-                        utterance.lang = "hi-IN";
-                    } else if (isHindiRequest && language === 'hinglish') {
-                        // Hinglish (Roman Script) needs en-IN male to sound like Indian speaking Hindi
-                        utterance.voice = indianEng || voices[0];
-                        utterance.lang = "en-IN";
-                    } else if (isHindiRequest) {
-                        utterance.lang = "hi-IN";
+                    let selectedVoice = null;
+
+                    if (isHindiRequest) {
+                        // Look for Deep Hindi Male Neural voices first
+                        selectedVoice = voices.find(v => v.name.includes('Neural') && v.lang.startsWith('hi')) ||
+                            voices.find(v => v.name.includes('Natural') && v.lang.startsWith('hi')) ||
+                            voices.find(v => v.name.includes('Google') && v.lang.startsWith('hi')) ||
+                            voices.find(v => v.name.includes('Male') && v.lang.startsWith('hi')) ||
+                            voices.find(v => v.lang.startsWith('hi'));
                     } else {
-                        utterance.voice = indianEng || voices[0];
-                        utterance.lang = "en-IN";
+                        // Look for Deep English Male Neural voices (Indian or US)
+                        selectedVoice = voices.find(v => v.name.includes('Neural') && v.lang.includes('IN') && v.name.includes('Male')) ||
+                            voices.find(v => v.name.includes('Natural') && v.lang.includes('IN')) ||
+                            voices.find(v => v.name.includes('Google India') && v.name.includes('Male')) ||
+                            voices.find(v => v.name.includes('Microsoft David')) ||
+                            voices.find(v => v.lang.includes('en-IN') && v.name.includes('Male')) ||
+                            voices.find(v => v.lang.includes('en-US') && v.name.includes('Male'));
                     }
 
-                    // HIGH ENERGY STYLE: Fast and professional
-                    utterance.rate = 1.45;
-                    utterance.pitch = 0.95;
+                    if (selectedVoice) {
+                        utterance.voice = selectedVoice;
+                        utterance.lang = selectedVoice.lang;
+                    } else {
+                        utterance.lang = isHindiRequest ? "hi-IN" : "en-IN";
+                    }
+
+                    // HIGH ENERGY & DEEP VOCAL
+                    // Rate 1.6 - 1.8 is the sweet spot for professional fast ads
+                    // Pitch 0.85 gives that "Amitabh" style deep base
+                    utterance.rate = 1.7;
+                    utterance.pitch = 0.85;
+                    utterance.volume = 1;
 
                     utterance.onend = () => {
                         setIsSceneLocked(false);
-                        const pauseTime = 300; // Faster transition
+                        const pauseTime = 150; // Ultra fast transitions
                         setTimeout(nextScene, pauseTime);
                     };
 
@@ -365,6 +373,42 @@ export default function VideoGenerator({
                 </button>
                 <button
                     onClick={async () => {
+                        const data = {
+                            offerText,
+                            productName,
+                            discount,
+                            shopType,
+                            shopName,
+                            language,
+                            address,
+                            contactNumber,
+                            videoScript,
+                            videoTitles
+                        };
+                        const encoded = btoa(JSON.stringify(data));
+                        const shareUrl = `${window.location.origin}/v/${encodeURIComponent(encoded)}`;
+
+                        if (navigator.share) {
+                            try {
+                                await navigator.share({
+                                    title: `${shopName || 'Business'} Special Offer`,
+                                    text: 'Check out this video ad for our new offer!',
+                                    url: shareUrl
+                                });
+                            } catch (e) {
+                                console.log("Share failed", e);
+                            }
+                        } else {
+                            await navigator.clipboard.writeText(shareUrl);
+                            alert("Video Link copied to clipboard! 🔗\nYou can now paste it in WhatsApp.");
+                        }
+                    }}
+                    className="flex-1 bg-indigo-600 text-white py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-lg hover:bg-indigo-700 transition-all flex items-center justify-center gap-2"
+                >
+                    <LinkIcon className="w-3 h-3" /> Video Link
+                </button>
+                <button
+                    onClick={async () => {
                         const element = bannerRef.current;
                         if (!element) return;
                         setIsCapturing(true);
@@ -396,7 +440,7 @@ export default function VideoGenerator({
                     }}
                     className="flex-1 bg-green-500 text-white py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-lg hover:bg-green-600 transition-all flex items-center justify-center gap-2"
                 >
-                    <Share2 className="w-3 h-3" /> WhatsApp Ad
+                    <Share2 className="w-3 h-3" /> WhatsApp
                 </button>
             </div>
         </div>

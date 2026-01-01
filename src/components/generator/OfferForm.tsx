@@ -16,9 +16,10 @@ interface OfferFormProps {
     isGenerating: boolean;
     isPro?: boolean;
     defaultValues?: any;
+    usageCount?: number;
 }
 
-export default function OfferForm({ onGenerate, isGenerating, isPro, defaultValues }: OfferFormProps) {
+export default function OfferForm({ onGenerate, isGenerating, isPro, defaultValues, usageCount = 0 }: OfferFormProps) {
     const { register, handleSubmit, setValue, watch, reset, formState: { errors } } = useForm({
         defaultValues: defaultValues || {}
     });
@@ -194,7 +195,10 @@ export default function OfferForm({ onGenerate, isGenerating, isPro, defaultValu
                     <button
                         key={lang}
                         type="button"
-                        onClick={() => setLanguage(lang)}
+                        onClick={() => {
+                            setLanguage(lang);
+                            localStorage.setItem("om_language", lang);
+                        }}
                         className={cn(
                             "flex-1 py-3 text-[10px] font-black rounded-xl transition-all uppercase tracking-widest",
                             language === lang
@@ -233,6 +237,20 @@ export default function OfferForm({ onGenerate, isGenerating, isPro, defaultValu
                 )}
                 <div className="absolute inset-0 bg-white/20 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000 skew-x-12" />
             </button>
+            <div className="text-center mt-4">
+                <p className={cn(
+                    "text-xs font-black uppercase tracking-widest",
+                    isPro ? "text-emerald-500" : "text-slate-400"
+                )}>
+                    {isPro ? (
+                        <span className="flex items-center justify-center gap-1">✨ Unlimited Pro Access Active</span>
+                    ) : (
+                        <span className="flex items-center justify-center gap-1">
+                            Free Limit: <span className="text-indigo-500">{3 - usageCount}</span> / 3 Left
+                        </span>
+                    )}
+                </p>
+            </div>
 
         </form>
     );

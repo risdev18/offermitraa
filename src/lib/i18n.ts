@@ -1,2 +1,89 @@
-// Simple i18n placeholder
-export const t = (key: string) => key;
+export type Language = 'hindi' | 'hinglish' | 'english';
+
+const translations = {
+    hindi: {
+        'history': 'पुराना इतिहास',
+        'your_history': 'आपका इतिहास',
+        'previous_generations': 'पिछले विज्ञापन',
+        'no_history': 'अभी तक कोई इतिहास नहीं है',
+        'create_first': 'अपना पहला विज्ञापन बनाएं',
+        're_view': 'फिर से देखें',
+        'clear_all': 'सब मिटाएं',
+        'delete': 'हटाएं',
+        'offer_mitra_success': 'ऑफरमित्रा सफलता',
+        'ai_marketing_suite': 'AI मार्केटिंग सुइट',
+        'start_now_free': 'अभी शुरू करें - बिल्कुल मुफ्त 🚀',
+        'viral_marketing_lab': 'वायरल मार्केटिंग लैब',
+        'powered_by_ai': 'एडवांस AI द्वारा संचालित',
+        'customer_support': 'कस्टमर सपोर्ट',
+        'network_active': 'नेटवर्क एक्टिव',
+        'copy': 'कॉपी',
+        'copied': 'कॉपी हो गया! 📋',
+        'whatsapp_send': 'WhatsApp पर भेजें',
+        'viral_offer': 'वायरल ऑफर बनाएं',
+        'dashboard': 'डैशबोर्ड',
+        'activate_pro': 'Pro एक्टिवेट करें',
+        'admin': 'एडमिन',
+        'msg': 'मैसेज',
+        'banner': 'पोस्टर',
+        'video': 'वीडियो'
+    },
+    hinglish: {
+        'history': 'Purana History',
+        'your_history': 'Aapki History',
+        'previous_generations': 'Pichle Ads',
+        'no_history': 'Abhi tak koi history nahi hai',
+        'create_first': 'Apna pehla ad banayein',
+        're_view': 'Phir se dekhein',
+        'clear_all': 'Sab mitayein',
+        'delete': 'Hatayein',
+        'offer_mitra_success': 'OfferMitra Success',
+        'ai_marketing_suite': 'AI Marketing Suite',
+        'start_now_free': 'Abhi start karein - Bilkul Free 🚀',
+        'viral_marketing_lab': 'Viral Marketing Lab',
+        'powered_by_ai': 'Powered by Advance AI',
+        'customer_support': 'Customer Support',
+        'network_active': 'Network Active',
+        'copy': 'Copy',
+        'copied': 'Copy ho gaya! 📋',
+        'whatsapp_send': 'WhatsApp par bhejein',
+        'viral_offer': 'Viral Offer Banayein',
+        'dashboard': 'Dashboard',
+        'activate_pro': 'Activate Pro',
+        'admin': 'Admin',
+        'msg': 'Message',
+        'banner': 'Poster',
+        'video': 'Video'
+    },
+    english: {
+        'history': 'History',
+        'your_history': 'Your History',
+        'previous_generations': 'Previous Ads',
+        'no_history': 'No history yet',
+        'create_first': 'Create Your First Ad',
+        're_view': 'Re-View',
+        'clear_all': 'Clear All',
+        'delete': 'Delete',
+        'offer_mitra_success': 'OfferMitra SUCCESS',
+        'ai_marketing_suite': 'AI Marketing Suite',
+        'start_now_free': 'Start Now - It\'s Free 🚀',
+        'viral_marketing_lab': 'Viral Marketing Lab',
+        'powered_by_ai': 'Powered by Advance AI',
+        'customer_support': 'Customer Support',
+        'network_active': 'Network Active',
+        'copy': 'Copy',
+        'copied': 'Copied to clipboard! 📋',
+        'whatsapp_send': 'Send on WhatsApp',
+        'viral_offer': 'Create Viral Offer',
+        'dashboard': 'Dashboard',
+        'activate_pro': 'Activate Pro',
+        'admin': 'Admin',
+        'msg': 'Message',
+        'banner': 'Poster',
+        'video': 'Video'
+    }
+};
+
+export const t = (key: string, lang: Language = 'hinglish') => {
+    return translations[lang]?.[key as keyof typeof translations['english']] || key;
+};

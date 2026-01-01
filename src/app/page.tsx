@@ -14,6 +14,7 @@ import { db } from "@/lib/firebase";
 import { collection, addDoc } from "firebase/firestore";
 import { cn } from "@/lib/utils";
 import { getBusinessType, BusinessType, getBusinessConfig } from "@/lib/businessTypes";
+import { t, Language } from "@/lib/i18n";
 
 export default function Home() {
   const { usageCount, isPro, loading, incrementUsage } = useAccess();
@@ -26,6 +27,13 @@ export default function Home() {
   const [videoTitles, setVideoTitles] = useState<string[] | undefined>(undefined);
   const [outputMode, setOutputMode] = useState<'banner' | 'video'>('banner');
   const [trackedReach, setTrackedReach] = useState(0);
+  const [historyCount, setHistoryCount] = useState(0);
+  const [language, setLanguage] = useState<Language>('hinglish');
+
+  useEffect(() => {
+    const history = JSON.parse(localStorage.getItem("om_history") || "[]");
+    setHistoryCount(history.length);
+  }, []);
 
   const handleShareTrack = () => {
     setTrackedReach(prev => prev + Math.floor(Math.random() * 50) + 10);
@@ -49,6 +57,12 @@ export default function Home() {
       if (savedData) setLastInputData(JSON.parse(savedData));
       if (savedScript) setVideoScript(JSON.parse(savedScript));
       if (savedTitles) setVideoTitles(JSON.parse(savedTitles));
+
+      const savedMode = localStorage.getItem("om_output_mode");
+      if (savedMode) setOutputMode(savedMode as any);
+
+      const savedLang = localStorage.getItem("om_language");
+      if (savedLang) setLanguage(savedLang as Language);
     } catch (e) {
       console.warn("Failed to restore session");
     }
@@ -86,6 +100,24 @@ export default function Home() {
         setVideoScript(result.videoScript);
         setVideoTitles(result.videoTitles);
         incrementUsage();
+
+        // Save to local history
+        try {
+          const history = JSON.parse(localStorage.getItem("om_history") || "[]");
+          const newItem = {
+            id: Date.now().toString(),
+            offerText: result.text,
+            inputData: data,
+            videoScript: result.videoScript,
+            videoTitles: result.videoTitles,
+            timestamp: new Date().toISOString()
+          };
+          const updatedHistory = [newItem, ...history].slice(0, 50); // Keep last 50
+          localStorage.setItem("om_history", JSON.stringify(updatedHistory));
+          setHistoryCount(updatedHistory.length);
+        } catch (e) {
+          console.warn("Local history save failed", e);
+        }
 
         try {
           // Log to global history (Crores of Data Optimized)
@@ -211,13 +243,29 @@ export default function Home() {
 
           <div className="flex items-center gap-2 md:gap-4 shrink-0">
             <button
+              onClick={() => window.location.href = '/history'}
+              className={cn(
+                "flex items-center gap-2 px-3 md:px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all",
+                isPro ? "bg-slate-900 text-slate-400 hover:text-white border border-white/5" : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+              )}
+              title={t('history', language)}
+            >
+              <Calendar className="w-4 h-4 md:hidden text-indigo-500" />
+              <span className="hidden md:inline">{t('history', language)}</span>
+              {historyCount > 0 && (
+                <span className="bg-indigo-500 text-white w-4 h-4 rounded-full flex items-center justify-center text-[8px]">
+                  {historyCount}
+                </span>
+              )}
+            </button>
+            <button
               onClick={() => window.location.href = '/admin'}
               className={cn(
                 "hidden sm:block px-4 md:px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all",
                 isPro ? "bg-slate-900 text-slate-400 hover:text-white border border-white/5" : "bg-slate-100 text-slate-600 hover:bg-slate-200"
               )}
             >
-              Admin
+              {t('admin', language)}
             </button>
             <button
               onClick={() => setShowAccessModal(true)}
@@ -228,7 +276,7 @@ export default function Home() {
                   : "bg-indigo-600 text-white shadow-indigo-500/20 hover:bg-indigo-700"
               )}
             >
-              {isPro ? "Dashboard" : "Activate Pro"}
+              {isPro ? t('dashboard', language) : t('activate_pro', language)}
             </button>
           </div>
         </div>
@@ -263,7 +311,7 @@ export default function Home() {
             </div>
           </div>
 
-          <OfferForm onGenerate={handleGenerate} isGenerating={isGenerating} isPro={isPro} defaultValues={lastInputData} />
+          <OfferForm onGenerate={handleGenerate} isGenerating={isGenerating} isPro={isPro} defaultValues={lastInputData} usageCount={usageCount} />
         </div>
 
         {/* RESULTS SECTION */}
@@ -476,12 +524,12 @@ export default function Home() {
         <footer className="mt-32 pb-16 text-center">
           <div className="w-16 h-1 bg-gradient-to-r from-transparent via-indigo-500/20 to-transparent mx-auto mb-8" />
           <p className="text-[10px] font-black uppercase tracking-[0.8em] text-indigo-500/40">
-            Powered by Advance AI
+            {t('powered_by_ai', language)}
           </p>
           <div className="mt-8 space-y-2">
             <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest flex items-center justify-center gap-2">
               <span className="w-1 h-1 rounded-full bg-slate-800" />
-              Customer Support
+              {t('customer_support', language)}
             </p>
             <a
               href="mailto:rishabhsonawane2007@gmail.com"
@@ -492,7 +540,7 @@ export default function Home() {
           </div>
           <div className="flex items-center justify-center gap-6 mt-10">
             <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-            <span className="text-[10px] font-bold text-slate-500 opacity-50 uppercase tracking-widest">Network Active</span>
+            <span className="text-[10px] font-bold text-slate-500 opacity-50 uppercase tracking-widest">{t('network_active', language)}</span>
           </div>
         </footer>
 

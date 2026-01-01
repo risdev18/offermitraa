@@ -252,7 +252,7 @@ export default function Home() {
             </div>
           </div>
 
-          <OfferForm onGenerate={handleGenerate} isGenerating={isGenerating} isPro={isPro} />
+          <OfferForm onGenerate={handleGenerate} isGenerating={isGenerating} isPro={isPro} defaultValues={lastInputData} />
         </div>
 
         {/* RESULTS SECTION */}

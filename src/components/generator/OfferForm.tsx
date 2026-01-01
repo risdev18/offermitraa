@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { Send, Wand2, Store, Tag, Loader2, Phone, Calendar, MapPin } from "lucide-react";
 import { ShopType, OfferType, Language } from "@/types";
@@ -15,11 +15,23 @@ interface OfferFormProps {
     onGenerate: (data: any) => void;
     isGenerating: boolean;
     isPro?: boolean;
+    defaultValues?: any;
 }
 
-export default function OfferForm({ onGenerate, isGenerating, isPro }: OfferFormProps) {
-    const { register, handleSubmit, setValue, watch, formState: { errors } } = useForm();
+export default function OfferForm({ onGenerate, isGenerating, isPro, defaultValues }: OfferFormProps) {
+    const { register, handleSubmit, setValue, watch, reset, formState: { errors } } = useForm({
+        defaultValues: defaultValues || {}
+    });
+
     const [language, setLanguage] = useState<Language>('hinglish');
+
+    // Update form when defaultValues load from localStorage
+    useEffect(() => {
+        if (defaultValues) {
+            reset(defaultValues);
+            if (defaultValues.language) setLanguage(defaultValues.language);
+        }
+    }, [defaultValues, reset]);
     const [showContactField, setShowContactField] = useState(false);
 
     const businessType = getBusinessType();

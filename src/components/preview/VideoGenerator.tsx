@@ -453,7 +453,7 @@ export default function VideoGenerator({
 
                         } catch (e) {
                             console.error("Video generation failed", e);
-                            alert("Video generation failed. Please ensure FFmpeg is installed on the server hosting this app.");
+                            alert("Video generation failed. Please try again later.");
                         } finally {
                             setIsCapturing(false);
                             setScene(0);

@@ -284,7 +284,7 @@ export default function VideoGenerator({
         }
     };
 
-    const onShare = async () => {
+    const handleShare = async () => {
         try {
             const data = {
                 offerText, productName, discount, shopType, shopName,
@@ -301,14 +301,17 @@ export default function VideoGenerator({
                         text: 'Check out this video ad for our new offer!',
                         url: shareUrl
                     });
+                    onShare?.();
                 } catch (e) {
                     console.log("Share failed", e);
                     await navigator.clipboard.writeText(shareUrl);
                     alert("Video Link copied to clipboard! 🔗\nYou can now paste it in WhatsApp.");
+                    onShare?.();
                 }
             } else {
                 await navigator.clipboard.writeText(shareUrl);
                 alert("Video Link copied to clipboard! 🔗\nYou can now paste it in WhatsApp.");
+                onShare?.();
             }
         } catch (err) {
             console.error("Error generating share link:", err);
@@ -419,7 +422,7 @@ export default function VideoGenerator({
                 </button>
 
                 <button
-                    onClick={onShare}
+                    onClick={handleShare}
                     className="flex items-center gap-2 px-6 py-4 bg-pink-600 hover:bg-pink-700 text-white rounded-2xl font-black uppercase tracking-widest text-xs transition-all shadow-lg hover:shadow-pink-500/30"
                 >
                     <Share2 className="w-4 h-4" />

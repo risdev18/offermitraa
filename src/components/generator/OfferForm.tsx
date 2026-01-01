@@ -152,6 +152,37 @@ export default function OfferForm({ onGenerate, isGenerating, isPro, defaultValu
                 {errors.productName && <p className="text-red-500 text-xs font-black mt-1">✗ प्रोडक्ट का नाम ज़रूरी है</p>}
             </div>
 
+            {/* Product Image Input */}
+            <div className="space-y-1">
+                <label className={labelClasses}>
+                    <img src="https://cdn-icons-png.flaticon.com/512/83/83574.png" alt="img" className="w-5 h-5 invert" />
+                    प्रोडक्ट फोटो (Optional)
+                </label>
+                <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                            if (file.size > 5000000) { // 5MB limit
+                                alert("File is too big! Please select an image under 5MB.");
+                                e.target.value = "";
+                                return;
+                            }
+                            const reader = new FileReader();
+                            reader.onloadend = () => {
+                                setValue("productImage", reader.result as string);
+                            };
+                            reader.readAsDataURL(file);
+                        }
+                    }}
+                    className={cn(inputClasses, "file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100")}
+                />
+                <p className={cn("text-xs font-bold mt-1", isPro ? "text-slate-400" : "text-slate-600")}>
+                    Note: Photo will show in the video ad!
+                </p>
+            </div>
+
             {/* Discount */}
             <div className="space-y-1">
                 <label className={labelClasses}>डिस्काउंट / ऑफर</label>

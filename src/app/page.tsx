@@ -453,6 +453,7 @@ export default function Home() {
                       videoScript={videoScript}
                       videoTitles={videoTitles}
                       onShare={handleShareTrack}
+                      productImage={lastInputData?.productImage}
                     />
                   )}
                 </div>

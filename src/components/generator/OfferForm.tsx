@@ -164,6 +164,23 @@ export default function OfferForm({ onGenerate, isGenerating, isPro, defaultValu
                 <p className={cn("text-xs font-bold mt-1", isPro ? "text-slate-400" : "text-slate-600")}>💡 Tip: ₹99 converts better than ₹100</p>
             </div>
 
+            {/* Festival / Occasion Input */}
+            <div className="space-y-1">
+                <label className={labelClasses}>
+                    <Calendar className="w-5 h-5 text-pink-500" />
+                    त्यौहार / अवसर (Festival/Occasion)
+                </label>
+                <input
+                    type="text"
+                    placeholder="Ex: Holi, Diwali, New Year, Wedding Season..."
+                    {...register("festival")}
+                    className={inputClasses}
+                />
+                <p className={cn("text-xs font-bold mt-1", isPro ? "text-slate-400" : "text-slate-600")}>
+                    Note: Mention this to make video ads 10x more engaging!
+                </p>
+            </div>
+
             {/* Extra Info & Store Link */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-1">

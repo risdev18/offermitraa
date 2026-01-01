@@ -3,33 +3,35 @@ import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {
     try {
-        const { shopName, productName, discount, extraInfo, language, address, catalogLink, businessType, cta } = await req.json();
+        const { shopName, productName, discount, extraInfo, language, address, catalogLink, businessType, cta, festival } = await req.json();
         const isChat = extraInfo?.includes("Chat interaction");
 
         const apiKey = process.env.GEMINI_API_KEY;
         if (!apiKey || apiKey === "your_api_key_here") {
-            // Mock Response for Demo/Guest Mode
-            await new Promise(resolve => setTimeout(resolve, 1000)); // Fake delay
+            // Mock Response (Updated for Festival Support)
+            await new Promise(resolve => setTimeout(resolve, 1000));
 
             if (isChat) {
                 if (productName.toLowerCase().includes("happy new year")) {
-                    return NextResponse.json({ text: "✨ Happy New Year! 🎆 May this year bring massive growth and success to your business. How can I help you plan your New Year marketing today? 🚀" });
+                    return NextResponse.json({ text: "✨ Happy New Year! 🎆 May this year bring massive growth. How can I help you plan your New Year marketing today? 🚀" });
                 }
                 return NextResponse.json({
                     text: `I understand you're asking about "${productName}". As your Rishabh AI assistant, I recommend running a limited-time offer to boost engagement! Shall we create a poster for this?`
                 });
             }
 
+            const mockFestivalLine = festival ? `🎉 *${festival} Special Offer!* 🎉` : `✨ *${shopName || "Special Offer"}* ✨`;
+
             return NextResponse.json({
-                text: `✨ *${shopName || "Special Offer"}* ✨\n\nAb paaiye *${productName || "Behtareen Products"}* behtareen daamo par!\n\n🔥 ${discount ? `Flat ${discount} OFF!` : "Dhamaka Offer!"}\n📍 ${address || "Visit us today"}\n\nJaldi aayein! 🏃‍♂️💨`,
+                text: `${mockFestivalLine}\n\nAb paaiye *${productName || "Behtareen Products"}* behtareen daamo par!\n\n🔥 ${discount ? `Flat ${discount} OFF!` : "Dhamaka Offer!"}\n📍 ${address || "Visit us today"}\n\nJaldi aayein! 🏃‍♂️💨`,
                 videoScript: [
-                    "Namaste! Hamare yahan aapko milega sabse sasta aur behtareen maal.",
+                    festival ? `Namaskar! ${festival} ki dher saari shubhkamnayein! Aayiye, aayiye!` : "Namaskar! Hamare yahan aapko milega sabse sasta aur behtareen maal.",
                     `Aaj hi hamari shop ${shopName || ''} par aayein aur payein dhero offers.`,
                     `Dhamaka sale shuru ho chuki hai, sirf ${productName || 'aapke liye'}.`,
                     "Stock khatam hone se pehle jaldi karein.",
                     "Humein call karein ya shop par visit karein. Dhanyawad!"
                 ],
-                videoTitles: ["Namaste!", "Welcome", "Mega Sale", "Hurry Up", "Visit Now"]
+                videoTitles: [festival || "Namaste!", "Welcome", "Mega Sale", "Hurry Up", "Visit Now"]
             });
         }
 
@@ -47,37 +49,36 @@ export async function POST(req: Request) {
             userMessage = `User said: "${productName}"\nRespond as Rishabh AI Assistant.`;
         } else {
             systemPrompt = `You are an expert Indian Retail Marketing Consultant and Copywriter.
-            YOUR GOAL: Generate a POWERFUL marketing message (6-7 lines) that instantly attracts customers and a 5-scene HIGH-ENERGY video script.
+            YOUR GOAL: Generate a POWERFUL, UNIQUE marketing message (6-7 lines) and a 5-scene HIGH-ENERGY video script tailored to the Specific Product and Occasion.
 
             STRICT TONE RULES:
-            - Use a "High Energy & Exciting" tone (e.g., "Dhamaka Offer", "Loot Lo", "Aayiye Aayiye").
-            - Use Consumer Psychology: Create FOMO (Fear Of Missing Out) and excitement.
-            - The text message must be SUBSTANTIAL (6-7 lines long) using emojis, bullets, and persuasive selling. It must look like a professional WhatsApp Business broadast.
+            - Use a "High Energy & Exciting" tone.
+            - **LOUD & CLEAR**: If a Festival is provided (e.g., Holi, Diwali, Eid), you MUST mention it loudly and enthusiastically in the FIRST START of the video and text (e.g., "HOLI HAI NAMASKAR!", "EID MUBARAK!").
+            - The text message must be SUBSTANTIAL (6-7 lines long), UNIQUE to the product, and persuasive. 
             
             OUTPUT FORMAT: Return a JSON object with exactly these fields:
             1. "text": (String) A POWERFUL 6-7 LINE marketing message. 
-               - Start with a catchy HOOK (e.g. 📢 ATTENTION).
+               - Start with a catchy HOOK related to the product or festival.
                - 2-3 lines describing the value/product benefits.
                - 1-2 lines on the discount/offer urgency.
-               - End with a strong Call to Action (Shop Name, Address, Link).
-            2. "videoScript": (Array of 5 strings) A unique script for 5 scenes based ON THE PRODUCT.
-               - Scene 1 MUST start with high energy: "Namaskar! Aayiye aayiye!" or "Hello! Big News!"
+               - End with a strong Call to Action.
+            2. "videoScript": (Array of 5 strings) A UNIQUE script for 5 scenes based ON THE PRODUCT.
+               - Scene 1 MUST start with high energy & Festival greeting if applicable: "Namaskar! Holi ki shubhkamnayein! Aayiye aayiye!"
                - Use words like "Boom!", "Dhamaka!", "Loot lo!" appropriate to the language.
             3. "videoTitles": (Array of 5 short strings) Catchy titles for each scene (max 3 words).
 
             IMPORTANT LANGUAGE RULES (STRICT ENFORCEMENT):
-            1. **TRANSLATION IS MANDATORY**: You must TRANSLATE the user's input content into the requested language.
-               - If Input is Hinglish/Hindi and Request is 'English' -> TRANSLATE to PURE ENGLISH.
+            1. **TRANSLATION IS MANDATORY**: Input text must be translated to the requested language.
             2. **Language Specifics**:
-               - 'English': 100% English. High energy keywords like "Mega Sale", "Grab it now".
+               - 'English': 100% English. High energy.
                - 'Hindi': 100% Hindi (Devanagari). Use "धमाका ऑफर", "लूट लो मौका".
                - 'Hinglish': Roman Hindi content. Use "Dhamaka Offer", "Loot Lo", "Aayiye Aayiye".
 
             CURRENT REQUEST LANGUAGE: "${language}"
 
             VIDEO SCRIPT RULES:
-            - Make it UNIQUE to "${productName}". 
-            - Scene 1: High Energy Welcome ("Aaiye Aaiye!").
+            - Make it UNIQUE to "${productName}". DO NOT reuse generic lines.
+            - Scene 1: High Energy Welcome + Festival Greeting.
             - Scene 2: Product Reveal (Best Quality).
             - Scene 3: The Offer (${discount} - "Loot lo!").
             - Scene 4: Urgency ("Abhi aao!").
@@ -90,6 +91,7 @@ export async function POST(req: Request) {
             PRODUCT: ${productName}
             DETAILS: ${extraInfo}
             OFFER: ${discount}
+            FESTIVAL: ${festival || "None"}
             CTA: ${cta}
             LANG: ${language}`;
         }

@@ -230,85 +230,150 @@ export default function VideoGenerator({
         setHasInteracted(true);
     };
 
+    const downloadVideo = async () => {
+        const element = bannerRef.current;
+        if (!element) return;
+
+        const confirm = window.confirm("Generate and Download Video File?\nThis takes about 15-20 seconds to render on the server.");
+        if (!confirm) return;
+
+        setIsCapturing(true); // Hide UI
+        setIsMuting(true); // Silence during capture
+        const capturedImages: string[] = [];
+
+        try {
+            // Loop through scenes and capture
+            for (let i = 0; i < 5; i++) {
+                setScene(i);
+                // Wait for render & animation
+                await new Promise(r => setTimeout(r, 1500));
+                const dataUrl = await toPng(element, { quality: 0.9, cacheBust: true });
+                capturedImages.push(dataUrl);
+            }
+
+            // Send to Server
+            const response = await fetch('/api/render-video', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    images: capturedImages,
+                    script: scenes.map(s => s.voiceText), // Use text from scenes
+                    language: language
+                })
+            });
+
+            if (!response.ok) throw new Error("Rendering failed on server. Ensure FFmpeg is installed.");
+
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `offer-mitra-${Date.now()}.mp4`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            alert("Video Downloaded! 🚀\nYou can now share it on WhatsApp!");
+
+        } catch (e) {
+            console.error("Video generation failed", e);
+            alert("Video generation failed. Please try again later.");
+        } finally {
+            setIsCapturing(false);
+            setScene(0);
+            setIsMuting(false); // Restore sound
+        }
+    };
+
+    const onShare = async () => {
+        try {
+            const data = {
+                offerText, productName, discount, shopType, shopName,
+                language, address, contactNumber, videoScript, videoTitles
+            };
+            const jsonString = JSON.stringify(data);
+            const encoded = btoa(unescape(encodeURIComponent(jsonString)));
+            const shareUrl = `${window.location.origin}/v/${encodeURIComponent(encoded)}`;
+
+            if (navigator.share) {
+                try {
+                    await navigator.share({
+                        title: `${shopName || 'Business'} Special Offer`,
+                        text: 'Check out this video ad for our new offer!',
+                        url: shareUrl
+                    });
+                } catch (e) {
+                    console.log("Share failed", e);
+                    await navigator.clipboard.writeText(shareUrl);
+                    alert("Video Link copied to clipboard! 🔗\nYou can now paste it in WhatsApp.");
+                }
+            } else {
+                await navigator.clipboard.writeText(shareUrl);
+                alert("Video Link copied to clipboard! 🔗\nYou can now paste it in WhatsApp.");
+            }
+        } catch (err) {
+            console.error("Error generating share link:", err);
+        }
+    };
+
     return (
-        <div ref={bannerRef} className="relative w-full max-w-[420px] aspect-[9/16] rounded-[3rem] overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.5)] bg-black mx-auto border-[6px] border-slate-900 group">
-            {/* Animated Background */}
-            <AnimatePresence mode="wait">
-                <motion.div
-                    key={scene}
-                    initial={{ opacity: 0, scale: 1.1 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.9 }}
-                    transition={{ duration: 0.6 }}
-                    className={cn("absolute inset-0 flex flex-col items-center justify-center text-center p-10", scenes[scene].bg)}
-                >
-                    {/* Dynamic High-Energy Stickers */}
+        <div className="flex flex-col items-center gap-6">
+            <div ref={bannerRef} className="relative w-full max-w-[420px] aspect-[9/16] rounded-[3rem] overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.5)] bg-black mx-auto border-[6px] border-slate-900 group">
+                {/* Animated Background */}
+                <AnimatePresence mode="wait">
                     <motion.div
-                        initial={{ scale: 0, rotate: -20 }}
-                        animate={{ scale: [1, 1.2, 1], rotate: [-20, -15, -20] }}
-                        transition={{ repeat: Infinity, duration: 1 }}
-                        className="absolute top-28 left-6 z-20 bg-yellow-400 text-black px-4 py-1 rounded-full font-black text-[10px] tracking-tighter shadow-xl border-2 border-black"
+                        key={scene}
+                        initial={{ opacity: 0, scale: 1.1 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.9 }}
+                        transition={{ duration: 0.6 }}
+                        className={cn("absolute inset-0 flex flex-col items-center justify-center text-center p-10", scenes[scene].bg)}
                     >
-                        {scene % 2 === 0 ? "🔥 LIVE" : "⚡ HOT"}
-                    </motion.div>
-
-                    <motion.div
-                        animate={scenes[scene].animation}
-                        transition={{ duration: 0.8, ease: "backOut" }} // Snappier animations
-                        className="relative z-10"
-                    >
-                        <div className="relative inline-block mb-4">
-                            <motion.div
-                                animate={{
-                                    scale: [1, 1.1, 1],
-                                    rotate: [-2, 2, -2]
-                                }}
-                                transition={{ repeat: Infinity, duration: 2 }}
-                            >
-                                {scenes[scene].icon}
-                            </motion.div>
-                            <motion.div
-                                animate={{ scale: [1, 1.4, 1] }}
-                                transition={{ repeat: Infinity, duration: 0.8 }}
-                                className="absolute -top-4 -right-4 bg-red-600 text-white w-10 h-10 rounded-full flex items-center justify-center text-[10px] font-black border-2 border-white shadow-lg"
-                            >
-                                DEAL
-                            </motion.div>
+                        {/* Video Progress Bars */}
+                        <div className="absolute top-8 left-8 right-8 flex gap-2 z-30">
+                            {[0, 1, 2, 3, 4].map((i) => (
+                                <div key={i} className="h-1 flex-1 bg-white/20 rounded-full overflow-hidden">
+                                    {scene === i && (
+                                        <motion.div
+                                            initial={{ width: "0%" }}
+                                            animate={{ width: "100%" }}
+                                            transition={{ duration: isMuting ? 5 : 9, ease: "linear" }}
+                                            className="h-full bg-yellow-400 shadow-[0_0_15px_#facc15]"
+                                        />
+                                    )}
+                                    {scene > i && <div className="h-full w-full bg-white" />}
+                                </div>
+                            ))}
                         </div>
-                        <h2 className={cn(
-                            "font-black text-white leading-tight mb-4 tracking-tighter drop-shadow-2xl uppercase",
-                            scenes[scene].title.length > 20 ? "text-2xl" : scenes[scene].title.length > 12 ? "text-4xl" : "text-6xl"
-                        )}>
-                            {scenes[scene].title}
-                        </h2>
+
                         <motion.div
-                            animate={{ scale: [1, 1.05, 1] }}
-                            transition={{ repeat: Infinity, duration: 1.5 }}
-                            className="inline-block px-10 py-4 bg-white text-black rounded-full font-black text-sm tracking-widest border-4 border-black/10 shadow-2xl transform skew-x-[-10deg]"
+                            animate={scenes[scene].animation}
+                            transition={{ duration: 0.8, ease: "backOut" }} // Snappier animations
+                            className="relative z-10"
                         >
-                            {scenes[scene].subtitle}
-                        </motion.div>
-                    </motion.div>
-
-                    {/* Footer Text */}
-                    <motion.div
-                        initial={{ opacity: 0, y: 30 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.7 }}
-                        className="absolute bottom-16 left-0 right-0 px-10 z-10"
-                    >
-                        <p className={cn(
-                            "text-white/90 font-bold leading-relaxed italic drop-shadow-md text-center",
-                            offerText.length > 100 ? "text-[10px]" : "text-xs"
-                        )}>
-                            "{offerText.slice(0, 500)}"
-                        </p>
-                    </motion.div>
-
-                    {/* Simulated UI Overlay */}
-                    <div className="absolute right-4 bottom-48 flex flex-col gap-5 text-white z-20">
-                        <div className="flex flex-col items-center gap-1">
-                            <div className="w-12 h-12 bg-white/10 backdrop-blur-md rounded-full flex items-center justify-center border-2 border-white/20 shadow-lg">🔥</div>
+                            <div className="relative inline-block mb-4">
+                                <motion.div
+                                    animate={{
+                                        scale: [1, 1.1, 1],
+                                        rotate: [-2, 2, -2]
+                                    }}
+                                    transition={{ repeat: Infinity, duration: 2 }}
+                                >
+                                    {scenes[scene].icon}
+                                </motion.div>
+                            </div>
+                            <h2 className={cn(
+                                "font-black text-white leading-tight mb-4 tracking-tighter drop-shadow-2xl uppercase",
+                                scenes[scene].title.length > 20 ? "text-2xl" : scenes[scene].title.length > 12 ? "text-4xl" : "text-6xl"
+                            )}>
+                                {scenes[scene].title}
+                            </h2>
+                            <motion.div
+                                animate={{ scale: [1, 1.05, 1] }}
+                                transition={{ repeat: Infinity, duration: 1.5 }}
+                                className="inline-block px-10 py-4 bg-white text-black rounded-full font-black text-sm tracking-widest border-4 border-black/10 shadow-2xl transform skew-x-[-10deg]"
+                            >
+                                {scenes[scene].subtitle}
+                            </motion.div>
                             <span className="text-[10px] font-black uppercase tracking-tighter">Reach</span>
                         </div>
                         <div className="flex flex-col items-center gap-1">

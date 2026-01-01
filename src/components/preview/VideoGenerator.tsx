@@ -135,52 +135,51 @@ export default function VideoGenerator({
                 let voices = window.speechSynthesis.getVoices();
 
                 const applyVoice = () => {
-                    // PRIORITIZE PREMIUM/NATURAL VOICES (Neural voices sound human)
-                    // Windows: Microsoft Madhur (Hindi), Microsoft Hemant (Hindi)
-                    // Google: Google Hindi, Google UK English Male
+                    // Logic:
+                    // 1. Hindi (Devanagari) -> Needs 'hi-IN' voice.
+                    // 2. Hinglish & English -> Needs 'en-IN' (Indian English) or 'en-US' (Global).
 
-                    const isHindiRequest = language === 'hi' || language === 'hindi' || language === 'hinglish';
+                    // Normalize language check
+                    const langLower = (language || 'hi').toLowerCase();
+                    const isHindi = langLower === 'hi' || langLower === 'hindi';
 
                     let selectedVoice = null;
+                    const availableVoices = window.speechSynthesis.getVoices();
 
-                    if (isHindiRequest) {
-                        // Look for Deep Hindi Male Neural voices first
-                        selectedVoice = voices.find(v => v.name.includes('Neural') && v.lang.startsWith('hi')) ||
-                            voices.find(v => v.name.includes('Natural') && v.lang.startsWith('hi')) ||
-                            voices.find(v => v.name.includes('Google') && v.lang.startsWith('hi')) ||
-                            voices.find(v => v.name.includes('Male') && v.lang.startsWith('hi')) ||
-                            voices.find(v => v.lang.startsWith('hi'));
+                    if (isHindi) {
+                        // Strict Hindi (Devanagari)
+                        selectedVoice = availableVoices.find(v => v.lang === 'hi-IN' && v.name.includes('Neural')) ||
+                            availableVoices.find(v => v.lang === 'hi-IN' && v.name.includes('Google')) ||
+                            availableVoices.find(v => v.lang === 'hi-IN');
                     } else {
-                        // Look for Deep English Male Neural voices (Indian or US)
-                        selectedVoice = voices.find(v => v.name.includes('Neural') && v.lang.includes('IN') && v.name.includes('Male')) ||
-                            voices.find(v => v.name.includes('Natural') && v.lang.includes('IN')) ||
-                            voices.find(v => v.name.includes('Google India') && v.name.includes('Male')) ||
-                            voices.find(v => v.name.includes('Microsoft David')) ||
-                            voices.find(v => v.lang.includes('en-IN') && v.name.includes('Male')) ||
-                            voices.find(v => v.lang.includes('en-US') && v.name.includes('Male'));
+                        // English / Hinglish -> Prefer Indian English, then US English
+                        // Use safe navigational checks and prioritize Neural voices
+                        selectedVoice =
+                            availableVoices.find(v => v.lang === 'en-IN' && v.name.includes('Neural')) ||
+                            availableVoices.find(v => v.lang === 'en-IN' && v.name.includes('Google')) ||
+                            availableVoices.find(v => v.lang === 'en-IN') ||
+                            availableVoices.find(v => v.lang === 'en-US' && v.name.includes('Neural')) ||
+                            availableVoices.find(v => v.lang === 'en-US');
                     }
 
                     if (selectedVoice) {
                         utterance.voice = selectedVoice;
                         utterance.lang = selectedVoice.lang;
-                    } else {
-                        utterance.lang = isHindiRequest ? "hi-IN" : "en-IN";
                     }
 
-                    // HIGH ENERGY & DEEP VOCAL
-                    // Rate 1.6 - 1.8 is the sweet spot for professional fast ads
-                    // Pitch 0.85 gives that "Amitabh" style deep base
-                    utterance.rate = 1.7;
-                    utterance.pitch = 0.85;
+                    // Professional Speaking Rate - slightly faster for flow, no dead air
+                    utterance.rate = 1.1;
+                    utterance.pitch = 1.0; // Natural pitch
                     utterance.volume = 1;
 
                     utterance.onend = () => {
                         setIsSceneLocked(false);
-                        const pauseTime = 150; // Ultra fast transitions
-                        setTimeout(nextScene, pauseTime);
+                        // SEAMLESS TRANSITION - No pause
+                        nextScene();
                     };
 
-                    utterance.onerror = () => {
+                    utterance.onerror = (e) => {
+                        console.error("Speech error:", e);
                         setIsSceneLocked(false);
                         nextScene();
                     };
@@ -198,7 +197,8 @@ export default function VideoGenerator({
                 }
             };
 
-            const speechTimeout = setTimeout(speak, 50);
+            // Immediate start
+            const speechTimeout = setTimeout(speak, 10);
             return () => {
                 clearTimeout(speechTimeout);
                 window.speechSynthesis.cancel();
@@ -373,39 +373,108 @@ export default function VideoGenerator({
                 </button>
                 <button
                     onClick={async () => {
-                        const data = {
-                            offerText,
-                            productName,
-                            discount,
-                            shopType,
-                            shopName,
-                            language,
-                            address,
-                            contactNumber,
-                            videoScript,
-                            videoTitles
-                        };
-                        const encoded = btoa(JSON.stringify(data));
-                        const shareUrl = `${window.location.origin}/v/${encodeURIComponent(encoded)}`;
+                        try {
+                            const data = {
+                                offerText, productName, discount, shopType, shopName,
+                                language, address, contactNumber, videoScript, videoTitles
+                            };
+                            const jsonString = JSON.stringify(data);
+                            const encoded = btoa(unescape(encodeURIComponent(jsonString)));
+                            const shareUrl = `${window.location.origin}/v/${encodeURIComponent(encoded)}`;
 
-                        if (navigator.share) {
-                            try {
-                                await navigator.share({
-                                    title: `${shopName || 'Business'} Special Offer`,
-                                    text: 'Check out this video ad for our new offer!',
-                                    url: shareUrl
-                                });
-                            } catch (e) {
-                                console.log("Share failed", e);
+                            if (navigator.share) {
+                                try {
+                                    await navigator.share({
+                                        title: `${shopName || 'Business'} Special Offer`,
+                                        text: 'Check out this video ad for our new offer!',
+                                        url: shareUrl
+                                    });
+                                } catch (e) {
+                                    console.log("Share failed", e);
+                                    await navigator.clipboard.writeText(shareUrl);
+                                    alert("Video Link copied to clipboard! 🔗\nYou can now paste it in WhatsApp.");
+                                }
+                            } else {
+                                await navigator.clipboard.writeText(shareUrl);
+                                alert("Video Link copied to clipboard! 🔗\nYou can now paste it in WhatsApp.");
                             }
-                        } else {
-                            await navigator.clipboard.writeText(shareUrl);
-                            alert("Video Link copied to clipboard! 🔗\nYou can now paste it in WhatsApp.");
+                        } catch (err) {
+                            console.error("Error generating share link:", err);
                         }
                     }}
                     className="flex-1 bg-indigo-600 text-white py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-lg hover:bg-indigo-700 transition-all flex items-center justify-center gap-2"
                 >
-                    <LinkIcon className="w-3 h-3" /> Video Link
+                    <LinkIcon className="w-3 h-3" /> Copy Link
+                </button>
+                <button
+                    onClick={async () => {
+                        const confirm = window.confirm("To Download Video (Client-Side Mode):\n\n1. Select 'Entire Screen' or 'This Tab'.\n2. IMPORTANT: Check 'Share System Audio' to capture voice.\n3. Click 'Share' to start.");
+                        if (!confirm) return;
+
+                        try {
+                            // 1. Request Screen Share (Standard Browser API)
+                            const stream = await navigator.mediaDevices.getDisplayMedia({
+                                video: { displaySurface: "browser" },
+                                audio: true // Crucial for voiceover
+                            });
+
+                            // 2. Start Recording
+                            const mediaRecorder = new MediaRecorder(stream, { mimeType: 'video/webm; codecs=vp9' });
+                            const chunks: BlobPart[] = [];
+
+                            mediaRecorder.ondataavailable = (e) => {
+                                if (e.data.size > 0) chunks.push(e.data);
+                            };
+
+                            mediaRecorder.onstop = () => {
+                                // 5. Save File
+                                const blob = new Blob(chunks, { type: "video/webm" });
+                                const url = URL.createObjectURL(blob);
+                                const a = document.createElement("a");
+                                document.body.appendChild(a);
+                                a.style.display = "none";
+                                a.href = url;
+                                a.download = `offer-video-${Date.now()}.webm`; // Most compatible web format
+                                a.click();
+                                window.URL.revokeObjectURL(url);
+
+                                // Cleanup
+                                stream.getTracks().forEach(track => track.stop());
+                                setIsCapturing(false);
+                                setScene(0);
+                                setIsMuting(false); // Restore UI sound state
+
+                                alert("Video saved! \nNote: If voice is missing, please ensure 'Share Audio' was checked.");
+                            };
+
+                            mediaRecorder.start();
+
+                            // 3. Play Video Scene Sequence
+                            setIsCapturing(true); // Hides UI
+                            setIsMuting(false); // Play audio (Voiceover) during recording
+                            setScene(0);
+                            setIsSceneLocked(false);
+
+                            // 4. Auto-Stop Logic (Time-based or Scene-based)
+                            // We play through 5 scenes. Avg duration ~4-5s per scene logic?
+                            // Actually, let's just run a timer that roughly matches the flow.
+                            // Better: We can hook into the 'onend' of the last scene? 
+                            // For robustness, let's use a safe timer of 25 seconds for 5 scenes.
+
+                            setTimeout(() => {
+                                if (mediaRecorder.state === 'recording') {
+                                    mediaRecorder.stop();
+                                }
+                            }, 22000); // 22 Seconds Limit
+
+                        } catch (err) {
+                            console.error("Recording validation failed", err);
+                            alert("Recording cancelled or failed. Please allow screen sharing permissions.");
+                        }
+                    }}
+                    className="flex-1 bg-red-600 text-white py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-lg hover:bg-red-700 transition-all flex items-center justify-center gap-2"
+                >
+                    <Download className="w-3 h-3" /> Download Video
                 </button>
                 <button
                     onClick={async () => {

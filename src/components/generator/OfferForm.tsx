@@ -144,7 +144,10 @@ export default function OfferForm({ onGenerate, isGenerating, isPro, defaultValu
                         {...register("productName", { required: "Product name is required" })}
                         className={inputClasses}
                     />
-                    <VoiceInput onTranscript={handleVoiceInput} />
+                    <VoiceInput
+                        onTranscript={handleVoiceInput}
+                        lang={language === 'hindi' ? 'hi-IN' : 'en-IN'}
+                    />
                 </div>
                 {errors.productName && <p className="text-red-500 text-xs font-black mt-1">✗ प्रोडक्ट का नाम ज़रूरी है</p>}
             </div>

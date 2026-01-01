@@ -64,10 +64,22 @@ export async function POST(req: Request) {
             2. "videoScript": (Array of 5 strings) A unique script for 5 scenes based ON THE PRODUCT.
             3. "videoTitles": (Array of 5 short strings) Catchy titles for each scene (max 3 words).
 
+            IMPORTANT LANGUAGE RULES (STRICT ENFORCEMENT):
+            1. **TRANSLATION IS MANDATORY**: You must TRANSLATE the user's input content into the requested language.
+               - If Input is Hinglish/Hindi and Request is 'English' -> TRANSLATE to PURE ENGLISH.
+               - Example: Input "Sasta milega", Request "English" -> Output "Available at low prices". (NOT "Sasta milega").
+            
+            2. **Language Specifics**:
+               - 'English': 100% English. No Hindi words. No "Namaste". Use "Welcome".
+               - 'Hindi': 100% Hindi (Devanagari).
+               - 'Hinglish': Roman Hindi content.
+
+            CURRENT REQUEST LANGUAGE: "${language}"
+
             VIDEO SCRIPT RULES:
             - Make it UNIQUE to "${productName}". 
             - Scene 1: Hook, Scene 2: Product Highlight, Scene 3: The Deal (${discount}), Scene 4: Urgency, Scene 5: Visit/Call.
-            - Language: ${language} (Hinglish = Roman script).`;
+            - Script must match the REQUEST LANGUAGE perfectly (Translate if needed).`;
 
             userMessage = `
             BUSINESS: ${businessType}

@@ -15,10 +15,15 @@ interface VideoGeneratorProps {
     language?: string;
     address?: string;
     contactNumber?: string;
+    videoScript?: string[];
+    videoTitles?: string[];
     onShare?: () => void;
 }
 
-export default function VideoGenerator({ offerText, productName, discount, shopType, shopName, language = "hi", address, contactNumber, onShare }: VideoGeneratorProps) {
+export default function VideoGenerator({
+    offerText, productName, discount, shopType, shopName,
+    language = "hi", address, contactNumber, videoScript, videoTitles, onShare
+}: VideoGeneratorProps) {
     const bannerRef = useRef<HTMLDivElement>(null);
     const [scene, setScene] = useState(0);
     const [isMuting, setIsMuting] = useState(true);
@@ -52,62 +57,66 @@ export default function VideoGenerator({ offerText, productName, discount, shopT
         {
             bg: "bg-indigo-700",
             icon: <ShoppingBag className="w-20 h-20 text-white mb-6" />,
-            title: (shopName || "SPECIAL OFFER").toUpperCase(),
+            title: videoTitles?.[0]?.toUpperCase() || (shopName || "SPECIAL OFFER").toUpperCase(),
             subtitle: "PREMIUM BUSINESS AD",
             animation: { y: [30, -10, 0], scale: [0.7, 1.1, 1] },
-            voiceText: (language === "hi" || language === "hindi")
+            voiceText: videoScript?.[0] || ((language === "hi" || language === "hindi")
                 ? `नमस्ते! ${shopName || 'हमारी दुकान'} की तरफ से यह एक विशेष संदेश है। आज ही हमारे यहाँ आएं।`
                 : (language === "hinglish")
                     ? `Namaste! ${shopName || 'Hamari shop'} ki taraf se ye ek vishesh sandesh hai. Aaj hi humare yahan aayein.`
-                    : `Welcome to ${shopName || 'our premium shop'}. We have an exclusive business offer just for you today!`
+                    : `Welcome to ${shopName || 'our premium shop'}. We have an exclusive business offer just for you today!`)
         },
         {
             bg: "bg-purple-700",
             icon: <Sparkles className="w-20 h-20 text-white mb-6" />,
-            title: productName.toUpperCase(),
+            title: videoTitles?.[1]?.toUpperCase() || productName.toUpperCase(),
             subtitle: "BEST QUALITY ASSURED",
             animation: { x: [-150, 20, 0], opacity: [0, 1] },
-            voiceText: (language === "hi" || language === "hindi")
+            voiceText: videoScript?.[1] || ((language === "hi" || language === "hindi")
                 ? `हम लेकर आए हैं आपके लिए सबसे बेहतरीन ${productName}। इसकी क्वालिटी का कोई तोड़ नहीं है।`
                 : (language === "hinglish")
                     ? `Hum lekar aaye hain aapke liye sabse behtareen ${productName}. Iski quality ka koi tod nahi hai.`
-                    : `Check out our world-class ${productName}. We guarantee the best quality at the most affordable prices!`
+                    : `Check out our world-class ${productName}. We guarantee the best quality at the most affordable prices!`)
         },
         {
             bg: "bg-orange-600",
             icon: <div className="text-8xl font-black text-white mb-6 drop-shadow-xl">{discount}</div>,
-            title: "FLAT DISCOUNT",
+            title: videoTitles?.[2]?.toUpperCase() || "FLAT DISCOUNT",
             subtitle: "LIMITED PERIOD OFFER",
             animation: { scale: [0, 1.6, 1], rotate: [0, 15, 0] },
-            voiceText: (language === "hi" || language === "hindi")
+            voiceText: videoScript?.[2] || ((language === "hi" || language === "hindi")
                 ? `शानदार मौका! मिल रहा है पूरे ${discount} का भारी डिस्काउंट। यह ऑफर सिर्फ कुछ समय के लिए है।`
                 : (language === "hinglish")
                     ? `Shandar mauka! Mil raha hai poore ${discount} ka bhari discount. Ye offer sirf kuch samay ke liye hai.`
-                    : `Grab this amazing deal! Get a flat ${discount} discount right now. Hurry, this is a limited time offer!`
+                    : `Grab this amazing deal! Get a flat ${discount} discount right now. Hurry, this is a limited time offer!`)
         },
         {
             bg: "bg-pink-600",
             icon: <MapPin className="w-20 h-20 text-white mb-6" />,
-            title: "VISIT US NOW",
+            title: videoTitles?.[3]?.toUpperCase() || "VISIT US NOW",
             subtitle: address || "NEAR YOU",
             animation: { opacity: [0, 1], scale: [0.8, 1.1, 1] },
-            voiceText: (language === "hi" || language === "hindi")
+            voiceText: videoScript?.[3] || ((language === "hi" || language === "hindi")
                 ? `हमारा पता नोट करें: ${address || 'हमारी दुकान पर आएं'}। हम आपका इंतज़ार कर रहे हैं।`
                 : (language === "hinglish")
                     ? `Humara pata note karein: ${address || 'Humari shop par aayein'}. Hum aapka intezaar kar rahe hain.`
-                    : `Visit us today at: ${address || 'our store near you'}. We are ready to serve you with the best deals!`
+                    : `Visit us today at: ${address || 'our store near you'}. We are ready to serve you with the best deals!`)
         },
         {
             bg: "bg-green-700",
-            icon: <Phone className="w-20 h-20 text-white mb-6 animate-bounce" />,
-            title: "CONTACT US",
+            icon: <Phone className="w-20 h-20 text-white mb-6" />,
+            title: videoTitles?.[4]?.toUpperCase() || "CONTACT US",
             subtitle: contactNumber || "CALL NOW",
-            animation: { opacity: [0, 1], y: [50, 0] },
-            voiceText: (language === "hi" || language === "hindi")
+            animation: {
+                opacity: [0, 1],
+                y: [50, 0],
+                scale: [1, 1.2, 1]
+            },
+            voiceText: videoScript?.[4] || ((language === "hi" || language === "hindi")
                 ? `ज्यादा जानकारी के लिए डायल करें ${contactNumber || 'हमारा नंबर'}। अभी कॉल करें या व्हाट्सएप करें!`
                 : (language === "hinglish")
                     ? `Zyada jankari ke liye dial karein ${contactNumber || 'Humara number'}. Abhi call karein ya whatsapp karein!`
-                    : `For more details, please call us at ${contactNumber || 'our business number'}. Contact us on WhatsApp today!`
+                    : `For more details, please call us at ${contactNumber || 'our business number'}. Contact us on WhatsApp today!`)
         }
     ];
 
@@ -153,13 +162,14 @@ export default function VideoGenerator({ offerText, productName, discount, shopT
                         utterance.lang = "en-IN";
                     }
 
-                    // AMITABH STYLE: Optimized for engagement
-                    utterance.rate = 1.15; // Increased speed as requested
-                    utterance.pitch = 0.85; // Slightly adjusted pitch for better clarity at higher speed
+                    // HIGH ENERGY STYLE: Fast and professional
+                    utterance.rate = 1.45;
+                    utterance.pitch = 0.95;
 
                     utterance.onend = () => {
                         setIsSceneLocked(false);
-                        setTimeout(nextScene, 500); // More dramatic pause
+                        const pauseTime = 300; // Faster transition
+                        setTimeout(nextScene, pauseTime);
                     };
 
                     utterance.onerror = () => {
@@ -226,11 +236,19 @@ export default function VideoGenerator({ offerText, productName, discount, shopT
                         className="relative z-10"
                     >
                         <div className="relative inline-block mb-4">
-                            {scenes[scene].icon}
                             <motion.div
-                                animate={{ scale: [1, 1.3, 1] }}
-                                transition={{ repeat: Infinity }}
-                                className="absolute -top-4 -right-4 bg-red-600 text-white w-8 h-8 rounded-full flex items-center justify-center text-[10px] font-black border-2 border-white shadow-lg"
+                                animate={{
+                                    scale: [1, 1.1, 1],
+                                    rotate: [-2, 2, -2]
+                                }}
+                                transition={{ repeat: Infinity, duration: 2 }}
+                            >
+                                {scenes[scene].icon}
+                            </motion.div>
+                            <motion.div
+                                animate={{ scale: [1, 1.4, 1] }}
+                                transition={{ repeat: Infinity, duration: 0.8 }}
+                                className="absolute -top-4 -right-4 bg-red-600 text-white w-10 h-10 rounded-full flex items-center justify-center text-[10px] font-black border-2 border-white shadow-lg"
                             >
                                 DEAL
                             </motion.div>
@@ -241,9 +259,13 @@ export default function VideoGenerator({ offerText, productName, discount, shopT
                         )}>
                             {scenes[scene].title}
                         </h2>
-                        <div className="inline-block px-8 py-3 bg-white text-black rounded-full font-black text-xs tracking-widest border-4 border-black/10 shadow-xl transform skew-x-[-10deg]">
+                        <motion.div
+                            animate={{ scale: [1, 1.05, 1] }}
+                            transition={{ repeat: Infinity, duration: 1.5 }}
+                            className="inline-block px-10 py-4 bg-white text-black rounded-full font-black text-sm tracking-widest border-4 border-black/10 shadow-2xl transform skew-x-[-10deg]"
+                        >
                             {scenes[scene].subtitle}
-                        </div>
+                        </motion.div>
                     </motion.div>
 
                     {/* Footer Text */}
@@ -325,7 +347,7 @@ export default function VideoGenerator({ offerText, productName, discount, shopT
                         if (!element) return;
                         setIsCapturing(true);
                         try {
-                            const dataUrl = await toPng(element, { quality: 0.95, pixelRatio: 2 });
+                            const dataUrl = await toPng(element, { quality: 0.95, pixelRatio: 2, cacheBust: true });
                             const link = document.createElement('a');
                             link.download = `offer-frame-${Date.now()}.png`;
                             link.href = dataUrl;
@@ -347,7 +369,7 @@ export default function VideoGenerator({ offerText, productName, discount, shopT
                         if (!element) return;
                         setIsCapturing(true);
                         try {
-                            const dataUrl = await toPng(element, { quality: 0.95, pixelRatio: 2 });
+                            const dataUrl = await toPng(element, { quality: 0.95, pixelRatio: 2, cacheBust: true });
                             const blob = await (await fetch(dataUrl)).blob();
                             const file = new File([blob], 'offer-ad.png', { type: 'image/png' });
 

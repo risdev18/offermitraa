@@ -22,6 +22,8 @@ export default function Home() {
   const [showBusinessSelector, setShowBusinessSelector] = useState(false);
   const [generatedOffer, setGeneratedOffer] = useState<string | null>(null);
   const [lastInputData, setLastInputData] = useState<any>(null);
+  const [videoScript, setVideoScript] = useState<string[] | undefined>(undefined);
+  const [videoTitles, setVideoTitles] = useState<string[] | undefined>(undefined);
   const [outputMode, setOutputMode] = useState<'banner' | 'video'>('banner');
   const [trackedReach, setTrackedReach] = useState(0);
 
@@ -40,8 +42,13 @@ export default function Home() {
     try {
       const savedOffer = localStorage.getItem("om_last_offer");
       const savedData = localStorage.getItem("om_last_input");
+      const savedScript = localStorage.getItem("om_last_script");
+      const savedTitles = localStorage.getItem("om_last_titles");
+
       if (savedOffer) setGeneratedOffer(savedOffer);
       if (savedData) setLastInputData(JSON.parse(savedData));
+      if (savedScript) setVideoScript(JSON.parse(savedScript));
+      if (savedTitles) setVideoTitles(JSON.parse(savedTitles));
     } catch (e) {
       console.warn("Failed to restore session");
     }
@@ -51,7 +58,9 @@ export default function Home() {
   useEffect(() => {
     if (generatedOffer) localStorage.setItem("om_last_offer", generatedOffer);
     if (lastInputData) localStorage.setItem("om_last_input", JSON.stringify(lastInputData));
-  }, [generatedOffer, lastInputData]);
+    if (videoScript) localStorage.setItem("om_last_script", JSON.stringify(videoScript));
+    if (videoTitles) localStorage.setItem("om_last_titles", JSON.stringify(videoTitles));
+  }, [generatedOffer, lastInputData, videoScript, videoTitles]);
 
   const handleGenerate = async (data: any) => {
     // Check usage limit
@@ -74,6 +83,8 @@ export default function Home() {
       const result = await res.json();
       if (result.text) {
         setGeneratedOffer(result.text);
+        setVideoScript(result.videoScript);
+        setVideoTitles(result.videoTitles);
         incrementUsage();
 
         try {
@@ -391,6 +402,8 @@ export default function Home() {
                       language={lastInputData?.language}
                       address={lastInputData?.address}
                       contactNumber={lastInputData?.contactNumber}
+                      videoScript={videoScript}
+                      videoTitles={videoTitles}
                       onShare={handleShareTrack}
                     />
                   )}

@@ -21,12 +21,23 @@ export async function POST(req: Request) {
             }
 
             return NextResponse.json({
-                text: `✨ *${shopName || "Special Offer"}* ✨\n\nAb paaiye *${productName || "Behtareen Products"}* behtareen daamo par!\n\n🔥 ${discount ? `Flat ${discount} OFF!` : "Dhamaka Offer!"}\n📍 ${address || "Visit us today"}\n\nJaldi aayein! 🏃‍♂️💨`
+                text: `✨ *${shopName || "Special Offer"}* ✨\n\nAb paaiye *${productName || "Behtareen Products"}* behtareen daamo par!\n\n🔥 ${discount ? `Flat ${discount} OFF!` : "Dhamaka Offer!"}\n📍 ${address || "Visit us today"}\n\nJaldi aayein! 🏃‍♂️💨`,
+                videoScript: [
+                    "Namaste! Hamare yahan aapko milega sabse sasta aur behtareen maal.",
+                    `Aaj hi hamari shop ${shopName || ''} par aayein aur payein dhero offers.`,
+                    `Dhamaka sale shuru ho chuki hai, sirf ${productName || 'aapke liye'}.`,
+                    "Stock khatam hone se pehle jaldi karein.",
+                    "Humein call karein ya shop par visit karein. Dhanyawad!"
+                ],
+                videoTitles: ["Namaste!", "Welcome", "Mega Sale", "Hurry Up", "Visit Now"]
             });
         }
 
         const genAI = new GoogleGenerativeAI(apiKey);
-        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+        const model = genAI.getGenerativeModel({
+            model: "gemini-1.5-flash",
+            generationConfig: { responseMimeType: "application/json" }
+        });
 
         let systemPrompt = "";
         let userMessage = "";
@@ -36,52 +47,41 @@ export async function POST(req: Request) {
             Your goal is to help shop owners with marketing advice, ideas, and general conversation.
             - Tone: Extremely helpful, professional yet friendly, and encouraging.
             - Language: Use the requested language (${language}). If Hinglish, use professional Roman Hindi.
-            - If the user greets you (e.g., Happy New Year, Hello), respond warmly and professionally.
-            - Keep responses concise and focused on business/marketing growth.`;
+            - Keep responses concise and focused on business/marketing growth.
+            RESPONSE FORMAT: Return a JSON object with a single field "text".`;
 
             userMessage = `User said: "${productName}"\nRespond as Rishabh AI Assistant.`;
         } else {
             systemPrompt = `You are an expert Indian Retail Marketing Consultant and Copywriter.
-            YOUR GOAL: Take the user's RAW input (which may be messy, mixed Hindi/English, or casual notes) and transform it into a HIGHLY PROFESSIONAL, conversion-optimized marketing message.
+            YOUR GOAL: Generate a professional marketing message and a 5-scene high-energy video script.
 
             STRICT TONE RULES:
-            - Use a "Premium & Authoritative" tone (like a premium brand advertisement).
-            - Avoid cheap slang or overly casual language.
-            - Use Consumer Psychology: Focus on benefits, quality, and trust.
-            - Even if input is raw Hinglish like "laptop pe 5000 off hai aaj ke liye", convert it to a professional structure.
+            - Use a "Premium & Authoritative" tone like a high-end commercial.
+            - Use Consumer Psychology: Focus on benefits and quality.
+            
+            OUTPUT FORMAT: Return a JSON object with exactly these fields:
+            1. "text": (String) Poster content including Headline (bold), Description, Price (bold), Trust Builder, CTA.
+            2. "videoScript": (Array of 5 strings) A unique script for 5 scenes based ON THE PRODUCT.
+            3. "videoTitles": (Array of 5 short strings) Catchy titles for each scene (max 3 words).
 
-            - If language is "hindi": Use pure, formal Devanagari Hindi.
-            - If language is "hinglish": Use professional Roman Hindi (Proper Hindi words written in English letters).
-            - If language is "english": Use professional, premium English ONLY. Do not use Hindi words.
-
-            STRUCTURE:
-            1. Catchy Headline (Max 5 words, using *bold*)
-            2. Professional Description (2-3 sentences max)
-            3. Clear Pricing/Offer (e.g., *₹5,000 DISCOUNT*)
-            4. Trust Builder (e.g., Quality Assured)
-            5. Call to Action (e.g., *${cta || 'Visit us today'}*)
-
-            NEVER mention mobile numbers in the AI-generated message body. 
-            No intros like "Sure, here is...", just the content. 
-            Use appropriate Emojis for a premium professional look.`;
+            VIDEO SCRIPT RULES:
+            - Make it UNIQUE to "${productName}". 
+            - Scene 1: Hook, Scene 2: Product Highlight, Scene 3: The Deal (${discount}), Scene 4: Urgency, Scene 5: Visit/Call.
+            - Language: ${language} (Hinglish = Roman script).`;
 
             userMessage = `
-            BUSINESS TYPE: ${businessType || 'Retail'}
-            SHOP NAME: ${shopName}
+            BUSINESS: ${businessType}
+            SHOP: ${shopName}
             LOCATION: ${address}
-            PRODUCT/RAW INFO: ${productName} (Notes: ${extraInfo || ''})
-            OFFER DETAIL: ${discount}
-            CATALOG: ${catalogLink || 'None'}
-            LANGUAGE: ${language}
-
-            Transform this raw data into a professional marketing message. Output only the message.`;
+            PRODUCT: ${productName}
+            DETAILS: ${extraInfo}
+            OFFER: ${discount}
+            LANG: ${language}`;
         }
 
         const result = await model.generateContent([systemPrompt, userMessage]);
         const response = await result.response;
-        let text = response.text().trim();
-
-        return NextResponse.json({ text });
+        return NextResponse.json(JSON.parse(response.text()));
     } catch (error) {
         console.error("Gemini Error:", error);
         return NextResponse.json({ error: "Failed to generate offer" }, { status: 500 });

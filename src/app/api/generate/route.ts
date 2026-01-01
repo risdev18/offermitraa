@@ -53,33 +53,41 @@ export async function POST(req: Request) {
             userMessage = `User said: "${productName}"\nRespond as Rishabh AI Assistant.`;
         } else {
             systemPrompt = `You are an expert Indian Retail Marketing Consultant and Copywriter.
-            YOUR GOAL: Generate a professional marketing message and a 5-scene high-energy video script.
+            YOUR GOAL: Generate a POWERFUL marketing message (6-7 lines) that instantly attracts customers and a 5-scene HIGH-ENERGY video script.
 
             STRICT TONE RULES:
-            - Use a "Premium & Authoritative" tone like a high-end commercial.
-            - Use Consumer Psychology: Focus on benefits and quality.
+            - Use a "High Energy & Exciting" tone (e.g., "Dhamaka Offer", "Loot Lo", "Aayiye Aayiye").
+            - Use Consumer Psychology: Create FOMO (Fear Of Missing Out) and excitement.
+            - The text message must be SUBSTANTIAL (6-7 lines long) using emojis, bullets, and persuasive selling. It must look like a professional WhatsApp Business broadast.
             
             OUTPUT FORMAT: Return a JSON object with exactly these fields:
-            1. "text": (String) Poster content including Headline (bold), Description, Price (bold), Trust Builder, CTA.
+            1. "text": (String) A POWERFUL 6-7 LINE marketing message. 
+               - Start with a catchy HOOK (e.g. 📢 ATTENTION).
+               - 2-3 lines describing the value/product benefits.
+               - 1-2 lines on the discount/offer urgency.
+               - End with a strong Call to Action (Shop Name, Address, Link).
             2. "videoScript": (Array of 5 strings) A unique script for 5 scenes based ON THE PRODUCT.
+               - Scene 1 MUST start with high energy: "Namaskar! Aayiye aayiye!" or "Hello! Big News!"
+               - Use words like "Boom!", "Dhamaka!", "Loot lo!" appropriate to the language.
             3. "videoTitles": (Array of 5 short strings) Catchy titles for each scene (max 3 words).
 
             IMPORTANT LANGUAGE RULES (STRICT ENFORCEMENT):
             1. **TRANSLATION IS MANDATORY**: You must TRANSLATE the user's input content into the requested language.
                - If Input is Hinglish/Hindi and Request is 'English' -> TRANSLATE to PURE ENGLISH.
-               - Example: Input "Sasta milega", Request "English" -> Output "Available at low prices". (NOT "Sasta milega").
-            
             2. **Language Specifics**:
-               - 'English': 100% English. No Hindi words. No "Namaste". Use "Welcome".
-               - 'Hindi': 100% Hindi (Devanagari).
-               - 'Hinglish': Roman Hindi content.
+               - 'English': 100% English. High energy keywords like "Mega Sale", "Grab it now".
+               - 'Hindi': 100% Hindi (Devanagari). Use "धमाका ऑफर", "लूट लो मौका".
+               - 'Hinglish': Roman Hindi content. Use "Dhamaka Offer", "Loot Lo", "Aayiye Aayiye".
 
             CURRENT REQUEST LANGUAGE: "${language}"
 
             VIDEO SCRIPT RULES:
             - Make it UNIQUE to "${productName}". 
-            - Scene 1: Hook, Scene 2: Product Highlight, Scene 3: The Deal (${discount}), Scene 4: Urgency, Scene 5: Visit/Call.
-            - Script must match the REQUEST LANGUAGE perfectly (Translate if needed).`;
+            - Scene 1: High Energy Welcome ("Aaiye Aaiye!").
+            - Scene 2: Product Reveal (Best Quality).
+            - Scene 3: The Offer (${discount} - "Loot lo!").
+            - Scene 4: Urgency ("Abhi aao!").
+            - Scene 5: Final CTA (Call/Visit).`;
 
             userMessage = `
             BUSINESS: ${businessType}
@@ -88,6 +96,7 @@ export async function POST(req: Request) {
             PRODUCT: ${productName}
             DETAILS: ${extraInfo}
             OFFER: ${discount}
+            CTA: ${cta}
             LANG: ${language}`;
         }
 

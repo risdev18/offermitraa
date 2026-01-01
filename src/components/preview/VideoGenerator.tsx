@@ -38,12 +38,12 @@ export default function VideoGenerator({
     };
 
     useEffect(() => {
-        // Fallback timer - only if muted or speech fails
-        if (isMuting) {
+        // Fallback timer - only runs if muted AND user has interacted (paused initially)
+        if (isMuting && hasInteracted) {
             const timer = setInterval(nextScene, 7000);
             return () => clearInterval(timer);
         }
-    }, [isMuting, scene]);
+    }, [isMuting, scene, hasInteracted]);
 
     useEffect(() => {
         return () => {
@@ -97,9 +97,9 @@ export default function VideoGenerator({
             subtitle: address || "NEAR YOU",
             animation: { opacity: [0, 1], scale: [0.8, 1.1, 1] },
             voiceText: videoScript?.[3] || ((language === "hi" || language === "hindi")
-                ? `आज ही आएं: ${address || 'हमारी दुकान पर'}। हम आपका इंतज़ार कर रहे हैं।`
+                ? `हमारा पता नोट करें: ${address || 'हमारी दुकान पर'}। हम आपका इंतज़ार कर रहे हैं।`
                 : (language === "hinglish")
-                    ? `Aaj hi aayein: ${address || 'humari shop par'}. Hum aapka intezaar kar rahe hain.`
+                    ? `Humara pata note karein: ${address || 'Humari shop par aayein'}. Hum aapka intezaar kar rahe hain.`
                     : `Visit us today at: ${address || 'our store'}. We are waiting for you.`)
         },
         {
@@ -301,7 +301,7 @@ export default function VideoGenerator({
                             "text-white/90 font-bold leading-relaxed italic drop-shadow-md text-center",
                             offerText.length > 100 ? "text-[10px]" : "text-xs"
                         )}>
-                            "{offerText.slice(0, 150)}{offerText.length > 150 ? '...' : ''}"
+                            "{offerText.slice(0, 500)}"
                         </p>
                     </motion.div>
 

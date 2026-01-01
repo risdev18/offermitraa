@@ -408,73 +408,61 @@ export default function VideoGenerator({
                 </button>
                 <button
                     onClick={async () => {
-                        const confirm = window.confirm("To Download Video (Client-Side Mode):\n\n1. Select 'Entire Screen' or 'This Tab'.\n2. IMPORTANT: Check 'Share System Audio' to capture voice.\n3. Click 'Share' to start.");
+                        const element = bannerRef.current;
+                        if (!element) return;
+
+                        const confirm = window.confirm("Generate and Download Video File?\nThis takes about 15-20 seconds to render on the server.");
                         if (!confirm) return;
 
+                        setIsCapturing(true); // Hide UI
+                        setIsMuting(true); // Silence during capture
+                        const capturedImages: string[] = [];
+
                         try {
-                            // 1. Request Screen Share (Standard Browser API)
-                            const stream = await navigator.mediaDevices.getDisplayMedia({
-                                video: { displaySurface: "browser" },
-                                audio: true // Crucial for voiceover
+                            // Loop through scenes and capture
+                            for (let i = 0; i < 5; i++) {
+                                setScene(i);
+                                // Wait for render & animation
+                                await new Promise(r => setTimeout(r, 1500));
+                                const dataUrl = await toPng(element, { quality: 0.9, cacheBust: true });
+                                capturedImages.push(dataUrl);
+                            }
+
+                            // Send to Server
+                            const response = await fetch('/api/render-video', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({
+                                    images: capturedImages,
+                                    script: scenes.map(s => s.voiceText), // Use text from scenes
+                                    language: language
+                                })
                             });
 
-                            // 2. Start Recording
-                            const mediaRecorder = new MediaRecorder(stream, { mimeType: 'video/webm; codecs=vp9' });
-                            const chunks: BlobPart[] = [];
+                            if (!response.ok) throw new Error("Rendering failed on server. Ensure FFmpeg is installed.");
 
-                            mediaRecorder.ondataavailable = (e) => {
-                                if (e.data.size > 0) chunks.push(e.data);
-                            };
+                            const blob = await response.blob();
+                            const url = window.URL.createObjectURL(blob);
+                            const link = document.createElement('a');
+                            link.href = url;
+                            link.download = `offer-mitra-${Date.now()}.mp4`;
+                            document.body.appendChild(link);
+                            link.click();
+                            document.body.removeChild(link);
+                            alert("Video Downloaded! 🚀\nYou can now share it on WhatsApp!");
 
-                            mediaRecorder.onstop = () => {
-                                // 5. Save File
-                                const blob = new Blob(chunks, { type: "video/webm" });
-                                const url = URL.createObjectURL(blob);
-                                const a = document.createElement("a");
-                                document.body.appendChild(a);
-                                a.style.display = "none";
-                                a.href = url;
-                                a.download = `offer-video-${Date.now()}.webm`; // Most compatible web format
-                                a.click();
-                                window.URL.revokeObjectURL(url);
-
-                                // Cleanup
-                                stream.getTracks().forEach(track => track.stop());
-                                setIsCapturing(false);
-                                setScene(0);
-                                setIsMuting(false); // Restore UI sound state
-
-                                alert("Video saved! \nNote: If voice is missing, please ensure 'Share Audio' was checked.");
-                            };
-
-                            mediaRecorder.start();
-
-                            // 3. Play Video Scene Sequence
-                            setIsCapturing(true); // Hides UI
-                            setIsMuting(false); // Play audio (Voiceover) during recording
+                        } catch (e) {
+                            console.error("Video generation failed", e);
+                            alert("Video generation failed. Please ensure FFmpeg is installed on the server hosting this app.");
+                        } finally {
+                            setIsCapturing(false);
                             setScene(0);
-                            setIsSceneLocked(false);
-
-                            // 4. Auto-Stop Logic (Time-based or Scene-based)
-                            // We play through 5 scenes. Avg duration ~4-5s per scene logic?
-                            // Actually, let's just run a timer that roughly matches the flow.
-                            // Better: We can hook into the 'onend' of the last scene? 
-                            // For robustness, let's use a safe timer of 25 seconds for 5 scenes.
-
-                            setTimeout(() => {
-                                if (mediaRecorder.state === 'recording') {
-                                    mediaRecorder.stop();
-                                }
-                            }, 22000); // 22 Seconds Limit
-
-                        } catch (err) {
-                            console.error("Recording validation failed", err);
-                            alert("Recording cancelled or failed. Please allow screen sharing permissions.");
+                            setIsMuting(false); // Restore sound
                         }
                     }}
                     className="flex-1 bg-red-600 text-white py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-lg hover:bg-red-700 transition-all flex items-center justify-center gap-2"
                 >
-                    <Download className="w-3 h-3" /> Download Video
+                    <Download className="w-3 h-3" /> Download MP4
                 </button>
                 <button
                     onClick={async () => {

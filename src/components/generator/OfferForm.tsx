@@ -145,7 +145,7 @@ export default function OfferForm({ onGenerate, isGenerating, isPro }: OfferForm
                     {...register("discount")}
                     className={inputClasses}
                 />
-                <p className={cn("text-xs font-bold mt-1", isPro ? "text-slate-500" : "text-slate-400")}>💡 Tip: ₹99 converts better than ₹100</p>
+                <p className={cn("text-xs font-bold mt-1", isPro ? "text-slate-400" : "text-slate-600")}>💡 Tip: ₹99 converts better than ₹100</p>
             </div>
 
             {/* Extra Info & Store Link */}

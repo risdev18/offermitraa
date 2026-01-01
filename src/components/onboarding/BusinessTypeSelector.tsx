@@ -43,7 +43,7 @@ export default function BusinessTypeSelector({ onSelect, onSkip }: BusinessTypeS
                                 Welcome to OfferMitra
                                 <span className="text-3xl">👋</span>
                             </h2>
-                            <p className="text-slate-400 text-lg font-bold">
+                            <p className="text-slate-200 text-lg font-bold">
                                 अपना बिज़नेस चुनें, हम आपके लिए जादू करेंगे।
                             </p>
                         </div>
@@ -82,7 +82,7 @@ export default function BusinessTypeSelector({ onSelect, onSkip }: BusinessTypeS
                                 )}>
                                     {business.nameHindi}
                                 </div>
-                                <div className="text-[10px] font-bold text-slate-500 uppercase tracking-tighter">
+                                <div className="text-[10px] font-bold text-slate-300 uppercase tracking-tighter">
                                     {business.name}
                                 </div>
 
@@ -120,7 +120,7 @@ export default function BusinessTypeSelector({ onSelect, onSkip }: BusinessTypeS
                             )}
                         </button>
                         {selected && (
-                            <p className="text-center text-[10px] font-black uppercase tracking-[0.3em] text-indigo-500/50 mt-6 mt-4">
+                            <p className="text-center text-[10px] font-black uppercase tracking-[0.3em] text-indigo-300 mt-6 mt-4">
                                 You can change this anytime from settings
                             </p>
                         )}

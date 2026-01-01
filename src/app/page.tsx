@@ -172,37 +172,37 @@ export default function Home() {
           ? "bg-slate-950/80 border-white/5 shadow-2xl"
           : "bg-white/80 border-slate-200 shadow-sm"
       )}>
-        <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
-          <div className="flex items-center gap-4">
+        <div className="max-w-7xl mx-auto px-4 md:px-6 h-20 flex items-center justify-between">
+          <div className="flex items-center gap-2 md:gap-4 shrink-0">
             <div className={cn(
-              "p-3 rounded-2xl shadow-xl transform hover:scale-110 active:scale-95 transition-all cursor-pointer",
+              "p-2 md:p-3 rounded-2xl shadow-xl transform hover:scale-110 active:scale-95 transition-all cursor-pointer",
               isPro ? "pro-gradient shadow-indigo-500/20" : "bg-indigo-600 shadow-indigo-200"
             )}>
-              <Sparkles className="w-6 h-6 text-white" />
+              <Sparkles className="w-5 h-5 md:w-6 md:h-6 text-white" />
             </div>
             <div>
               <h1 className={cn(
-                "text-2xl font-black tracking-tight flex items-center gap-2",
+                "text-lg md:text-2xl font-black tracking-tight flex items-center gap-1 md:gap-2",
                 isPro ? "text-white" : "text-slate-900"
               )}>
                 OfferMitra
                 {isPro && (
-                  <span className="pro-gradient bg-clip-text text-transparent text-[10px] font-black uppercase tracking-[0.2em] border border-indigo-500/30 px-2 py-0.5 rounded-full">
+                  <span className="pro-gradient bg-clip-text text-transparent text-[8px] md:text-[10px] font-black uppercase tracking-[0.2em] border border-indigo-500/30 px-2 py-0.5 rounded-full">
                     Premium
                   </span>
                 )}
               </h1>
-              <p className={cn("text-[10px] font-bold uppercase tracking-[0.3em]", isPro ? "text-indigo-400" : "text-indigo-600")}>
+              <p className={cn("text-[8px] md:text-[10px] font-bold uppercase tracking-[0.2em] md:tracking-[0.3em]", isPro ? "text-indigo-400" : "text-indigo-600")}>
                 AI Marketing Suite
               </p>
             </div>
           </div>
 
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 md:gap-4 shrink-0">
             <button
               onClick={() => window.location.href = '/admin'}
               className={cn(
-                "hidden sm:block px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all",
+                "hidden sm:block px-4 md:px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all",
                 isPro ? "bg-slate-900 text-slate-400 hover:text-white border border-white/5" : "bg-slate-100 text-slate-600 hover:bg-slate-200"
               )}
             >
@@ -211,13 +211,13 @@ export default function Home() {
             <button
               onClick={() => setShowAccessModal(true)}
               className={cn(
-                "px-8 py-3 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] transition-all shadow-xl active:scale-95",
+                "px-4 md:px-8 py-2 md:py-3 rounded-xl md:rounded-2xl text-[10px] font-black uppercase tracking-[0.1em] md:tracking-[0.2em] transition-all shadow-xl active:scale-95 truncate sm:overflow-visible",
                 isPro
                   ? "pro-gradient text-white shadow-purple-500/25"
                   : "bg-indigo-600 text-white shadow-indigo-500/20 hover:bg-indigo-700"
               )}
             >
-              {isPro ? "Dashboard" : "Activate Pro 🦁"}
+              {isPro ? "Dashboard" : "Activate Pro"}
             </button>
           </div>
         </div>
@@ -226,7 +226,7 @@ export default function Home() {
       <div className="relative z-10 p-4 md:p-10 max-w-[1600px] mx-auto space-y-16 mt-4">
 
         <div className={cn(
-          "max-w-3xl mx-auto p-12 rounded-[3rem] transition-all duration-1000 shadow-2xl relative group overflow-hidden",
+          "max-w-3xl mx-auto p-6 md:p-12 rounded-[2rem] md:rounded-[3rem] transition-all duration-1000 shadow-2xl relative group overflow-hidden",
           isPro
             ? "glass-card border-white/10"
             : "bg-white border border-slate-200"
@@ -246,7 +246,7 @@ export default function Home() {
               <h2 className={cn("text-3xl font-black tracking-tighter", isPro ? "text-white" : "text-slate-900")}>
                 Create Viral Offer
               </h2>
-              <p className={cn("text-xs font-bold uppercase tracking-widest mt-1 opacity-60")}>
+              <p className={cn("text-xs font-bold uppercase tracking-widest mt-1 opacity-80", isPro ? "text-indigo-200" : "text-slate-600")}>
                 AI-Powered Marketing Intelligence
               </p>
             </div>

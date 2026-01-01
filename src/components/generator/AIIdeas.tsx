@@ -62,7 +62,7 @@ export default function AIIdeas({ shopType, onSelectSuggestion, isPro }: AIIdeas
                     onClick={fetchSuggestions}
                     className={cn(
                         "text-[10px] font-black uppercase tracking-widest transition-all",
-                        isPro ? "text-slate-500 hover:text-white" : "text-indigo-500 hover:text-indigo-700"
+                        isPro ? "text-slate-400 hover:text-white" : "text-indigo-600 hover:text-indigo-800"
                     )}
                 >
                     Refresh
@@ -102,13 +102,13 @@ export default function AIIdeas({ shopType, onSelectSuggestion, isPro }: AIIdeas
                             <div className="flex gap-2">
                                 <span className={cn(
                                     "text-[9px] font-black uppercase tracking-widest px-2 py-1 rounded-lg",
-                                    isPro ? "bg-black/40 text-slate-400" : "bg-slate-100 text-slate-500"
+                                    isPro ? "bg-black/60 text-slate-300" : "bg-slate-200 text-slate-700"
                                 )}>
                                     {s.product}
                                 </span>
                                 <span className={cn(
                                     "text-[9px] font-black uppercase tracking-widest px-2 py-1 rounded-lg",
-                                    isPro ? "bg-indigo-500/20 text-indigo-400" : "bg-green-50 text-green-700"
+                                    isPro ? "bg-indigo-500/30 text-indigo-200" : "bg-green-100 text-green-800"
                                 )}>
                                     {s.discount}
                                 </span>

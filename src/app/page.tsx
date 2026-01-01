@@ -542,6 +542,12 @@ export default function Home() {
             <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
             <span className="text-[10px] font-bold text-slate-500 opacity-50 uppercase tracking-widest">{t('network_active', language)}</span>
           </div>
+
+          <div className="mt-8 opacity-40 hover:opacity-100 transition-opacity">
+            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-indigo-400">
+              Made with ❤️ by Rishabh Sonawane
+            </p>
+          </div>
         </footer>
 
         <RishabhChat />

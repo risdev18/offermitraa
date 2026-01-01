@@ -60,6 +60,7 @@ async function processVideo(
         // Codecs and output
         args.push(
             "-c:v", "libx264",
+            "-preset", "ultrafast", // Optimize for speed to avoid timeouts
             "-pix_fmt", "yuv420p",
             "-movflags", "+faststart", // Important for web playback
             "-y", // Overwrite output

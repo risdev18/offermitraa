@@ -61,10 +61,10 @@ export default function VideoGenerator({
             subtitle: "PREMIUM BUSINESS AD",
             animation: { y: [30, -10, 0], scale: [0.7, 1.1, 1] },
             voiceText: videoScript?.[0] || ((language === "hi" || language === "hindi")
-                ? `नमस्ते! ${shopName || 'हमारी दुकान'} की तरफ से यह एक विशेष संदेश है। आज ही हमारे यहाँ आएं।`
+                ? `नमस्कार! स्वागत है ${shopName || 'हमारी दुकान'} में। आईये, आईये! हमारे पास है आपके लिए एक खास ऑफर।`
                 : (language === "hinglish")
-                    ? `Namaste! ${shopName || 'Hamari shop'} ki taraf se ye ek vishesh sandesh hai. Aaj hi humare yahan aayein.`
-                    : `Welcome to ${shopName || 'our premium shop'}. We have an exclusive business offer just for you today!`)
+                    ? `Namaskar! Swagat hai ${shopName || 'humari shop'} mein. Aayiye, Aayiye! Humare paas hai aapke liye ek khaas offer.`
+                    : `Welcome to ${shopName || 'our shop'}. Come in! We have a special offer just for you.`)
         },
         {
             bg: "bg-purple-700",
@@ -73,10 +73,10 @@ export default function VideoGenerator({
             subtitle: "BEST QUALITY ASSURED",
             animation: { x: [-150, 20, 0], opacity: [0, 1] },
             voiceText: videoScript?.[1] || ((language === "hi" || language === "hindi")
-                ? `हम लेकर आए हैं आपके लिए सबसे बेहतरीन ${productName}। इसकी क्वालिटी का कोई तोड़ नहीं है।`
+                ? `हम लाए हैं ${productName}। एकदम बेस्ट क्वालिटी, वो भी सबसे कम दाम में।`
                 : (language === "hinglish")
-                    ? `Hum lekar aaye hain aapke liye sabse behtareen ${productName}. Iski quality ka koi tod nahi hai.`
-                    : `Check out our world-class ${productName}. We guarantee the best quality at the most affordable prices!`)
+                    ? `Hum laye hain ${productName}. Ekdum best quality, wo bhi sabse kam daam mein.`
+                    : `We present ${productName}. Best quality guaranteed at the lowest price.`)
         },
         {
             bg: "bg-orange-600",
@@ -85,10 +85,10 @@ export default function VideoGenerator({
             subtitle: "LIMITED PERIOD OFFER",
             animation: { scale: [0, 1.6, 1], rotate: [0, 15, 0] },
             voiceText: videoScript?.[2] || ((language === "hi" || language === "hindi")
-                ? `शानदार मौका! मिल रहा है पूरे ${discount} का भारी डिस्काउंट। यह ऑफर सिर्फ कुछ समय के लिए है।`
+                ? `धमाका ऑफर! मिल रहा है पूरे ${discount} का डिस्काउंट। जल्दी करें, मौका हाथ से न जाने दें!`
                 : (language === "hinglish")
-                    ? `Shandar mauka! Mil raha hai poore ${discount} ka bhari discount. Ye offer sirf kuch samay ke liye hai.`
-                    : `Grab this amazing deal! Get a flat ${discount} discount right now. Hurry, this is a limited time offer!`)
+                    ? `Dhamaka offer! Mil raha hai poore ${discount} ka discount. Jaldi karein, mauka haath se na jaane dein!`
+                    : `Boom! Get a flat ${discount} discount. Hurry up, don't miss this chance!`)
         },
         {
             bg: "bg-pink-600",
@@ -97,10 +97,10 @@ export default function VideoGenerator({
             subtitle: address || "NEAR YOU",
             animation: { opacity: [0, 1], scale: [0.8, 1.1, 1] },
             voiceText: videoScript?.[3] || ((language === "hi" || language === "hindi")
-                ? `हमारा पता नोट करें: ${address || 'हमारी दुकान पर आएं'}। हम आपका इंतज़ार कर रहे हैं।`
+                ? `आज ही आएं: ${address || 'हमारी दुकान पर'}। हम आपका इंतज़ार कर रहे हैं।`
                 : (language === "hinglish")
-                    ? `Humara pata note karein: ${address || 'Humari shop par aayein'}. Hum aapka intezaar kar rahe hain.`
-                    : `Visit us today at: ${address || 'our store near you'}. We are ready to serve you with the best deals!`)
+                    ? `Aaj hi aayein: ${address || 'humari shop par'}. Hum aapka intezaar kar rahe hain.`
+                    : `Visit us today at: ${address || 'our store'}. We are waiting for you.`)
         },
         {
             bg: "bg-green-700",
@@ -113,10 +113,10 @@ export default function VideoGenerator({
                 scale: [1, 1.2, 1]
             },
             voiceText: videoScript?.[4] || ((language === "hi" || language === "hindi")
-                ? `ज्यादा जानकारी के लिए डायल करें ${contactNumber || 'हमारा नंबर'}। अभी कॉल करें या व्हाट्सएप करें!`
+                ? `अभी कॉल करें ${contactNumber || 'हमारे नंबर पर'}। सोचिये मत, अभी आर्डर करें!`
                 : (language === "hinglish")
-                    ? `Zyada jankari ke liye dial karein ${contactNumber || 'Humara number'}. Abhi call karein ya whatsapp karein!`
-                    : `For more details, please call us at ${contactNumber || 'our business number'}. Contact us on WhatsApp today!`)
+                    ? `Abhi call karein ${contactNumber || 'humare number par'}. Sochiye mat, abhi order karein!`
+                    : `Call us now at ${contactNumber || 'our number'}. Don't think, just order!`)
         }
     ];
 

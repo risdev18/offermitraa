@@ -134,6 +134,34 @@ export default function OfferForm({ onGenerate, isGenerating, isPro, defaultValu
                 </div>
             </div>
 
+            {/* Shop Photo Input */}
+            <div className="space-y-1">
+                <label className={labelClasses}>
+                    <img src="https://cdn-icons-png.flaticon.com/512/126/126122.png" alt="img" className="w-5 h-5 invert" />
+                    दुकान की फोटो (Shop Photo)
+                </label>
+                <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                            if (file.size > 5000000) { // 5MB limit
+                                alert("File is too big! Please select an image under 5MB.");
+                                e.target.value = "";
+                                return;
+                            }
+                            const reader = new FileReader();
+                            reader.onloadend = () => {
+                                setValue("shopImage", reader.result as string);
+                            };
+                            reader.readAsDataURL(file);
+                        }
+                    }}
+                    className={cn(inputClasses, "file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100")}
+                />
+            </div>
+
             {/* Product Input with Voice */}
             <div className="space-y-1">
                 <label className={labelClasses}>प्रोडक्ट / सर्विस का नाम</label>

@@ -19,11 +19,12 @@ interface VideoGeneratorProps {
     videoTitles?: string[];
     onShare?: () => void;
     productImage?: string;
+    shopImage?: string;
 }
 
 export default function VideoGenerator({
     offerText, productName, discount, shopType, shopName,
-    language = "hi", address, contactNumber, videoScript, videoTitles, onShare, productImage
+    language = "hi", address, contactNumber, videoScript, videoTitles, onShare, productImage, shopImage
 }: VideoGeneratorProps) {
     const bannerRef = useRef<HTMLDivElement>(null);
     const [scene, setScene] = useState(0);
@@ -56,8 +57,19 @@ export default function VideoGenerator({
 
     const scenes = [
         {
-            bg: "bg-indigo-700",
-            icon: <ShoppingBag className="w-20 h-20 text-white mb-6" />,
+            bg: "bg-gradient-to-br from-indigo-600 to-purple-800",
+            icon: shopImage ? (
+                <div className="relative w-48 h-48 mb-6">
+                    <img
+                        src={shopImage}
+                        alt="Shop"
+                        className="w-full h-full object-cover rounded-full border-4 border-white/30 shadow-[0_0_30px_rgba(255,255,255,0.3)] animate-pulse-slow"
+                    />
+                    <div className="absolute inset-0 rounded-full border border-white/20 animate-spin-slow-reverse" />
+                </div>
+            ) : (
+                <ShoppingBag className="w-20 h-20 text-white mb-6 drop-shadow-[0_0_15px_rgba(255,255,255,0.5)]" />
+            ),
             title: videoTitles?.[0]?.toUpperCase() || (shopName || "SPECIAL OFFER").toUpperCase(),
             subtitle: "PREMIUM BUSINESS AD",
             animation: { y: [30, -10, 0], scale: [0.7, 1.1, 1] },
@@ -68,7 +80,7 @@ export default function VideoGenerator({
                     : `Welcome to ${shopName || 'our shop'}. Come in! We have a special offer just for you.`)
         },
         {
-            bg: "bg-purple-700",
+            bg: "bg-gradient-to-br from-purple-600 to-pink-600",
             icon: productImage ? (
                 <img
                     src={productImage}
@@ -88,7 +100,7 @@ export default function VideoGenerator({
                     : `We present ${productName}. Best quality guaranteed at the lowest price.`)
         },
         {
-            bg: "bg-orange-600",
+            bg: "bg-gradient-to-br from-orange-500 to-red-600",
             icon: <div className="text-8xl font-black text-white mb-6 drop-shadow-xl">{discount}</div>,
             title: videoTitles?.[2]?.toUpperCase() || "FLAT DISCOUNT",
             subtitle: "LIMITED PERIOD OFFER",
@@ -100,7 +112,7 @@ export default function VideoGenerator({
                     : `Boom! Get a flat ${discount} discount. Hurry up, don't miss this chance!`)
         },
         {
-            bg: "bg-pink-600",
+            bg: "bg-gradient-to-br from-pink-500 to-rose-600",
             icon: <MapPin className="w-20 h-20 text-white mb-6" />,
             title: videoTitles?.[3]?.toUpperCase() || "VISIT US NOW",
             subtitle: address || "NEAR YOU",
@@ -112,7 +124,7 @@ export default function VideoGenerator({
                     : `Visit us today at: ${address || 'our store'}. We are waiting for you.`)
         },
         {
-            bg: "bg-green-700",
+            bg: "bg-gradient-to-br from-emerald-600 to-teal-800",
             icon: <Phone className="w-20 h-20 text-white mb-6" />,
             title: videoTitles?.[4]?.toUpperCase() || "CONTACT US",
             subtitle: contactNumber || "CALL NOW",

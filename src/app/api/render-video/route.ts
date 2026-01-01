@@ -3,10 +3,10 @@ import fs from "fs";
 import path from "path";
 import os from "os";
 import { v4 as uuidv4 } from "uuid";
-import ffmpeg from "fluent-ffmpeg";
 import * as googleTTS from "google-tts-api";
+import { spawn } from "child_process";
 
-ffmpeg.setFfmpegPath(require("ffmpeg-static"));
+const ffmpegPath = require("ffmpeg-static");
 
 // Helper to download a file from URL
 async function downloadFile(url: string, destPath: string) {
@@ -23,8 +23,6 @@ async function processVideo(
     outputPath: string
 ): Promise<void> {
     return new Promise((resolve, reject) => {
-        const cmd = ffmpeg();
-
         // Create inputs.txt for images
         const concatTxtPath = path.join(tempDir, "inputs.txt");
         const fileContent = imagePaths.map(img => `file '${img.replace(/\\/g, '/')}'\nduration 4`).join('\n') + `\nfile '${imagePaths[imagePaths.length - 1].replace(/\\/g, '/')}'`;
@@ -37,22 +35,56 @@ async function processVideo(
             fs.writeFileSync(audioListPath, audioContent);
         }
 
-        // Setup FFmpeg
-        cmd.input(concatTxtPath)
-            .inputOptions(['-f concat', '-safe 0'])
-            .videoCodec('libx264')
-            .outputOptions(['-pix_fmt yuv420p', '-movflags +faststart']);
+        // Build FFmpeg arguments
+        const args = [
+            "-f", "concat",
+            "-safe", "0",
+            "-i", concatTxtPath
+        ];
 
         if (audioPaths.length > 0) {
-            cmd.input(audioListPath)
-                .inputOptions(['-f concat', '-safe 0']);
-            // Map streams: video from 0, audio from 1
-            cmd.outputOptions(['-map 0:v', '-map 1:a']);
+            args.push("-f", "concat", "-safe", "0", "-i", audioListPath);
         }
 
-        cmd.save(outputPath)
-            .on('end', () => resolve())
-            .on('error', (err) => reject(err));
+        // Map streams
+        args.push("-map", "0:v");
+        if (audioPaths.length > 0) {
+            args.push("-map", "1:a");
+        }
+
+        // Codecs and output
+        args.push(
+            "-c:v", "libx264",
+            "-pix_fmt", "yuv420p",
+            "-movflags", "+faststart", // Important for web playback
+            "-y", // Overwrite output
+            outputPath
+        );
+
+        console.log("Spawning FFmpeg with args:", args.join(" "));
+
+        const process = spawn(ffmpegPath, args);
+
+        let stderrData = "";
+
+        process.stderr.on("data", (data) => {
+            stderrData += data.toString();
+        });
+
+        process.on("close", (code) => {
+            if (code === 0) {
+                resolve();
+            } else {
+                console.error("FFmpeg process exited with code " + code);
+                console.error("FFmpeg stderr:", stderrData);
+                reject(new Error(`FFmpeg exited with code ${code}`));
+            }
+        });
+
+        process.on("error", (err) => {
+            console.error("FFmpeg spawn error:", err);
+            reject(err);
+        });
     });
 }
 

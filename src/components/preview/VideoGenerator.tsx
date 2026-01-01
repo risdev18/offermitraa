@@ -374,108 +374,58 @@ export default function VideoGenerator({
                             >
                                 {scenes[scene].subtitle}
                             </motion.div>
-                            {/* Action buttons removed from inside the frame - see Controls below */}
-                            console.error("Error generating share link:", err);
-                        }
-                    }}
-                            className="flex-1 bg-indigo-600 text-white py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-lg hover:bg-indigo-700 transition-all flex items-center justify-center gap-2"
-                >
-                            <LinkIcon className="w-3 h-3" /> Copy Link
-                        </button>
-                        <button
-                            onClick={async () => {
-                                const element = bannerRef.current;
-                                if (!element) return;
+                        </motion.div>
+                    </motion.div>
+                </AnimatePresence>
 
-                                const confirm = window.confirm("Generate and Download Video File?\nThis takes about 15-20 seconds to render on the server.");
-                                if (!confirm) return;
-
-                                setIsCapturing(true); // Hide UI
-                                setIsMuting(true); // Silence during capture
-                                const capturedImages: string[] = [];
-
-                                try {
-                                    // Loop through scenes and capture
-                                    for (let i = 0; i < 5; i++) {
-                                        setScene(i);
-                                        // Wait for render & animation
-                                        await new Promise(r => setTimeout(r, 1500));
-                                        const dataUrl = await toPng(element, { quality: 0.9, cacheBust: true });
-                                        capturedImages.push(dataUrl);
-                                    }
-
-                                    // Send to Server
-                                    const response = await fetch('/api/render-video', {
-                                        method: 'POST',
-                                        headers: { 'Content-Type': 'application/json' },
-                                        body: JSON.stringify({
-                                            images: capturedImages,
-                                            script: scenes.map(s => s.voiceText), // Use text from scenes
-                                            language: language
-                                        })
-                                    });
-
-                                    if (!response.ok) throw new Error("Rendering failed on server. Ensure FFmpeg is installed.");
-
-                                    const blob = await response.blob();
-                                    const url = window.URL.createObjectURL(blob);
-                                    const link = document.createElement('a');
-                                    link.href = url;
-                                    link.download = `offer-mitra-${Date.now()}.mp4`;
-                                    document.body.appendChild(link);
-                                    link.click();
-                                    document.body.removeChild(link);
-                                    alert("Video Downloaded! 🚀\nYou can now share it on WhatsApp!");
-
-                                } catch (e) {
-                                    console.error("Video generation failed", e);
-                                    alert("Video generation failed. Please try again later.");
-                                } finally {
-                                    setIsCapturing(false);
-                                    setScene(0);
-                                    setIsMuting(false); // Restore sound
-                                }
-                            }}
-                            className="flex-1 bg-red-600 text-white py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-lg hover:bg-red-700 transition-all flex items-center justify-center gap-2"
+                {/* Initial Overlay - Keep this for interaction start */}
+                {isMuting && !hasInteracted && (
+                    <div className="absolute inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-6 text-center">
+                        <motion.button
+                            initial={{ scale: 0.9, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            onClick={handleStartWithSound}
+                            className="bg-white text-indigo-900 px-8 py-4 rounded-full font-black text-lg shadow-2xl flex items-center gap-3 hover:scale-105 active:scale-95 transition-all"
                         >
-                            <Download className="w-3 h-3" /> Download MP4
-                        </button>
-                        <button
-                            onClick={async () => {
-                                const element = bannerRef.current;
-                                if (!element) return;
-                                setIsCapturing(true);
-                                try {
-                                    const dataUrl = await toPng(element, { quality: 0.95, pixelRatio: 2, cacheBust: true });
-                                    const blob = await (await fetch(dataUrl)).blob();
-                                    const file = new File([blob], 'offer-ad.png', { type: 'image/png' });
-
-                                    if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
-                                        await navigator.share({
-                                            files: [file],
-                                            title: 'Video Offer Ad',
-                                            text: 'Check out our new business ad!'
-                                        });
-                                        onShare?.();
-                                    } else {
-                                        const link = document.createElement('a');
-                                        link.download = `offer-frame-${Date.now()}.png`;
-                                        link.href = dataUrl;
-                                        link.click();
-                                        onShare?.();
-                                        alert("Poster saved to gallery! You can now share it manually on WhatsApp.");
-                                    }
-                                } catch (e) {
-                                    console.error("Frame share failed", e);
-                                } finally {
-                                    setIsCapturing(false);
-                                }
-                            }}
-                            className="flex-1 bg-green-500 text-white py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-lg hover:bg-green-600 transition-all flex items-center justify-center gap-2"
-                        >
-                            <Share2 className="w-3 h-3" /> WhatsApp
-                        </button>
+                            <Volume2 className="w-6 h-6 animate-pulse" />
+                            PLAY WITH SOUND
+                        </motion.button>
+                        <p className="absolute bottom-10 text-white/50 text-xs font-bold uppercase tracking-widest">Click to start preview</p>
                     </div>
+                )}
             </div>
-            );
+
+            {/* EXTERNAL CONTROLS - Clean UI for Screen Recording */}
+            <div className="flex flex-wrap items-center justify-center gap-4 bg-slate-900/50 p-4 rounded-3xl border border-white/10 backdrop-blur-md">
+                <button
+                    onClick={toggleMute}
+                    className="p-4 bg-white/10 hover:bg-white/20 text-white rounded-2xl transition-all"
+                    title={isMuting ? "Unmute" : "Mute"}
+                >
+                    {isMuting ? <VolumeX className="w-6 h-6" /> : <Volume2 className="w-6 h-6 text-green-400" />}
+                </button>
+
+                <button
+                    onClick={downloadVideo}
+                    disabled={isCapturing}
+                    className="flex items-center gap-2 px-6 py-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl font-black uppercase tracking-widest text-xs transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-indigo-500/30"
+                >
+                    {isCapturing ? (
+                        <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    ) : (
+                        <Download className="w-4 h-4" />
+                    )}
+                    Save Video
+                </button>
+
+                <button
+                    onClick={onShare}
+                    className="flex items-center gap-2 px-6 py-4 bg-pink-600 hover:bg-pink-700 text-white rounded-2xl font-black uppercase tracking-widest text-xs transition-all shadow-lg hover:shadow-pink-500/30"
+                >
+                    <Share2 className="w-4 h-4" />
+                    Share
+                </button>
+            </div>
+        </div>
+    );
 }

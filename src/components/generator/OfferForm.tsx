@@ -194,7 +194,7 @@ export default function OfferForm({ onGenerate, isGenerating, isPro, defaultValu
                 "flex p-1.5 rounded-2xl border transition-all",
                 isPro ? "bg-slate-900/50 border-slate-800" : "bg-slate-100 border-slate-200"
             )}>
-                {(['hindi', 'hinglish', 'english'] as Language[]).map((lang) => (
+                {(['hindi', 'hinglish'] as Language[]).map((lang) => (
                     <button
                         key={lang}
                         type="button"
@@ -209,7 +209,7 @@ export default function OfferForm({ onGenerate, isGenerating, isPro, defaultValu
                                 : "text-slate-500 hover:text-slate-700"
                         )}
                     >
-                        {lang === 'hindi' ? '🇮🇳 हिंदी' : lang === 'hinglish' ? '🔤 Hinglish' : '🇺🇸 English'}
+                        {lang === 'hindi' ? '🇮🇳 हिंदी' : '🔤 Hinglish'}
                     </button>
                 ))}
             </div>

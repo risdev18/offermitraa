@@ -14,6 +14,7 @@ import { motion, AnimatePresence } from "framer-motion";
 
 export default function BusinessTypeSelector({ onSelect, onSkip }: BusinessTypeSelectorProps) {
     const [selected, setSelected] = useState<BusinessType | null>(null);
+    const [customType, setCustomType] = useState("");
 
     const handleSelect = (type: BusinessType) => {
         setSelected(type);
@@ -22,6 +23,9 @@ export default function BusinessTypeSelector({ onSelect, onSkip }: BusinessTypeS
     const handleConfirm = () => {
         if (selected) {
             saveBusinessType(selected);
+            if (selected === 'other' && customType.trim()) {
+                localStorage.setItem("businessType_custom", customType.trim());
+            }
             onSelect(selected);
         }
     };
@@ -100,10 +104,31 @@ export default function BusinessTypeSelector({ onSelect, onSkip }: BusinessTypeS
                         ))}
                     </div>
 
+                    {/* Custom Input for 'Other' */}
+                    {selected === 'other' && (
+                        <motion.div
+                            initial={{ height: 0, opacity: 0 }}
+                            animate={{ height: 'auto', opacity: 1 }}
+                            className="mt-6"
+                        >
+                            <label className="text-slate-400 text-xs font-bold uppercase tracking-widest mb-2 block">
+                                Specify Your Business Category
+                            </label>
+                            <input
+                                type="text"
+                                placeholder="e.g. Toy Shop, Salon, Bakery..."
+                                value={customType}
+                                onChange={(e) => setCustomType(e.target.value)}
+                                className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white font-bold outline-none focus:border-indigo-500/50 focus:bg-white/10 transition-all placeholder:text-slate-600"
+                                autoFocus
+                            />
+                        </motion.div>
+                    )}
+
                     <div className="mt-12">
                         <button
                             onClick={handleConfirm}
-                            disabled={!selected}
+                            disabled={!selected || (selected === 'other' && !customType.trim())}
                             className={cn(
                                 "w-full py-6 rounded-[2rem] font-black text-xl tracking-[0.1em] transition-all relative overflow-hidden group",
                                 selected

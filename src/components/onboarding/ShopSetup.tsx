@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Upload, X, Store, FileText, ChevronRight, Check } from "lucide-react";
+import { Upload, X, Store, FileText, ChevronRight, Check, Phone } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface ShopSetupProps {
@@ -12,6 +12,7 @@ interface ShopSetupProps {
 export interface ShopDetails {
     shopName: string;
     shopDescription: string;
+    shopMobile: string;
     shopPhoto: string | null; // Base64 string for local storage
 }
 
@@ -19,6 +20,7 @@ export default function ShopSetup({ onComplete }: ShopSetupProps) {
     const [step, setStep] = useState(1);
     const [shopName, setShopName] = useState("");
     const [shopDescription, setShopDescription] = useState("");
+    const [shopMobile, setShopMobile] = useState("");
     const [shopPhoto, setShopPhoto] = useState<string | null>(null);
     const [isLeaving, setIsLeaving] = useState(false);
 
@@ -36,7 +38,7 @@ export default function ShopSetup({ onComplete }: ShopSetupProps) {
         }
     };
 
-    const isStep1Valid = shopName.trim().length > 0 && shopDescription.trim().length > 0;
+    const isStep1Valid = shopName.trim().length > 0 && shopDescription.trim().length > 0 && shopMobile.trim().length === 10;
     const isStep2Valid = !!shopPhoto; // Photo is mandatory as per "Fields to collect (mandatory)... Shop Photo"
 
     // Wait, requirement says "Fields to collect (mandatory): Shop Name, Shop Description, Shop Photo".
@@ -51,6 +53,7 @@ export default function ShopSetup({ onComplete }: ShopSetupProps) {
             const details: ShopDetails = {
                 shopName,
                 shopDescription,
+                shopMobile,
                 shopPhoto
             };
 
@@ -175,6 +178,21 @@ export default function ShopSetup({ onComplete }: ShopSetupProps) {
                                             {shopDescription.length}/300
                                         </div>
                                     </div>
+                                </div>
+
+                                <div className="space-y-2">
+                                    <label className="text-xs font-bold uppercase tracking-widest text-indigo-400 ml-1">Shop Mobile (WhatsApp Number)</label>
+                                    <div className="relative group">
+                                        <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500 group-focus-within:text-indigo-500 transition-colors" />
+                                        <input
+                                            type="tel"
+                                            value={shopMobile}
+                                            onChange={(e) => setShopMobile(e.target.value.replace(/\D/g, '').slice(0, 10))}
+                                            placeholder="10 digit mobile number"
+                                            className="w-full bg-slate-800/50 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white placeholder:text-slate-600 focus:outline-none focus:border-indigo-500/50 focus:bg-slate-800 transition-all font-medium"
+                                        />
+                                    </div>
+                                    <p className="text-[10px] text-slate-500 italic ml-1">* This will be used as the default contact number for all offers.</p>
                                 </div>
                             </motion.div>
                         ) : (

@@ -41,7 +41,7 @@ export default function OfferForm({ onGenerate, isGenerating, isPro, defaultValu
         if (shopDetails) {
             if (shopDetails.shopName) setValue("shopName", shopDetails.shopName);
             if (shopDetails.shopPhoto) setValue("shopImage", shopDetails.shopPhoto);
-            // We can also use description if we had a field for it, or append to extraInfo
+            if (shopDetails.shopMobile) setValue("contactNumber", shopDetails.shopMobile);
         }
     }, [shopDetails, setValue]);
     const [showContactField, setShowContactField] = useState(false);
@@ -54,6 +54,9 @@ export default function OfferForm({ onGenerate, isGenerating, isPro, defaultValu
     const onSubmit = (data: any) => {
         onGenerate({
             ...data,
+            shopName: data.shopName || shopDetails?.shopName,
+            contactNumber: data.contactNumber || shopDetails?.shopMobile,
+            shopImage: data.shopImage || shopDetails?.shopPhoto,
             language,
             businessType: businessType || 'grocery',
             cta: businessConfig?.ctaText || 'Call Now',
@@ -92,44 +95,47 @@ export default function OfferForm({ onGenerate, isGenerating, isPro, defaultValu
             {/* AI Ideas Section */}
             <AIIdeas shopType={shopType} onSelectSuggestion={handleSelectSuggestion} isPro={isPro} />
 
-            {/* Shop Name Input */}
-            <div className="space-y-1">
-                <label className={labelClasses}>
-                    <Store className="w-5 h-5" />
-                    दुकान का नाम (Shop Name) – {template?.tagline}
-                    {shopDetails?.shopName && <span className="text-[10px] bg-green-500/20 text-green-500 px-2 py-0.5 rounded-full ml-auto">Auto-Filled</span>}
-                </label>
-                <input
-                    type="text"
-                    placeholder="Ex: Sharma Kirana, Global Medicals..."
-                    {...register("shopName", { required: "Shop name is required" })}
-                    className={inputClasses}
-                />
-                {errors.shopName && <p className="text-red-500 text-xs font-black mt-1">✗ दुकान का नाम ज़रूरी है</p>}
-            </div>
+            {/* Shop Name Input - Hidden if already provided */}
+            {!shopDetails?.shopName && (
+                <div className="space-y-1">
+                    <label className={labelClasses}>
+                        <Store className="w-5 h-5" />
+                        दुकान का नाम (Shop Name) – {template?.tagline}
+                    </label>
+                    <input
+                        type="text"
+                        placeholder="Ex: Sharma Kirana, Global Medicals..."
+                        {...register("shopName", { required: !shopDetails?.shopName ? "Shop name is required" : false })}
+                        className={inputClasses}
+                    />
+                    {errors.shopName && <p className="text-red-500 text-xs font-black mt-1">✗ दुकान का नाम ज़रूरी है</p>}
+                </div>
+            )}
 
             {/* Contact & Address Section */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-1">
-                    <label className={labelClasses}>
-                        <Phone className="w-5 h-5 text-green-500" />
-                        मोबाइल नंबर (WhatsApp No.)
-                    </label>
-                    <input
-                        type="tel"
-                        placeholder="Ex: 9876543210"
-                        {...register("contactNumber", {
-                            required: "Mobile number is required",
-                            pattern: {
-                                value: /^[0-9]{10}$/,
-                                message: "10 अंकों का नंबर डालें"
-                            }
-                        })}
-                        className={inputClasses}
-                        maxLength={10}
-                    />
-                    {errors.contactNumber && <p className="text-red-500 text-xs font-black mt-1">✗ {errors.contactNumber.message as string}</p>}
-                </div>
+                {!shopDetails?.shopMobile && (
+                    <div className="space-y-1">
+                        <label className={labelClasses}>
+                            <Phone className="w-5 h-5 text-green-500" />
+                            मोबाइल नंबर (WhatsApp No.)
+                        </label>
+                        <input
+                            type="tel"
+                            placeholder="Ex: 9876543210"
+                            {...register("contactNumber", {
+                                required: !shopDetails?.shopMobile ? "Mobile number is required" : false,
+                                pattern: {
+                                    value: /^[0-9]{10}$/,
+                                    message: "10 अंकों का नंबर डालें"
+                                }
+                            })}
+                            className={inputClasses}
+                            maxLength={10}
+                        />
+                        {errors.contactNumber && <p className="text-red-500 text-xs font-black mt-1">✗ {errors.contactNumber.message as string}</p>}
+                    </div>
+                )}
 
                 <div className="space-y-1">
                     <label className={labelClasses}>
@@ -146,34 +152,35 @@ export default function OfferForm({ onGenerate, isGenerating, isPro, defaultValu
                 </div>
             </div>
 
-            {/* Shop Photo Input */}
-            <div className="space-y-1">
-                <label className={labelClasses}>
-                    <img src="https://cdn-icons-png.flaticon.com/512/126/126122.png" alt="img" className="w-5 h-5 invert" />
-                    दुकान की फोटो (Shop Photo)
-                    {shopDetails?.shopPhoto && <span className="text-[10px] bg-green-500/20 text-green-500 px-2 py-0.5 rounded-full ml-auto">Saved</span>}
-                </label>
-                <input
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) => {
-                        const file = e.target.files?.[0];
-                        if (file) {
-                            if (file.size > 5000000) { // 5MB limit
-                                alert("File is too big! Please select an image under 5MB.");
-                                e.target.value = "";
-                                return;
+            {/* Shop Photo Input - Hidden if already provided */}
+            {!shopDetails?.shopPhoto && (
+                <div className="space-y-1">
+                    <label className={labelClasses}>
+                        <img src="https://cdn-icons-png.flaticon.com/512/126/126122.png" alt="img" className="w-5 h-5 invert" />
+                        दुकान की फोटो (Shop Photo)
+                    </label>
+                    <input
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) {
+                                if (file.size > 5000000) { // 5MB limit
+                                    alert("File is too big! Please select an image under 5MB.");
+                                    e.target.value = "";
+                                    return;
+                                }
+                                const reader = new FileReader();
+                                reader.onloadend = () => {
+                                    setValue("shopImage", reader.result as string);
+                                };
+                                reader.readAsDataURL(file);
                             }
-                            const reader = new FileReader();
-                            reader.onloadend = () => {
-                                setValue("shopImage", reader.result as string);
-                            };
-                            reader.readAsDataURL(file);
-                        }
-                    }}
-                    className={cn(inputClasses, "file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100")}
-                />
-            </div>
+                        }}
+                        className={cn(inputClasses, "file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100")}
+                    />
+                </div>
+            )}
 
             {/* Product Input with Voice */}
             <div className="space-y-1">

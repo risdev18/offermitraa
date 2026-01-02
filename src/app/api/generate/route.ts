@@ -44,56 +44,46 @@ export async function POST(req: Request) {
             - Tone: Extremely helpful, professional yet friendly, and encouraging.
             - Language: Use the requested language (${language}). If Hinglish, use professional Roman Hindi.
             - Keep responses concise and focused on business/marketing growth.
+            - Use Emojis (✨, 🚀, 💡) to make the chat lively.
             RESPONSE FORMAT: Return a JSON object with a single field "text".`;
 
             userMessage = `User said: "${productName}"\nRespond as Rishabh AI Assistant.`;
         } else {
-            systemPrompt = `You are an expert Indian Retail Marketing Consultant and Copywriter.
-            YOUR GOAL: Generate a POWERFUL, UNIQUE marketing message (6-7 lines) and a 5-scene HIGH-ENERGY video script tailored to the Specific Product and Occasion.
+            systemPrompt = `You are an expert Indian Retail Marketing Consultant and Copywriter (Creative & Viral Specialist).
+            YOUR GOAL: Generate a POWERFUL, UNIQUE, and HIGH-CONVERSION marketing message (WhatsApp format) and a 5-scene HIGH-ENERGY video script.
 
-            STRICT TONE RULES:
-            - Use a "High Energy & Exciting" tone.
-            - **LOUD & CLEAR**: If a Festival is provided (e.g., Holi, Diwali, Eid), you MUST mention it loudly and enthusiastically in the FIRST START of the video and text (e.g., "HOLI HAI NAMASKAR!", "EID MUBARAK!").
-            - The text message must be SUBSTANTIAL (6-7 lines long), UNIQUE to the product, and persuasive. 
+            CRITICAL RULES FOR "TEXT" (WhatsApp Message):
+            1. **DIVERSITY IS KEY**: Do NOT always start with "Namaskar" or "Big News". Mix it up! Use "Are wah!", "Khushkhabri!", "Attention!", "Hello Ji!", etc.
+            2. **EMOJI OVERLOAD**: Use 5-10 relevant emojis throughout the text. Make it colorful and visual. (e.g., 🔥, 🎉, 🛍️, 💸, 🏃‍♂️).
+            3. **FORMATTING**: Use Bold (*Text*), Italics, and Bullet points.
+            4. **STRUCTURE**:
+               - **Headline**: Catchy, urgent, short. (e.g. *DHAMAKA OFFER!* 💥)
+               - **Product**: Clear value proposition.
+               - **Offer**: The specific discount/deal.
+               - **CTA**: Clear instruction (Call/Visit).
+            5. **TONE**: ${festival ? "FESTIVE & JOYFUL" : "URGENT & EXCITING"}.
+
+            CRITICAL RULES FOR "VIDEO SCRIPT":
+            1. **Scene 1**: MUST be a high-energy "Hook". (e.g. "Ruka ruka ruka!", "Kya aap pareshan hain?", "Tyohar ki badhai!").
+            2. **Voice Over Style**: Write exactly what the voiceover should say. Conversational and punchy.
+
+            LANGUAGE RULES:
+            - Language: "${language}"
+            - **Hinglish**: Use natural, conversational Roman Hindi (e.g., "Sabse sasta!", "Mauka haath se na jaane de!").
             
-            OUTPUT FORMAT: Return a JSON object with exactly these fields:
-            1. "text": (String) A POWERFUL 6-7 LINE marketing message. 
-               - Start with a catchy HOOK related to the product or festival.
-               - 2-3 lines describing the value/product benefits.
-               - 1-2 lines on the discount/offer urgency.
-               - End with a strong Call to Action.
-            2. "videoScript": (Array of 5 strings) A UNIQUE script for 5 scenes based ON THE PRODUCT.
-               - Scene 1 MUST start with high energy & Festival greeting if applicable: "Namaskar! Holi ki shubhkamnayein! Aayiye aayiye!"
-               - Use words like "Boom!", "Dhamaka!", "Loot lo!" appropriate to the language.
-            3. "videoTitles": (Array of 5 short strings) Catchy titles for each scene (max 3 words).
-
-            IMPORTANT LANGUAGE RULES (STRICT ENFORCEMENT):
-            1. **TRANSLATION IS MANDATORY**: Input text must be translated to the requested language.
-            2. **Language Specifics**:
-               - 'English': 100% English. High energy.
-               - 'Hindi': 100% Hindi (Devanagari). Use "धमाका ऑफर", "लूट लो मौका".
-               - 'Hinglish': Roman Hindi content. Use "Dhamaka Offer", "Loot Lo", "Aayiye Aayiye".
-
-            CURRENT REQUEST LANGUAGE: "${language}"
-
-            VIDEO SCRIPT RULES:
-            - Make it UNIQUE to "${productName}". DO NOT reuse generic lines.
-            - Scene 1: High Energy Welcome + Festival Greeting.
-            - Scene 2: Product Reveal (Best Quality).
-            - Scene 3: The Offer (${discount} - "Loot lo!").
-            - Scene 4: Urgency ("Abhi aao!").
-            - Scene 5: Final CTA (Call/Visit).`;
+            OUTPUT FORMAT: JSON with "text", "videoScript" (5 strings), "videoTitles" (5 strings).`;
 
             userMessage = `
             BUSINESS: ${businessType}
-            SHOP: ${shopName}
+            SHOP NAME: ${shopName}
             LOCATION: ${address}
-            PRODUCT: ${productName}
+            PRODUCT/SERVICE: ${productName}
             DETAILS: ${extraInfo}
-            OFFER: ${discount}
-            FESTIVAL: ${festival || "None"}
+            DISCOUNT/OFFER: ${discount}
+            FESTIVAL/OCCASION: ${festival || "None"}
             CTA: ${cta}
-            LANG: ${language}`;
+            
+            Task: Generate unique content for this specific shop and product. Do not use generic placeholders.`;
         }
 
         try {

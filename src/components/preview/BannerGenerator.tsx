@@ -13,6 +13,7 @@ interface BannerGeneratorProps {
     language?: string;
     address?: string;
     contactNumber?: string;
+    productName?: string;
     onShare?: () => void;
 }
 
@@ -25,7 +26,7 @@ const PREMIUM_BACKGROUNDS = [
     "bg-gradient-to-br from-blue-100 to-indigo-200 border-none",   // Professional (Brighter) e
 ];
 
-export default function BannerGenerator({ text, shopType, shopName, isPro, language, address, contactNumber, onShare }: BannerGeneratorProps) {
+export default function BannerGenerator({ text, shopType, shopName, isPro, language, address, contactNumber, productName, onShare }: BannerGeneratorProps) {
     const bannerRef = useRef<HTMLDivElement>(null);
     const [bgIndex, setBgIndex] = useState(0);
     const [isCapturing, setIsCapturing] = useState(false);
@@ -145,7 +146,11 @@ export default function BannerGenerator({ text, shopType, shopName, isPro, langu
                         const lines = text.split('\n').map(l => l.trim().replace(/\*/g, "")).filter(l => l.length > 2);
                         const headline = lines[0] || (language === 'hindi' ? "विशेष ऑफर" : "Special Offer");
                         const subheadline = lines[1] || "";
+
                         const mainOffer = text.match(/\d+%|OFF|₹\d+|फीसदी|छूट|डिस्काउंट/gi)?.[0] || "";
+
+                        // Use productName explicitly if available, otherwise try to extract
+                        const productDisplay = productName || subheadline;
 
                         return (
                             <>
@@ -157,7 +162,16 @@ export default function BannerGenerator({ text, shopType, shopName, isPro, langu
                                     {headline}
                                 </h2>
 
-                                {subheadline && (
+                                {productDisplay && (
+                                    <h1 className={cn(
+                                        "text-5xl md:text-7xl font-black uppercase tracking-tighter my-2 drop-shadow-2xl",
+                                        isDarkBg ? "text-transparent bg-clip-text bg-gradient-to-r from-indigo-200 to-purple-200" : "text-slate-900"
+                                    )}>
+                                        {productDisplay}
+                                    </h1>
+                                )}
+
+                                {subheadline && subheadline !== productDisplay && (
                                     <p className={cn(
                                         "text-lg font-bold opacity-80 max-w-[80%] line-clamp-2",
                                         isDarkBg ? "text-indigo-200" : "text-slate-600"

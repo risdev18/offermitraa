@@ -10,6 +10,7 @@ import AIIdeas from "./AIIdeas";
 import { getBusinessType, getBusinessConfig } from "@/lib/businessTypes";
 import { getTemplateForBusiness, TEMPLATES } from "@/lib/templates";
 import { t } from "@/lib/i18n";
+import { ShopDetails } from "../onboarding/ShopSetup";
 
 interface OfferFormProps {
     onGenerate: (data: any) => void;
@@ -17,9 +18,10 @@ interface OfferFormProps {
     isPro?: boolean;
     defaultValues?: any;
     usageCount?: number;
+    shopDetails?: ShopDetails | null;
 }
 
-export default function OfferForm({ onGenerate, isGenerating, isPro, defaultValues, usageCount = 0 }: OfferFormProps) {
+export default function OfferForm({ onGenerate, isGenerating, isPro, defaultValues, usageCount = 0, shopDetails }: OfferFormProps) {
     const { register, handleSubmit, setValue, watch, reset, formState: { errors } } = useForm({
         defaultValues: defaultValues || {}
     });
@@ -33,6 +35,15 @@ export default function OfferForm({ onGenerate, isGenerating, isPro, defaultValu
             if (defaultValues.language) setLanguage(defaultValues.language);
         }
     }, [defaultValues, reset]);
+
+    // Auto-fill shop details if available
+    useEffect(() => {
+        if (shopDetails) {
+            if (shopDetails.shopName) setValue("shopName", shopDetails.shopName);
+            if (shopDetails.shopPhoto) setValue("shopImage", shopDetails.shopPhoto);
+            // We can also use description if we had a field for it, or append to extraInfo
+        }
+    }, [shopDetails, setValue]);
     const [showContactField, setShowContactField] = useState(false);
 
     const businessType = getBusinessType();
@@ -86,6 +97,7 @@ export default function OfferForm({ onGenerate, isGenerating, isPro, defaultValu
                 <label className={labelClasses}>
                     <Store className="w-5 h-5" />
                     दुकान का नाम (Shop Name) – {template?.tagline}
+                    {shopDetails?.shopName && <span className="text-[10px] bg-green-500/20 text-green-500 px-2 py-0.5 rounded-full ml-auto">Auto-Filled</span>}
                 </label>
                 <input
                     type="text"
@@ -139,6 +151,7 @@ export default function OfferForm({ onGenerate, isGenerating, isPro, defaultValu
                 <label className={labelClasses}>
                     <img src="https://cdn-icons-png.flaticon.com/512/126/126122.png" alt="img" className="w-5 h-5 invert" />
                     दुकान की फोटो (Shop Photo)
+                    {shopDetails?.shopPhoto && <span className="text-[10px] bg-green-500/20 text-green-500 px-2 py-0.5 rounded-full ml-auto">Saved</span>}
                 </label>
                 <input
                     type="file"

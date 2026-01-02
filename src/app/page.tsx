@@ -15,6 +15,7 @@ import { collection, addDoc } from "firebase/firestore";
 import { cn } from "@/lib/utils";
 import { getBusinessType, BusinessType, getBusinessConfig } from "@/lib/businessTypes";
 import { t, Language } from "@/lib/i18n";
+import ShopSetup, { ShopDetails } from "@/components/onboarding/ShopSetup";
 
 export default function Home() {
   const { usageCount, isPro, loading, incrementUsage } = useAccess();
@@ -30,6 +31,10 @@ export default function Home() {
   const [historyCount, setHistoryCount] = useState(0);
   const [language, setLanguage] = useState<Language>('hinglish');
 
+  // Shop Setup persistence
+  const [showShopSetup, setShowShopSetup] = useState(false);
+  const [shopDetails, setShopDetails] = useState<ShopDetails | null>(null);
+
   useEffect(() => {
     const history = JSON.parse(localStorage.getItem("om_history") || "[]");
     setHistoryCount(history.length);
@@ -41,6 +46,19 @@ export default function Home() {
 
   // Check if business type is selected on mount and restore data
   useEffect(() => {
+    // 1. Check for Shop Details (Mandatory Step 1)
+    try {
+      const savedDetails = localStorage.getItem("om_shop_details");
+      if (savedDetails) {
+        setShopDetails(JSON.parse(savedDetails));
+      } else {
+        // If no shop details, show setup
+        setShowShopSetup(true);
+      }
+    } catch (e) { console.error("Error reading shop details", e); }
+
+
+    // 2. Business Type Check
     const businessType = getBusinessType();
     if (!businessType) {
       setShowBusinessSelector(true);
@@ -311,7 +329,14 @@ export default function Home() {
             </div>
           </div>
 
-          <OfferForm onGenerate={handleGenerate} isGenerating={isGenerating} isPro={isPro} defaultValues={lastInputData} usageCount={usageCount} />
+          <OfferForm
+            onGenerate={handleGenerate}
+            isGenerating={isGenerating}
+            isPro={isPro}
+            defaultValues={lastInputData}
+            usageCount={usageCount}
+            shopDetails={shopDetails}
+          />
         </div>
 
         {/* RESULTS SECTION */}
@@ -438,6 +463,7 @@ export default function Home() {
                       language={lastInputData?.language}
                       address={lastInputData?.address}
                       contactNumber={lastInputData?.contactNumber}
+                      productName={lastInputData?.productName}
                       onShare={handleShareTrack}
                     />
                   ) : (
@@ -446,7 +472,7 @@ export default function Home() {
                       productName={lastInputData?.productName || ""}
                       discount={lastInputData?.discount || ""}
                       shopType={getBusinessType() || "grocery"}
-                      shopName={lastInputData?.shopName}
+                      shopName={lastInputData?.shopName || shopDetails?.shopName}
                       language={lastInputData?.language}
                       address={lastInputData?.address}
                       contactNumber={lastInputData?.contactNumber}
@@ -454,7 +480,7 @@ export default function Home() {
                       videoTitles={videoTitles}
                       onShare={handleShareTrack}
                       productImage={lastInputData?.productImage}
-                      shopImage={lastInputData?.shopImage}
+                      shopImage={lastInputData?.shopImage || shopDetails?.shopPhoto}
                     />
                   )}
                 </div>
@@ -568,6 +594,14 @@ export default function Home() {
         isOpen={showAccessModal}
         onClose={() => setShowAccessModal(false)}
       />
+
+      {showShopSetup && (
+        <ShopSetup onComplete={(details) => {
+          setShopDetails(details);
+          setShowShopSetup(false);
+          // Optionally save to generic local storage for redundancy if not done in component
+        }} />
+      )}
     </main>
   );
 }

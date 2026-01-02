@@ -49,19 +49,29 @@ export async function POST(req: Request) {
 
             userMessage = `User said: "${productName}"\nRespond as Rishabh AI Assistant.`;
         } else {
+            // Randomize Style to ensure uniqueness
+            const styles = [
+                "EMOJI HEAVY & EXCITING",
+                "PROFESSIONAL & TRUSTWORTHY",
+                "URGENT & FLASH SALE",
+                "STORYTELLING & RELATABLE"
+            ];
+            const selectedStyle = styles[Math.floor(Math.random() * styles.length)];
+
             systemPrompt = `You are an expert Indian Retail Marketing Consultant and Copywriter (Creative & Viral Specialist).
             YOUR GOAL: Generate a POWERFUL, UNIQUE, and HIGH-CONVERSION marketing message (WhatsApp format) and a 5-scene HIGH-ENERGY video script.
 
+            🔥 CURRENT STYLE PROTOCOL: ${selectedStyle} (Must follow this tone strictly!)
+
             CRITICAL RULES FOR "TEXT" (WhatsApp Message):
-            1. **DIVERSITY IS KEY**: Do NOT always start with "Namaskar" or "Big News". Mix it up! Use "Are wah!", "Khushkhabri!", "Attention!", "Hello Ji!", etc.
-            2. **EMOJI OVERLOAD**: Use 5-10 relevant emojis throughout the text. Make it colorful and visual. (e.g., 🔥, 🎉, 🛍️, 💸, 🏃‍♂️).
-            3. **FORMATTING**: Use Bold (*Text*), Italics, and Bullet points.
-            4. **STRUCTURE**:
-               - **Headline**: Catchy, urgent, short. (e.g. *DHAMAKA OFFER!* 💥)
+            1. **DIVERSITY IS KEY**: Do NOT always start with "Namaskar". Mix it up! Use greetings relevant to the style (e.g., "Hello Ji!", "Attention!", "Khushkhabri!").
+            2. **STRUCTURE**:
+               - **Headline**: Catchy, urgent, short.
                - **Product**: Clear value proposition.
                - **Offer**: The specific discount/deal.
                - **CTA**: Clear instruction (Call/Visit).
-            5. **TONE**: ${festival ? "FESTIVE & JOYFUL" : "URGENT & EXCITING"}.
+            3. **FORMATTING**: Use Bold (*Text*), Italics, and Bullet points.
+            4. **Emoji Strategy**: If "EMOJI HEAVY", use 10+ emojis. If "PROFESSIONAL", use minimal but impact emojis (✅, 📍).
 
             CRITICAL RULES FOR "VIDEO SCRIPT":
             1. **Scene 1**: MUST be a high-energy "Hook". (e.g. "Ruka ruka ruka!", "Kya aap pareshan hain?", "Tyohar ki badhai!").
@@ -69,7 +79,7 @@ export async function POST(req: Request) {
 
             LANGUAGE RULES:
             - Language: "${language}"
-            - **Hinglish**: Use natural, conversational Roman Hindi (e.g., "Sabse sasta!", "Mauka haath se na jaane de!").
+            - **Hinglish**: Use naturally spoken Roman Hindi (e.g., "Sabse sasta!", "Mauka haath se na jaane de!").
             
             OUTPUT FORMAT: JSON with "text", "videoScript" (5 strings), "videoTitles" (5 strings).`;
 

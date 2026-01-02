@@ -194,6 +194,16 @@ export default function Home() {
       {/* Background Decor */}
       <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none z-0">
         <div className={cn(
+          "absolute top-0 left-0 w-full h-full bg-cover bg-center transition-all duration-1000",
+          isPro ? "opacity-40" : "opacity-20"
+        )}
+          style={{
+            backgroundImage: `url(${getBusinessConfig(getBusinessType())?.backgroundImage || "https://images.unsplash.com/photo-1557683316-973673baf926?auto=format&fit=crop&q=80"})`
+          }}
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-[#020617] via-[#020617]/90 to-[#020617] pointer-events-none" />
+
+        <div className={cn(
           "absolute -top-[10%] -left-[10%] w-[40%] h-[40%] rounded-full blur-[120px] opacity-20",
           isPro ? "bg-indigo-600" : "bg-indigo-400"
         )} />

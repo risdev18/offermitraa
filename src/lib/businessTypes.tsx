@@ -18,6 +18,7 @@ export interface BusinessConfig {
     defaultTemplate: "urgent" | "sunday" | "festival" | "clearance";
     peakEngagementTime: string; // Analysis: Best time to post
     averageReach: string; // Analysis: Estimated reach
+    backgroundImage: string; // URL for dynamic background
 }
 
 export const BUSINESS_CONFIG: Record<BusinessType, BusinessConfig> = {
@@ -28,6 +29,7 @@ export const BUSINESS_CONFIG: Record<BusinessType, BusinessConfig> = {
         defaultTemplate: "urgent",
         peakEngagementTime: "08:30 AM - 10:30 AM",
         averageReach: "1.5k - 2k Households",
+        backgroundImage: "https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&q=80",
     },
     mobile: {
         primaryColor: "#3b82f6",
@@ -36,6 +38,7 @@ export const BUSINESS_CONFIG: Record<BusinessType, BusinessConfig> = {
         defaultTemplate: "clearance",
         peakEngagementTime: "06:00 PM - 09:00 PM",
         averageReach: "2.5k+ Tech Seekers",
+        backgroundImage: "https://images.unsplash.com/photo-1556656793-0275badaed4f?auto=format&fit=crop&q=80",
     },
     medical: {
         primaryColor: "#10b981",
@@ -44,6 +47,7 @@ export const BUSINESS_CONFIG: Record<BusinessType, BusinessConfig> = {
         defaultTemplate: "festival",
         peakEngagementTime: "07:00 AM - 11:00 AM",
         averageReach: "1k-1.2k Local Radius",
+        backgroundImage: "https://images.unsplash.com/photo-1631549916768-4119b2e5f926?auto=format&fit=crop&q=80",
     },
     clothing: {
         primaryColor: "#f97316",
@@ -52,6 +56,7 @@ export const BUSINESS_CONFIG: Record<BusinessType, BusinessConfig> = {
         defaultTemplate: "sunday",
         peakEngagementTime: "04:30 PM - 08:30 PM",
         averageReach: "3k+ Trend Watchers",
+        backgroundImage: "https://images.unsplash.com/photo-1489987707025-afc232f7ea0f?auto=format&fit=crop&q=80",
     },
     restaurant: {
         primaryColor: "#ef4444",
@@ -60,6 +65,7 @@ export const BUSINESS_CONFIG: Record<BusinessType, BusinessConfig> = {
         defaultTemplate: "sunday",
         peakEngagementTime: "07:30 PM - 10:00 PM",
         averageReach: "2k-4k Foodies",
+        backgroundImage: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&q=80",
     },
     hardware: {
         primaryColor: "#8b5cf6",
@@ -68,6 +74,7 @@ export const BUSINESS_CONFIG: Record<BusinessType, BusinessConfig> = {
         defaultTemplate: "clearance",
         peakEngagementTime: "10:00 AM - 01:00 PM",
         averageReach: "800 - 1.5k Professionals",
+        backgroundImage: "https://images.unsplash.com/photo-1581235720704-06d3acfcb36f?auto=format&fit=crop&q=80",
     },
     other: {
         primaryColor: "#6366f1",
@@ -76,6 +83,7 @@ export const BUSINESS_CONFIG: Record<BusinessType, BusinessConfig> = {
         defaultTemplate: "urgent",
         peakEngagementTime: "05:00 PM - 07:00 PM",
         averageReach: "1.2k+ Mixed Audience",
+        backgroundImage: "https://images.unsplash.com/photo-1557683316-973673baf926?auto=format&fit=crop&q=80",
     },
 };
 

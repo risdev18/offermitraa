@@ -16,6 +16,7 @@ import { cn } from "@/lib/utils";
 import { getBusinessType, BusinessType, getBusinessConfig } from "@/lib/businessTypes";
 import { t, Language } from "@/lib/i18n";
 import ShopSetup, { ShopDetails } from "@/components/onboarding/ShopSetup";
+import RevenueTracker from "@/components/revenue/RevenueTracker";
 
 export default function Home() {
   const { usageCount, isPro, loading, incrementUsage } = useAccess();
@@ -351,6 +352,9 @@ export default function Home() {
             shopDetails={shopDetails}
           />
         </div>
+
+        {/* REVENUE TRACKER SECTION */}
+        <RevenueTracker isPro={isPro} language={language} />
 
         {/* RESULTS SECTION */}
         {generatedOffer && (

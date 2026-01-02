@@ -20,18 +20,19 @@ export async function POST(req: Request) {
                 });
             }
 
-            const mockFestivalLine = festival ? `🎉 *${festival} Special Offer!* 🎉` : `✨ *${shopName || "Special Offer"}* ✨`;
+            // Mock Response (Deep Seek Style - High Conversion)
+            const mockFestivalLine = festival ? `🎉 *${festival} Special Offer!* 🎉` : `🔥 *${shopName || "Special Offer"}* 🔥`;
 
             return NextResponse.json({
-                text: `${mockFestivalLine}\n\nAb paaiye *${productName || "Behtareen Products"}* behtareen daamo par!\n\n🔥 ${discount ? `Flat ${discount} OFF!` : "Dhamaka Offer!"}\n📍 ${address || "Visit us today"}\n\nJaldi aayein! 🏃‍♂️💨`,
+                text: `${mockFestivalLine}\n\n📢 **ATTENTION EVERYONE!** 📢\n\nAb paaiye sabse behtareen *${productName || "Products"}* pure shehar mein sabse kam daam par! 📉\n\n✨ **Why Choose Us?**\n✅ Best Quality Guaranteed 💯\n✅ Unbeatable Prices 💰\n✅ Trusted by Thousands 🤝\n\n🚀 *LIMITED TIME DEAL:* \n💥 **${discount ? `Flat ${discount} OFF!` : "Massive Discount Available!"}** 💥\n\n⏰ Jaldi karein! Stock khatam hone se pehle loot lo! 🏃‍♂️💨\n\n📍 **Visit Us:** ${address || "City Center"}\n📞 **Call Now:** ${extraInfo || "Contact Shop"}\n\n👇 *Order Now & Save Big!*`,
                 videoScript: [
-                    festival ? `Namaskar! ${festival} ki dher saari shubhkamnayein! Aayiye, aayiye!` : "Namaskar! Hamare yahan aapko milega sabse sasta aur behtareen maal.",
-                    `Aaj hi hamari shop ${shopName || ''} par aayein aur payein dhero offers.`,
-                    `Dhamaka sale shuru ho chuki hai, sirf ${productName || 'aapke liye'}.`,
-                    "Stock khatam hone se pehle jaldi karein.",
-                    "Humein call karein ya shop par visit karein. Dhanyawad!"
+                    festival ? `Namaskar! ${festival} ki dher saari shubhkamnayein! Aayiye, aayiye!` : "Namaskar! Aayiye aayiye! Swagat hai aapka shehar ki sabse behtareen shop mein!",
+                    `Aaj hum laye hain khaas aapke liye ${productName || 'ek shandaar product'}!`,
+                    `Sirf yahi nahi, aaj mil raha hai poora ${discount || 'bhaari discount'}! Loot lo mauka!`,
+                    "Stock tezi se khatam ho raha hai, toh der kis baat ki?",
+                    "Abhi phone uthaiye aur humein call kariye, ya seedha shop par aayiye!"
                 ],
-                videoTitles: [festival || "Namaste!", "Welcome", "Mega Sale", "Hurry Up", "Visit Now"]
+                videoTitles: [festival || "Namaste!", "Best Quality", "Loot Lo Offer", "Hurry Up!", "Visit Now"]
             });
         }
 

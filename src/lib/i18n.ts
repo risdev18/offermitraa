@@ -26,7 +26,9 @@ const translations = {
         'admin': 'एडमिन',
         'msg': 'मैसेज',
         'banner': 'पोस्टर',
-        'video': 'वीडियो'
+        'video': 'वीडियो',
+        'revenue_tracker': 'आय ट्रैकर',
+        'add_sales': 'आज की बिक्री जोड़ें'
     },
     hinglish: {
         'history': 'Purana History',
@@ -53,7 +55,9 @@ const translations = {
         'admin': 'Admin',
         'msg': 'Message',
         'banner': 'Poster',
-        'video': 'Video'
+        'video': 'Video',
+        'revenue_tracker': 'Revenue Tracker',
+        'add_sales': 'Aaj ki Sales Add Karein'
     },
     english: {
         'history': 'History',
@@ -80,7 +84,9 @@ const translations = {
         'admin': 'Admin',
         'msg': 'Message',
         'banner': 'Poster',
-        'video': 'Video'
+        'video': 'Video',
+        'revenue_tracker': 'Revenue Tracker',
+        'add_sales': 'Add Today\'s Sales'
     }
 };
 

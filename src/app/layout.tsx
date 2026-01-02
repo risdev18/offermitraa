@@ -8,6 +8,8 @@ const outfit = Outfit({ subsets: ["latin"] });
 export const metadata: Metadata = {
   title: "OfferMitra - AI Offer Generator",
   description: "Generate WhatsApp offers for your shop instantly in Hindi/Hinglish",
+  viewport: "width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0",
+  themeColor: "#6366f1",
 };
 
 export default function RootLayout({

@@ -34,6 +34,7 @@ export default function Home() {
   // Shop Setup persistence
   const [showShopSetup, setShowShopSetup] = useState(false);
   const [shopDetails, setShopDetails] = useState<ShopDetails | null>(null);
+  const [selectedBusinessType, setSelectedBusinessType] = useState<BusinessType | null>(null);
 
   useEffect(() => {
     const history = JSON.parse(localStorage.getItem("om_history") || "[]");
@@ -62,6 +63,8 @@ export default function Home() {
     const businessType = getBusinessType();
     if (!businessType) {
       setShowBusinessSelector(true);
+    } else {
+      setSelectedBusinessType(businessType);
     }
 
     // Restore last session
@@ -198,7 +201,7 @@ export default function Home() {
           isPro ? "opacity-40" : "opacity-20"
         )}
           style={{
-            backgroundImage: `url(${getBusinessConfig(getBusinessType())?.backgroundImage || "https://images.unsplash.com/photo-1557683316-973673baf926?auto=format&fit=crop&q=80"})`
+            backgroundImage: `url(${getBusinessConfig(selectedBusinessType).backgroundImage || "https://images.unsplash.com/photo-1557683316-973673baf926?auto=format&fit=crop&q=80"})`
           }}
         />
         <div className="absolute inset-0 bg-gradient-to-b from-[#020617] via-[#020617]/90 to-[#020617] pointer-events-none" />
@@ -596,6 +599,7 @@ export default function Home() {
         <BusinessTypeSelector
           onSelect={(type: BusinessType) => {
             setShowBusinessSelector(false);
+            setSelectedBusinessType(type);
           }}
         />
       )}

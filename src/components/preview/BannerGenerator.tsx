@@ -145,12 +145,26 @@ export default function BannerGenerator({ text, shopType, shopName, isPro, langu
                     {(() => {
                         const lines = text.split('\n').map(l => l.trim().replace(/\*/g, "")).filter(l => l.length > 2);
                         const headline = lines[0] || (language === 'hindi' ? "विशेष ऑफर" : "Special Offer");
-                        const subheadline = lines[1] || "";
 
-                        const mainOffer = text.match(/\d+%|OFF|₹\d+|फीसदी|छूट|डिस्काउंट/gi)?.[0] || "";
+                        // Smarter Description: If line 1 is generic "Attention", take line 2
+                        let description = lines[1] || "";
+                        if (description.toUpperCase().includes("ATTENTION") || description.toUpperCase().includes("ANNOUNCEMENT")) {
+                            description = lines[2] || description;
+                        }
 
                         // Use productName explicitly if available, otherwise try to extract
-                        const productDisplay = productName || subheadline;
+                        const productDisplay = productName || description;
+
+                        // Smarter Offer Extraction
+                        let mainOffer = text.match(/(\d+(?:%|₹)\s*OFF)|(Flat\s*\d+(?:%|₹))|(Buy\s*\d+\s*Get\s*\d+)|(₹\s*\d+)/gi)?.[0] || "";
+
+                        // Fallback: If no specific number/deal found, look for generic keywords
+                        if (!mainOffer) {
+                            const genericMatch = text.match(/OFF|Sale|Discount|Loot|Dhamaka/i)?.[0];
+                            if (genericMatch) {
+                                mainOffer = "SUPER SALE"; // Default to a better looking badge than just "OFF"
+                            }
+                        }
 
                         return (
                             <>
@@ -171,16 +185,16 @@ export default function BannerGenerator({ text, shopType, shopName, isPro, langu
                                     </h1>
                                 )}
 
-                                {subheadline && subheadline !== productDisplay && (
+                                {description && description !== productDisplay && (
                                     <p className={cn(
-                                        "text-lg font-bold opacity-80 max-w-[80%] line-clamp-2",
+                                        "text-lg font-bold opacity-80 max-w-[80%] line-clamp-3 leading-tight",
                                         isDarkBg ? "text-indigo-200" : "text-slate-600"
                                     )}>
-                                        {subheadline}
+                                        {description}
                                     </p>
                                 )}
 
-                                {mainOffer && (
+                                {mainOffer && mainOffer !== "OFF" && (
                                     <div className={cn(
                                         "mt-6 p-6 md:p-10 rounded-[3rem] transform rotate-[-2deg] shadow-2xl transition-all hover:rotate-0",
                                         isDarkBg
@@ -190,7 +204,10 @@ export default function BannerGenerator({ text, shopType, shopName, isPro, langu
                                         <div className="text-xs font-black uppercase tracking-[0.3em] mb-1">
                                             {language === 'hindi' ? "सीमित समय के लिए" : "Limited Time"}
                                         </div>
-                                        <div className="text-5xl md:text-7xl font-black tracking-tighter drop-shadow-lg">
+                                        <div className={cn(
+                                            "font-black tracking-tighter drop-shadow-lg",
+                                            mainOffer.length > 8 ? "text-3xl md:text-5xl" : "text-5xl md:text-7xl"
+                                        )}>
                                             {mainOffer}
                                         </div>
                                         <div className="text-sm font-black uppercase tracking-widest mt-1 opacity-90">

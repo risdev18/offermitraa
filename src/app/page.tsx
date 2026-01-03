@@ -260,7 +260,7 @@ export default function Home() {
 
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
                 {/* Visual Preview */}
-                <div className="bg-slate-900 rounded-[2.5rem] p-4 aspect-[9/16] relative overflow-hidden shadow-2xl border-8 border-slate-800">
+                <div className="bg-slate-900 rounded-[2.5rem] p-4 md:p-8 relative shadow-2xl border-8 border-slate-800 h-full flex flex-col">
                   {outputMode === 'banner' ? (
                     <BannerGenerator
                       text={offerOptions[selectedOptionIndex] || generatedOffer}

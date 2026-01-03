@@ -119,7 +119,7 @@ export default function BannerGenerator({ text, shopType, shopName, isPro, langu
                 <div
                     ref={bannerRef}
                     className={cn(
-                        "relative p-10 md:p-14 rounded-[3rem] shadow-[0_30px_60px_-15px_rgba(0,0,0,0.3)] min-h-[550px] md:min-h-[650px] w-full max-w-[500px] flex flex-col items-center text-center overflow-hidden transition-all duration-700",
+                        "relative p-8 md:p-14 rounded-[3rem] shadow-[0_30px_60px_-15px_rgba(0,0,0,0.3)] min-h-[500px] md:min-h-[650px] w-full max-w-[500px] flex flex-col items-center text-center overflow-hidden transition-all duration-700",
                         activeBackgrounds[finalBgIndex]
                     )}
                 >
@@ -158,7 +158,7 @@ export default function BannerGenerator({ text, shopType, shopName, isPro, langu
                                 <>
                                     <h2 className={cn(
                                         "font-black tracking-tighter leading-[1.1] transition-all",
-                                        headline.length > 30 ? "text-2xl" : "text-3xl md:text-5xl",
+                                        headline.length > 30 ? "text-xl" : "text-2xl md:text-5xl",
                                         isDarkBg ? "text-white/90" : "text-slate-900"
                                     )}>
                                         {headline}
@@ -166,7 +166,7 @@ export default function BannerGenerator({ text, shopType, shopName, isPro, langu
 
                                     {productDisplay && (
                                         <h1 className={cn(
-                                            "text-5xl md:text-7xl font-black uppercase tracking-tighter my-2 drop-shadow-2xl",
+                                            "text-4xl md:text-7xl font-black uppercase tracking-tighter my-2 drop-shadow-2xl",
                                             isDarkBg ? "text-transparent bg-clip-text bg-gradient-to-r from-indigo-200 to-purple-200" : "text-slate-900"
                                         )}>
                                             {productDisplay}
@@ -184,7 +184,7 @@ export default function BannerGenerator({ text, shopType, shopName, isPro, langu
 
                                     {mainOffer && mainOffer !== "OFF" && (
                                         <div className={cn(
-                                            "mt-8 p-6 md:p-10 rounded-[3rem] transform rotate-[-2deg] shadow-2xl transition-all",
+                                            "mt-6 p-5 md:p-10 rounded-[3rem] transform rotate-[-2deg] shadow-2xl transition-all",
                                             isDarkBg
                                                 ? "bg-gradient-to-r from-accent to-orange-600 text-white scale-110"
                                                 : "bg-red-600 text-white scale-105"
@@ -194,7 +194,7 @@ export default function BannerGenerator({ text, shopType, shopName, isPro, langu
                                             </div>
                                             <div className={cn(
                                                 "font-black tracking-tighter drop-shadow-lg",
-                                                mainOffer.length > 8 ? "text-2xl md:text-4xl" : "text-4xl md:text-6xl"
+                                                mainOffer.length > 8 ? "text-xl md:text-4xl" : "text-3xl md:text-6xl"
                                             )}>
                                                 {mainOffer}
                                             </div>

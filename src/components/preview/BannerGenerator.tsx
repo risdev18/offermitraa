@@ -116,145 +116,147 @@ export default function BannerGenerator({ text, shopType, shopName, isPro, langu
             </div>
 
             {/* Canvas Area - LARGER */}
-            <div
-                ref={bannerRef}
-                className={cn(
-                    "relative p-12 rounded-[3.5rem] shadow-2xl min-h-[550px] w-full flex flex-col items-center text-center overflow-hidden transition-all duration-700",
-                    activeBackgrounds[finalBgIndex]
-                )}
-            >
-                {/* Decorative Premium Overlay - Always Active for everyone */}
-                <div className="absolute top-0 right-0 w-64 h-64 bg-amber-500/10 blur-[100px] rounded-full" />
-                <div className="absolute bottom-0 left-0 w-64 h-64 bg-indigo-500/10 blur-[100px] rounded-full" />
-                <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-[0.03] pointer-events-none" />
-                <div className="absolute top-10 left-10 w-20 h-20 border-t-2 border-l-2 border-amber-500/20 rounded-tl-3xl" />
-                <div className="absolute bottom-10 right-10 w-20 h-20 border-b-2 border-r-2 border-indigo-500/20 rounded-br-3xl" />
+            <div className="w-full flex justify-center py-4">
+                <div
+                    ref={bannerRef}
+                    className={cn(
+                        "relative p-8 md:p-12 rounded-[2.5rem] md:rounded-[3.5rem] shadow-2xl min-h-[550px] md:min-h-[650px] w-full max-w-[600px] flex flex-col items-center text-center overflow-hidden transition-all duration-700",
+                        activeBackgrounds[finalBgIndex]
+                    )}
+                >
+                    {/* Decorative Premium Overlay - Always Active for everyone */}
+                    <div className="absolute top-0 right-0 w-64 h-64 bg-amber-500/10 blur-[100px] rounded-full" />
+                    <div className="absolute bottom-0 left-0 w-64 h-64 bg-indigo-500/10 blur-[100px] rounded-full" />
+                    <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-[0.03] pointer-events-none" />
+                    <div className="absolute top-10 left-10 w-20 h-20 border-t-2 border-l-2 border-amber-500/20 rounded-tl-3xl" />
+                    <div className="absolute bottom-10 right-10 w-20 h-20 border-b-2 border-r-2 border-indigo-500/20 rounded-br-3xl" />
 
-                {/* Header Tag */}
-                <div className={cn(
-                    "mb-8 p-3 px-10 rounded-2xl text-[14px] font-black uppercase tracking-[0.3em] border-2 shadow-xl backdrop-blur-md",
-                    isDarkBg
-                        ? "bg-amber-500/20 text-amber-400 border-amber-500/40"
-                        : "bg-white/90 text-indigo-700 border-indigo-100"
-                )}>
-                    {shopName || `${shopType} Exclusive`}
-                </div>
-
-                {/* Main Content Area - Intelligently Parsed */}
-                <div className="flex-1 flex flex-col justify-center items-center w-full space-y-6">
-                    {(() => {
-                        const lines = text.split('\n').map(l => l.trim().replace(/\*/g, "")).filter(l => l.length > 2);
-                        const headline = lines[0] || (language === 'hindi' ? "विशेष ऑफर" : "Special Offer");
-
-                        // Smarter Description: If line 1 is generic "Attention", take line 2
-                        let description = lines[1] || "";
-                        if (description.toUpperCase().includes("ATTENTION") || description.toUpperCase().includes("ANNOUNCEMENT")) {
-                            description = lines[2] || description;
-                        }
-
-                        // Use productName explicitly if available, otherwise try to extract
-                        const productDisplay = productName || description;
-
-                        // Smarter Offer Extraction
-                        let mainOffer = text.match(/(\d+(?:%|₹)\s*OFF)|(Flat\s*\d+(?:%|₹))|(Buy\s*\d+\s*Get\s*\d+)|(₹\s*\d+)/gi)?.[0] || "";
-
-                        // Fallback: If no specific number/deal found, look for generic keywords
-                        if (!mainOffer) {
-                            const genericMatch = text.match(/OFF|Sale|Discount|Loot|Dhamaka/i)?.[0];
-                            if (genericMatch) {
-                                mainOffer = "SUPER SALE"; // Default to a better looking badge than just "OFF"
-                            }
-                        }
-
-                        return (
-                            <>
-                                <h2 className={cn(
-                                    "font-black tracking-tighter leading-[1.1] transition-all",
-                                    headline.length > 30 ? "text-3xl" : "text-4xl md:text-6xl",
-                                    isDarkBg ? "text-white" : "text-slate-900"
-                                )}>
-                                    {headline}
-                                </h2>
-
-                                {productDisplay && (
-                                    <h1 className={cn(
-                                        "text-5xl md:text-7xl font-black uppercase tracking-tighter my-2 drop-shadow-2xl",
-                                        isDarkBg ? "text-transparent bg-clip-text bg-gradient-to-r from-indigo-200 to-purple-200" : "text-slate-900"
-                                    )}>
-                                        {productDisplay}
-                                    </h1>
-                                )}
-
-                                {description && description !== productDisplay && (
-                                    <p className={cn(
-                                        "text-lg font-bold opacity-80 max-w-[80%] line-clamp-3 leading-tight",
-                                        isDarkBg ? "text-indigo-200" : "text-slate-600"
-                                    )}>
-                                        {description}
-                                    </p>
-                                )}
-
-                                {mainOffer && mainOffer !== "OFF" && (
-                                    <div className={cn(
-                                        "mt-6 p-6 md:p-10 rounded-[3rem] transform rotate-[-2deg] shadow-2xl transition-all hover:rotate-0",
-                                        isDarkBg
-                                            ? "bg-gradient-to-r from-amber-500 to-orange-600 text-white scale-110"
-                                            : "bg-red-600 text-white scale-105"
-                                    )}>
-                                        <div className="text-xs font-black uppercase tracking-[0.3em] mb-1">
-                                            {language === 'hindi' ? "सीमित समय के लिए" : "Limited Time"}
-                                        </div>
-                                        <div className={cn(
-                                            "font-black tracking-tighter drop-shadow-lg",
-                                            mainOffer.length > 8 ? "text-3xl md:text-5xl" : "text-5xl md:text-7xl"
-                                        )}>
-                                            {mainOffer}
-                                        </div>
-                                        <div className="text-sm font-black uppercase tracking-widest mt-1 opacity-90">
-                                            {language === 'hindi' ? "भारी बचत" : "Maximum Savings"}
-                                        </div>
-                                    </div>
-                                )}
-                            </>
-                        );
-                    })()}
-                </div>
-
-                {/* Contact Section */}
-                <div className="w-full mt-10 space-y-4">
+                    {/* Header Tag */}
                     <div className={cn(
-                        "p-6 rounded-[2.5rem] backdrop-blur-xl border transition-all",
+                        "mb-8 p-3 px-10 rounded-2xl text-[14px] font-black uppercase tracking-[0.3em] border-2 shadow-xl backdrop-blur-md",
                         isDarkBg
-                            ? "bg-black/40 border-slate-700 shadow-2xl"
-                            : "bg-white/70 border-white shadow-xl"
+                            ? "bg-amber-500/20 text-amber-400 border-amber-500/40"
+                            : "bg-white/90 text-indigo-700 border-indigo-100"
                     )}>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            {address && (
-                                <div className={cn(
-                                    "flex items-center justify-center gap-2 text-xs font-bold leading-tight",
-                                    isDarkBg ? "text-blue-300" : "text-slate-700"
-                                )}>
-                                    <span className="text-xl">📍</span> {address}
-                                </div>
-                            )}
-                            {contactNumber && (
-                                <div className={cn(
-                                    "flex items-center justify-center gap-2 text-sm font-black",
-                                    isDarkBg ? "text-amber-400" : "text-green-700"
-                                )}>
-                                    <span className="text-xl">📞</span> {contactNumber}
-                                </div>
-                            )}
-                        </div>
+                        {shopName || `${shopType} Exclusive`}
                     </div>
 
-                    <div className={cn(
-                        "text-[10px] font-black px-6 py-2 px-8 rounded-full inline-block uppercase tracking-[0.2em]",
-                        isDarkBg
-                            ? "bg-slate-900 shadow-xl border border-slate-800 text-indigo-400"
-                            : "bg-white shadow-lg text-slate-400"
-                    )}>
-                        OfferMitra SUCCESS
+                    {/* Main Content Area - Intelligently Parsed */}
+                    <div className="flex-1 flex flex-col justify-center items-center w-full space-y-6">
+                        {(() => {
+                            const lines = text.split('\n').map(l => l.trim().replace(/\*/g, "")).filter(l => l.length > 2);
+                            const headline = lines[0] || (language === 'hindi' ? "विशेष ऑफर" : "Special Offer");
+
+                            // Smarter Description: If line 1 is generic "Attention", take line 2
+                            let description = lines[1] || "";
+                            if (description.toUpperCase().includes("ATTENTION") || description.toUpperCase().includes("ANNOUNCEMENT")) {
+                                description = lines[2] || description;
+                            }
+
+                            // Use productName explicitly if available, otherwise try to extract
+                            const productDisplay = productName || description;
+
+                            // Smarter Offer Extraction
+                            let mainOffer = text.match(/(\d+(?:%|₹)\s*OFF)|(Flat\s*\d+(?:%|₹))|(Buy\s*\d+\s*Get\s*\d+)|(₹\s*\d+)/gi)?.[0] || "";
+
+                            // Fallback: If no specific number/deal found, look for generic keywords
+                            if (!mainOffer) {
+                                const genericMatch = text.match(/OFF|Sale|Discount|Loot|Dhamaka/i)?.[0];
+                                if (genericMatch) {
+                                    mainOffer = "SUPER SALE"; // Default to a better looking badge than just "OFF"
+                                }
+                            }
+
+                            return (
+                                <>
+                                    <h2 className={cn(
+                                        "font-black tracking-tighter leading-[1.1] transition-all",
+                                        headline.length > 30 ? "text-3xl" : "text-4xl md:text-6xl",
+                                        isDarkBg ? "text-white" : "text-slate-900"
+                                    )}>
+                                        {headline}
+                                    </h2>
+
+                                    {productDisplay && (
+                                        <h1 className={cn(
+                                            "text-5xl md:text-7xl font-black uppercase tracking-tighter my-2 drop-shadow-2xl",
+                                            isDarkBg ? "text-transparent bg-clip-text bg-gradient-to-r from-indigo-200 to-purple-200" : "text-slate-900"
+                                        )}>
+                                            {productDisplay}
+                                        </h1>
+                                    )}
+
+                                    {description && description !== productDisplay && (
+                                        <p className={cn(
+                                            "text-lg font-bold opacity-80 max-w-[80%] line-clamp-3 leading-tight",
+                                            isDarkBg ? "text-indigo-200" : "text-slate-600"
+                                        )}>
+                                            {description}
+                                        </p>
+                                    )}
+
+                                    {mainOffer && mainOffer !== "OFF" && (
+                                        <div className={cn(
+                                            "mt-6 p-6 md:p-10 rounded-[3rem] transform rotate-[-2deg] shadow-2xl transition-all hover:rotate-0",
+                                            isDarkBg
+                                                ? "bg-gradient-to-r from-amber-500 to-orange-600 text-white scale-110"
+                                                : "bg-red-600 text-white scale-105"
+                                        )}>
+                                            <div className="text-xs font-black uppercase tracking-[0.3em] mb-1">
+                                                {language === 'hindi' ? "सीमित समय के लिए" : "Limited Time"}
+                                            </div>
+                                            <div className={cn(
+                                                "font-black tracking-tighter drop-shadow-lg",
+                                                mainOffer.length > 8 ? "text-3xl md:text-5xl" : "text-5xl md:text-7xl"
+                                            )}>
+                                                {mainOffer}
+                                            </div>
+                                            <div className="text-sm font-black uppercase tracking-widest mt-1 opacity-90">
+                                                {language === 'hindi' ? "भारी बचत" : "Maximum Savings"}
+                                            </div>
+                                        </div>
+                                    )}
+                                </>
+                            );
+                        })()}
+                    </div>
+
+                    {/* Contact Section */}
+                    <div className="w-full mt-10 space-y-4">
+                        <div className={cn(
+                            "p-6 rounded-[2.5rem] backdrop-blur-xl border transition-all",
+                            isDarkBg
+                                ? "bg-black/40 border-slate-700 shadow-2xl"
+                                : "bg-white/70 border-white shadow-xl"
+                        )}>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                {address && (
+                                    <div className={cn(
+                                        "flex items-center justify-center gap-2 text-xs font-bold leading-tight",
+                                        isDarkBg ? "text-blue-300" : "text-slate-700"
+                                    )}>
+                                        <span className="text-xl">📍</span> {address}
+                                    </div>
+                                )}
+                                {contactNumber && (
+                                    <div className={cn(
+                                        "flex items-center justify-center gap-2 text-sm font-black",
+                                        isDarkBg ? "text-amber-400" : "text-green-700"
+                                    )}>
+                                        <span className="text-xl">📞</span> {contactNumber}
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+
+                        <div className={cn(
+                            "text-[10px] font-black px-6 py-2 px-8 rounded-full inline-block uppercase tracking-[0.2em]",
+                            isDarkBg
+                                ? "bg-slate-900 shadow-xl border border-slate-800 text-indigo-400"
+                                : "bg-white shadow-lg text-slate-400"
+                        )}>
+                            OfferMitra SUCCESS
+                        </div>
                     </div>
                 </div>
             </div>

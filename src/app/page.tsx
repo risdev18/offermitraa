@@ -444,33 +444,44 @@ export default function Home() {
                 </a>
               </div>
 
-              {/* Visual Preview */}
+              {/* Visual Preview Section */}
               <div className={cn(
-                "lg:col-span-12 xl:col-span-7 p-10 rounded-[3rem] shadow-2xl space-y-10 flex flex-col transition-all relative overflow-hidden",
-                isPro ? "glass-card border-white/10" : "bg-white border border-slate-100"
+                "lg:col-span-12 xl:col-span-7 p-8 md:p-12 rounded-[3.5rem] shadow-2xl space-y-8 flex flex-col transition-all relative overflow-hidden min-h-[700px]",
+                isPro ? "bg-slate-900/50 border border-white/10 backdrop-blur-xl" : "bg-slate-50 border border-slate-200"
               )}>
-                <div className="flex bg-slate-900/40 p-2 rounded-[1.5rem] border border-white/5 w-fit relative z-10">
-                  <button
-                    onClick={() => setOutputMode('banner')}
-                    className={cn(
-                      "flex items-center gap-3 px-10 py-4 rounded-xl text-[10px] font-black tracking-widest uppercase transition-all",
-                      outputMode === 'banner' ? "pro-gradient text-white shadow-xl" : "text-slate-400 hover:text-white"
-                    )}
-                  >
-                    <ImageIcon className="w-4 h-4" /> Graphics
-                  </button>
-                  <button
-                    onClick={() => setOutputMode('video')}
-                    className={cn(
-                      "flex items-center gap-3 px-10 py-4 rounded-xl text-[10px] font-black tracking-widest uppercase transition-all",
-                      outputMode === 'video' ? "pro-gradient text-white shadow-xl" : "text-slate-400 hover:text-white"
-                    )}
-                  >
-                    <Video className="w-4 h-4" /> Video Ad
-                  </button>
+                {/* Mode Switcher */}
+                <div className="flex justify-center w-full relative z-10">
+                  <div className={cn(
+                    "flex p-1.5 rounded-[2rem] border transition-all shadow-inner",
+                    isPro ? "bg-black/40 border-white/5" : "bg-slate-200 border-slate-300"
+                  )}>
+                    <button
+                      onClick={() => setOutputMode('banner')}
+                      className={cn(
+                        "flex items-center gap-3 px-8 py-4 rounded-[1.5rem] text-[11px] font-black tracking-widest uppercase transition-all whitespace-nowrap",
+                        outputMode === 'banner'
+                          ? "pro-gradient text-white shadow-xl scale-105"
+                          : isPro ? "text-slate-500 hover:text-white" : "text-slate-500 hover:text-slate-900"
+                      )}
+                    >
+                      <ImageIcon className="w-5 h-5" /> Graphics
+                    </button>
+                    <button
+                      onClick={() => setOutputMode('video')}
+                      className={cn(
+                        "flex items-center gap-3 px-8 py-4 rounded-[1.5rem] text-[11px] font-black tracking-widest uppercase transition-all whitespace-nowrap",
+                        outputMode === 'video'
+                          ? "pro-gradient text-white shadow-xl scale-105"
+                          : isPro ? "text-slate-500 hover:text-white" : "text-slate-500 hover:text-slate-900"
+                      )}
+                    >
+                      <Video className="w-5 h-5" /> Video Ad
+                    </button>
+                  </div>
                 </div>
 
-                <div className="flex justify-center relative z-10">
+                {/* Content Area */}
+                <div className="flex-1 flex justify-center items-center relative z-10 w-full">
                   {outputMode === 'banner' ? (
                     <BannerGenerator
                       text={generatedOffer}

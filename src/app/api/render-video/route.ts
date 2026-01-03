@@ -11,73 +11,142 @@ const ffmpegPath = require("ffmpeg-static");
 // Helper to download a file from URL
 async function downloadFile(url: string, destPath: string) {
     const response = await fetch(url);
+    if (!response.ok) throw new Error(`Failed to download file from ${url}`);
     const buffer = await response.arrayBuffer();
     await fs.promises.writeFile(destPath, Buffer.from(buffer));
 }
+
+// Background Music URL (Energetic/Corporate)
+const BG_MUSIC_URL = "https://cdn.pixabay.com/audio/2022/01/18/audio_d0a13f69d2.mp3"; // Energetic Hip Hop
 
 // Helper function to process video with FFmpeg
 async function processVideo(
     imagePaths: string[],
     audioPaths: string[],
     tempDir: string,
-    outputPath: string
+    outputPath: string,
+    bgMusicPath?: string
 ): Promise<void> {
     return new Promise((resolve, reject) => {
-        if (!ffmpegPath) {
-            reject(new Error("FFmpeg binary not found in ffmpeg-static"));
-            return;
+        let ffmpegExecutable = ffmpegPath;
+
+        // Ensure absolute path on Windows/Turbopack
+        if (typeof ffmpegExecutable === 'string' && !path.isAbsolute(ffmpegExecutable)) {
+            ffmpegExecutable = path.resolve(process.cwd(), ffmpegExecutable);
         }
 
-        // Create inputs.txt for images
-        const concatTxtPath = path.join(tempDir, "inputs.txt");
-        const fileContent = imagePaths.map(img => `file '${img.replace(/\\/g, '/')}'\nduration 4`).join('\n') + `\nfile '${imagePaths[imagePaths.length - 1].replace(/\\/g, '/')}'`;
-        fs.writeFileSync(concatTxtPath, fileContent);
+        if (!ffmpegExecutable || !fs.existsSync(ffmpegExecutable)) {
+            // Fallback: try to find it in common node_modules location
+            const fallbackPath = path.resolve(process.cwd(), "node_modules", "ffmpeg-static", "ffmpeg.exe");
+            if (fs.existsSync(fallbackPath)) {
+                ffmpegExecutable = fallbackPath;
+            } else {
+                reject(new Error(`FFmpeg binary not found at ${ffmpegExecutable}`));
+                return;
+            }
+        }
 
-        // Audio List
-        const audioListPath = path.join(tempDir, "audio_inputs.txt");
+        // Each image should show for 4-5 seconds. Total duration around 20-25s.
+        const durationPerImage = 5;
+
+        // 1. Create a filter_complex to handle images, zoom effects, and audio mixing
+        // This is more robust than the concat demuxer for adding effects.
+
+        const args: string[] = [];
+
+        // Add image inputs
+        imagePaths.forEach(img => {
+            args.push("-loop", "1", "-t", durationPerImage.toString(), "-i", img);
+        });
+
+        // Add voice inputs
         if (audioPaths.length > 0) {
-            const audioContent = audioPaths.map(a => `file '${a.replace(/\\/g, '/')}'`).join('\n');
-            fs.writeFileSync(audioListPath, audioContent);
+            // We'll concat voice parts first or use them in filter_complex
+            audioPaths.forEach(aud => {
+                args.push("-i", aud);
+            });
         }
 
-        // Build FFmpeg arguments
-        const args = [
-            "-f", "concat",
-            "-safe", "0",
-            "-i", concatTxtPath
-        ];
+        // Add BG Music
+        if (bgMusicPath) {
+            args.push("-stream_loop", "-1", "-i", bgMusicPath);
+        }
 
+        // Filter Complex
+        let filter = "";
+
+        // 1. Process Images with Zoom/Pan and Concat
+        // We'll use a more reliable zoompan config
+        for (let i = 0; i < imagePaths.length; i++) {
+            // scale and then zoompan
+            filter += `[${i}:v]scale=1280:2276:force_original_aspect_ratio=increase,crop=1080:1920,setsar=1,zoompan=z='min(zoom+0.0012,1.5)':d=${durationPerImage * 25}:s=1080x1920:fps=25[v${i}];`;
+        }
+
+        // Concat video segments
+        for (let i = 0; i < imagePaths.length; i++) {
+            filter += `[v${i}]`;
+        }
+        filter += `concat=n=${imagePaths.length}:v=1:a=0[v_out];`;
+
+        // 2. Process Audio
         if (audioPaths.length > 0) {
-            args.push("-f", "concat", "-safe", "0", "-i", audioListPath);
+            // Concat voice segments
+            const voiceStartIndex = imagePaths.length;
+            for (let i = 0; i < audioPaths.length; i++) {
+                filter += `[${voiceStartIndex + i}:a]`;
+            }
+            filter += `concat=n=${audioPaths.length}:v=0:a=1[voice_raw];`;
+
+            // Normalize and Boost voice volume
+            filter += `[voice_raw]volume=3.0[voice_out];`;
+
+            if (bgMusicPath) {
+                const bgMusicIndex = imagePaths.length + audioPaths.length;
+                // Mix Voice and BG Music
+                // Make BG music MUCH quieter (0.07) so voice is clear
+                filter += `[${bgMusicIndex}:a]volume=0.07[bg_low];`;
+                filter += `[voice_out][bg_low]amix=inputs=2:duration=first:dropout_transition=2[a_out]`;
+            } else {
+                filter += `[voice_out]anull[a_out]`;
+            }
+        } else if (bgMusicPath) {
+            const bgMusicIndex = imagePaths.length;
+            filter += `[${bgMusicIndex}:a]volume=0.15[a_out]`;
         }
 
-        // Map streams
-        args.push("-map", "0:v");
-        if (audioPaths.length > 0) {
-            args.push("-map", "1:a");
+        args.push("-filter_complex", filter);
+        args.push("-map", "[v_out]");
+        if (audioPaths.length > 0 || bgMusicPath) {
+            args.push("-map", "[a_out]");
         }
 
-        // Codecs and output
+        // Output settings
         args.push(
             "-c:v", "libx264",
-            "-preset", "ultrafast", // Optimize for speed to avoid timeouts
+            "-preset", "ultrafast",
+            "-tune", "stillimage",
             "-pix_fmt", "yuv420p",
-            "-movflags", "+faststart", // Important for web playback
-            "-y", // Overwrite output
+            "-r", "25",
+            "-b:v", "2M",
+            "-maxrate", "2M",
+            "-bufsize", "4M",
+            "-movflags", "+faststart",
+            "-y",
+            "-t", (imagePaths.length * durationPerImage).toString(), // Ensure output length matches
             outputPath
         );
 
-        console.log("Spawning FFmpeg with args:", args.join(" "));
+        console.log("Spawning FFmpeg at:", ffmpegExecutable);
+        console.log("Args:", args.join(" "));
 
-        const process = spawn(ffmpegPath, args);
+        const ffmpegProcess = spawn(ffmpegExecutable, args);
 
         let stderrData = "";
-
-        process.stderr.on("data", (data) => {
+        ffmpegProcess.stderr.on("data", (data) => {
             stderrData += data.toString();
         });
 
-        process.on("close", (code) => {
+        ffmpegProcess.on("close", (code) => {
             if (code === 0) {
                 resolve();
             } else {
@@ -87,7 +156,7 @@ async function processVideo(
             }
         });
 
-        process.on("error", (err) => {
+        ffmpegProcess.on("error", (err) => {
             console.error("FFmpeg spawn error:", err);
             reject(err);
         });
@@ -120,12 +189,11 @@ export async function POST(req: NextRequest) {
         const audioPaths: string[] = [];
         for (let i = 0; i < (script?.length || 0); i++) {
             try {
-                const text = script[i];
+                // google-tts-api has a 200 char limit
+                let text = script[i];
                 if (text) {
-                    // Logic:
-                    // Hinglish -> 'en-IN' (Indian English accent reading Latin script)
-                    // Hindi -> 'hi' (Standard Hindi reading Devanagari)
-                    // Fallback -> 'hi'
+                    if (text.length > 200) text = text.substring(0, 197) + "...";
+
                     let targetLang = 'hi';
                     if (language === 'hinglish') targetLang = 'en-IN';
                     if (language === 'english') targetLang = 'en';
@@ -144,33 +212,42 @@ export async function POST(req: NextRequest) {
             }
         }
 
-        // 3. Create Video with FFmpeg
+        // 3. Download BG Music
+        const bgMusicPath = path.join(tempDir, "bg_music.mp3");
+        let hasBgMusic = false;
+        try {
+            await downloadFile(BG_MUSIC_URL, bgMusicPath);
+            hasBgMusic = true;
+        } catch (e) {
+            console.error("Bg music download failed:", e);
+        }
+
+        // 4. Create Video with FFmpeg
         const outputPath = path.join(tempDir, "output.mp4");
 
-        await processVideo(imagePaths, audioPaths, tempDir, outputPath);
+        await processVideo(imagePaths, audioPaths, tempDir, outputPath, hasBgMusic ? bgMusicPath : undefined);
 
-        // 4. Return Result
+        // 5. Return Result
         const buffer = await fs.promises.readFile(outputPath);
 
-        // Cleanup (Async, don't wait)
+        // Cleanup (Async)
         fs.promises.rm(tempDir, { recursive: true, force: true }).catch(console.error);
 
         return new NextResponse(buffer, {
             headers: {
                 "Content-Type": "video/mp4",
-                "Content-Disposition": 'attachment; filename="offer_video.mp4"',
+                "Content-Disposition": `attachment; filename="offer_video_${sessionId.slice(0, 8)}.mp4"`,
             }
         });
 
     } catch (e: any) {
         console.error("Render error logic:", e);
-        // Attempt cleanup in case of error
         if (tempDir) fs.promises.rm(tempDir, { recursive: true, force: true }).catch(console.error);
 
-        // Return specific error message for debugging
         return NextResponse.json({
             error: "Internal Render Error",
             details: e.message || String(e)
         }, { status: 500 });
     }
 }
+

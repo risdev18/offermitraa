@@ -14,19 +14,20 @@ interface BannerGeneratorProps {
     address?: string;
     contactNumber?: string;
     productName?: string;
+    shopDescription?: string;
     onShare?: () => void;
 }
 
 const PREMIUM_BACKGROUNDS = [
     "bg-slate-900 border border-amber-500/30",         // Premium Black
-    "bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900", // Royal Blue
+    "bg-gradient-to-br from-indigo-950 via-primary to-indigo-900", // Deep Blue
     "bg-gradient-to-br from-slate-900 via-purple-950 to-slate-900", // Royal Purple
     "bg-gradient-to-br from-gray-900 via-slate-800 to-gray-900", // Sleek
     "bg-gradient-to-br from-yellow-100 to-orange-200 border-none", // Festival (Brighter)
-    "bg-gradient-to-br from-blue-100 to-indigo-200 border-none",   // Professional (Brighter) e
+    "bg-gradient-to-br from-blue-100 to-indigo-200 border-none",   // Professional (Brighter)
 ];
 
-export default function BannerGenerator({ text, shopType, shopName, isPro, language, address, contactNumber, productName, onShare }: BannerGeneratorProps) {
+export default function BannerGenerator({ text, shopType, shopName, isPro, language, address, contactNumber, productName, shopDescription, onShare }: BannerGeneratorProps) {
     const bannerRef = useRef<HTMLDivElement>(null);
     const [bgIndex, setBgIndex] = useState(0);
     const [isCapturing, setIsCapturing] = useState(false);
@@ -40,7 +41,6 @@ export default function BannerGenerator({ text, shopType, shopName, isPro, langu
         setIsCapturing(true);
 
         try {
-            // Using toPng for better reliability
             const dataUrl = await toPng(bannerRef.current, {
                 quality: 0.95,
                 pixelRatio: 2,
@@ -82,7 +82,6 @@ export default function BannerGenerator({ text, shopType, shopName, isPro, langu
                 });
                 onShare?.();
             } else {
-                // Fallback for browsers that don't support file sharing
                 const link = document.createElement("a");
                 link.download = `offer-mitra-poster-${Date.now()}.png`;
                 link.href = dataUrl;
@@ -99,80 +98,68 @@ export default function BannerGenerator({ text, shopType, shopName, isPro, langu
     };
 
     return (
-        <div className="space-y-4 w-full">
+        <div className="space-y-8 w-full">
             {/* Background Selector */}
-            <div className="flex gap-2 overflow-x-auto pb-4 scrollbar-hide">
+            <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide px-1">
                 {activeBackgrounds.map((bg, i) => (
                     <button
                         key={i}
                         onClick={() => setBgIndex(i)}
                         className={cn(
-                            "w-14 h-14 rounded-2xl transition-all shadow-lg transform active:scale-95 flex-shrink-0 border-2",
+                            "w-12 h-12 rounded-xl transition-all shadow-md transform active:scale-95 flex-shrink-0 border-2",
                             bg,
-                            bgIndex === i ? "ring-4 ring-indigo-500 scale-110 border-white" : "grayscale-[50%] opacity-70 border-transparent"
+                            bgIndex === i ? "ring-4 ring-primary/20 scale-110 border-white" : "grayscale-[50%] opacity-60 border-transparent"
                         )}
                     />
                 ))}
             </div>
 
-            {/* Canvas Area - LARGER */}
-            <div className="w-full flex justify-center py-4">
+            {/* Canvas Area */}
+            <div className="w-full flex justify-center py-2">
                 <div
                     ref={bannerRef}
                     className={cn(
-                        "relative p-8 md:p-12 rounded-[2.5rem] md:rounded-[3.5rem] shadow-2xl min-h-[550px] md:min-h-[650px] w-full max-w-[600px] flex flex-col items-center text-center overflow-hidden transition-all duration-700",
+                        "relative p-10 md:p-14 rounded-[3rem] shadow-[0_30px_60px_-15px_rgba(0,0,0,0.3)] min-h-[550px] md:min-h-[650px] w-full max-w-[500px] flex flex-col items-center text-center overflow-hidden transition-all duration-700",
                         activeBackgrounds[finalBgIndex]
                     )}
                 >
-                    {/* Decorative Premium Overlay - Always Active for everyone */}
+                    {/* Decorative Premium Overlay */}
                     <div className="absolute top-0 right-0 w-64 h-64 bg-amber-500/10 blur-[100px] rounded-full" />
-                    <div className="absolute bottom-0 left-0 w-64 h-64 bg-indigo-500/10 blur-[100px] rounded-full" />
+                    <div className="absolute bottom-0 left-0 w-64 h-64 bg-primary/10 blur-[100px] rounded-full" />
                     <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-[0.03] pointer-events-none" />
-                    <div className="absolute top-10 left-10 w-20 h-20 border-t-2 border-l-2 border-amber-500/20 rounded-tl-3xl" />
-                    <div className="absolute bottom-10 right-10 w-20 h-20 border-b-2 border-r-2 border-indigo-500/20 rounded-br-3xl" />
 
                     {/* Header Tag */}
                     <div className={cn(
-                        "mb-8 p-3 px-10 rounded-2xl text-[14px] font-black uppercase tracking-[0.3em] border-2 shadow-xl backdrop-blur-md",
+                        "mb-10 p-3 px-10 rounded-2xl text-[12px] font-black uppercase tracking-[0.3em] border-2 shadow-xl backdrop-blur-md",
                         isDarkBg
                             ? "bg-amber-500/20 text-amber-400 border-amber-500/40"
-                            : "bg-white/90 text-indigo-700 border-indigo-100"
+                            : "bg-white/90 text-primary border-primary/10"
                     )}>
                         {shopName || `${shopType} Exclusive`}
                     </div>
 
-                    {/* Main Content Area - Intelligently Parsed */}
+                    {/* Main Content Area */}
                     <div className="flex-1 flex flex-col justify-center items-center w-full space-y-6">
                         {(() => {
                             const lines = text.split('\n').map(l => l.trim().replace(/\*/g, "")).filter(l => l.length > 2);
                             const headline = lines[0] || (language === 'hindi' ? "विशेष ऑफर" : "Special Offer");
-
-                            // Smarter Description: If line 1 is generic "Attention", take line 2
                             let description = lines[1] || "";
                             if (description.toUpperCase().includes("ATTENTION") || description.toUpperCase().includes("ANNOUNCEMENT")) {
                                 description = lines[2] || description;
                             }
-
-                            // Use productName explicitly if available, otherwise try to extract
                             const productDisplay = productName || description;
-
-                            // Smarter Offer Extraction
                             let mainOffer = text.match(/(\d+(?:%|₹)\s*OFF)|(Flat\s*\d+(?:%|₹))|(Buy\s*\d+\s*Get\s*\d+)|(₹\s*\d+)/gi)?.[0] || "";
-
-                            // Fallback: If no specific number/deal found, look for generic keywords
                             if (!mainOffer) {
                                 const genericMatch = text.match(/OFF|Sale|Discount|Loot|Dhamaka/i)?.[0];
-                                if (genericMatch) {
-                                    mainOffer = "SUPER SALE"; // Default to a better looking badge than just "OFF"
-                                }
+                                if (genericMatch) mainOffer = "SUPER SALE";
                             }
 
                             return (
                                 <>
                                     <h2 className={cn(
                                         "font-black tracking-tighter leading-[1.1] transition-all",
-                                        headline.length > 30 ? "text-3xl" : "text-4xl md:text-6xl",
-                                        isDarkBg ? "text-white" : "text-slate-900"
+                                        headline.length > 30 ? "text-2xl" : "text-3xl md:text-5xl",
+                                        isDarkBg ? "text-white/90" : "text-slate-900"
                                     )}>
                                         {headline}
                                     </h2>
@@ -189,7 +176,7 @@ export default function BannerGenerator({ text, shopType, shopName, isPro, langu
                                     {description && description !== productDisplay && (
                                         <p className={cn(
                                             "text-lg font-bold opacity-80 max-w-[80%] line-clamp-3 leading-tight",
-                                            isDarkBg ? "text-indigo-200" : "text-slate-600"
+                                            isDarkBg ? "text-indigo-200/80" : "text-slate-600"
                                         )}>
                                             {description}
                                         </p>
@@ -197,22 +184,19 @@ export default function BannerGenerator({ text, shopType, shopName, isPro, langu
 
                                     {mainOffer && mainOffer !== "OFF" && (
                                         <div className={cn(
-                                            "mt-6 p-6 md:p-10 rounded-[3rem] transform rotate-[-2deg] shadow-2xl transition-all hover:rotate-0",
+                                            "mt-8 p-6 md:p-10 rounded-[3rem] transform rotate-[-2deg] shadow-2xl transition-all",
                                             isDarkBg
-                                                ? "bg-gradient-to-r from-amber-500 to-orange-600 text-white scale-110"
+                                                ? "bg-gradient-to-r from-accent to-orange-600 text-white scale-110"
                                                 : "bg-red-600 text-white scale-105"
                                         )}>
-                                            <div className="text-xs font-black uppercase tracking-[0.3em] mb-1">
-                                                {language === 'hindi' ? "सीमित समय के लिए" : "Limited Time"}
+                                            <div className="text-[10px] font-black uppercase tracking-[0.3em] mb-1 opacity-80">
+                                                {language === 'hindi' ? "सीमित समय" : "Limited Time"}
                                             </div>
                                             <div className={cn(
                                                 "font-black tracking-tighter drop-shadow-lg",
-                                                mainOffer.length > 8 ? "text-3xl md:text-5xl" : "text-5xl md:text-7xl"
+                                                mainOffer.length > 8 ? "text-2xl md:text-4xl" : "text-4xl md:text-6xl"
                                             )}>
                                                 {mainOffer}
-                                            </div>
-                                            <div className="text-sm font-black uppercase tracking-widest mt-1 opacity-90">
-                                                {language === 'hindi' ? "भारी बचत" : "Maximum Savings"}
                                             </div>
                                         </div>
                                     )}
@@ -226,58 +210,59 @@ export default function BannerGenerator({ text, shopType, shopName, isPro, langu
                         <div className={cn(
                             "p-6 rounded-[2.5rem] backdrop-blur-xl border transition-all",
                             isDarkBg
-                                ? "bg-black/40 border-slate-700 shadow-2xl"
-                                : "bg-white/70 border-white shadow-xl"
+                                ? "bg-black/30 border-white/5 shadow-2xl"
+                                : "bg-white/50 border-white shadow-xl"
                         )}>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="grid grid-cols-1 gap-3">
                                 {address && (
                                     <div className={cn(
-                                        "flex items-center justify-center gap-2 text-xs font-bold leading-tight",
-                                        isDarkBg ? "text-blue-300" : "text-slate-700"
+                                        "flex items-center justify-center gap-2 text-[10px] font-bold uppercase tracking-widest",
+                                        isDarkBg ? "text-indigo-300" : "text-slate-500"
                                     )}>
-                                        <span className="text-xl">📍</span> {address}
+                                        📍 {address}
                                     </div>
                                 )}
                                 {contactNumber && (
                                     <div className={cn(
-                                        "flex items-center justify-center gap-2 text-sm font-black",
-                                        isDarkBg ? "text-amber-400" : "text-green-700"
+                                        "flex items-center justify-center gap-2 text-lg font-black",
+                                        isDarkBg ? "text-accent" : "text-primary"
                                     )}>
-                                        <span className="text-xl">📞</span> {contactNumber}
+                                        📞 {contactNumber}
                                     </div>
                                 )}
                             </div>
                         </div>
-
-                        <div className={cn(
-                            "text-[10px] font-black px-6 py-2 px-8 rounded-full inline-block uppercase tracking-[0.2em]",
-                            isDarkBg
-                                ? "bg-slate-900 shadow-xl border border-slate-800 text-indigo-400"
-                                : "bg-white shadow-lg text-slate-400"
-                        )}>
-                            OfferMitra SUCCESS
-                        </div>
+                        {shopDescription && (
+                            <div className="mt-4 px-4">
+                                <p className={cn(
+                                    "text-[9px] font-black uppercase tracking-[0.2em] leading-relaxed opacity-60 italic",
+                                    isDarkBg ? "text-white" : "text-slate-900"
+                                )}>
+                                    "{shopDescription}"
+                                </p>
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>
 
             {/* Actions */}
-            <div className="flex gap-2">
+            <div className="flex gap-4 w-full pt-4">
                 <button
                     onClick={handleDownload}
                     disabled={isCapturing}
-                    className="flex-1 bg-slate-800 text-white py-4 rounded-2xl font-bold flex items-center justify-center gap-2 hover:bg-slate-700 transition-all active:scale-95"
+                    className="flex-1 bg-white border-2 border-primary/10 text-primary py-5 rounded-2xl font-black uppercase tracking-widest text-[10px] flex items-center justify-center gap-2 hover:bg-slate-50 transition-all active:scale-95"
                 >
-                    {isCapturing ? <Loader2 className="animate-spin w-5 h-5" /> : <Download className="w-5 h-5" />}
-                    Download
+                    {isCapturing ? <Loader2 className="animate-spin w-4 h-4" /> : <Download className="w-4 h-4" />}
+                    Save Poster
                 </button>
                 <button
                     onClick={handleShare}
                     disabled={isCapturing}
-                    className="flex-1 bg-[#25D366] text-white py-4 rounded-2xl font-bold flex items-center justify-center gap-2 hover:bg-[#20b85a] transition-all shadow-lg shadow-green-900/10 active:scale-95"
+                    className="flex-1 bg-accent text-white py-5 rounded-2xl font-black uppercase tracking-widest text-[10px] flex items-center justify-center gap-2 hover:opacity-90 transition-all shadow-xl shadow-accent/20 active:scale-95"
                 >
-                    <Share2 className="w-5 h-5" />
-                    Share Poster
+                    <Share2 className="w-4 h-4" />
+                    Share on WhatsApp
                 </button>
             </div>
         </div>

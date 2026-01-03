@@ -1,16 +1,16 @@
 import type { Metadata, Viewport } from "next";
-import { Inter, Outfit } from "next/font/google"; // Use Outfit as it's modern and good for Hindi too if needed
+import { Inter } from "next/font/google";
 import "./globals.css";
 import { AccessProvider } from "@/components/auth/AccessProvider";
 
-const outfit = Outfit({ subsets: ["latin"] });
+const inter = Inter({ subsets: ["latin"] });
 
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   maximumScale: 1,
   userScalable: false,
-  themeColor: "#6366f1",
+  themeColor: "#1e1b4b",
 };
 
 export const metadata: Metadata = {
@@ -26,9 +26,8 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        {/* No more Razorpay script needed here */}
       </head>
-      <body className={outfit.className}>
+      <body className={inter.className}>
         <AccessProvider>
           {children}
         </AccessProvider>

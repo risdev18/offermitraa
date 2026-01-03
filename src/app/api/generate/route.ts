@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {
     try {
-        const { shopName, productName, discount, extraInfo, language, address, catalogLink, businessType, cta, festival } = await req.json();
+        const { shopName, shopDescription, productName, discount, extraInfo, language, address, contactNumber, catalogLink, businessType, cta, festival } = await req.json();
         const isChat = extraInfo?.includes("Chat interaction");
 
         const apiKey = process.env.GEMINI_API_KEY;
@@ -20,11 +20,16 @@ export async function POST(req: Request) {
                 });
             }
 
-            // Mock Response (Deep Seek Style - High Conversion)
-            const mockFestivalLine = festival ? `🎉 *${festival} Special Offer!* 🎉` : `🔥 *${shopName || "Special Offer"}* 🔥`;
+            // Mock Response (3 Unique Options)
+            const options = [
+                `🔥 *${shopName || "Special Offer"}* 🔥\n\n📢 **ATTENTION EVERYONE!** 📢\n\nAb paaiye sabse behtareen *${productName || "Products"}* pure shehar mein sabse kam daam par! 📉\n\n✨ **Why Choose Us?**\n✅ Best Quality Guaranteed 💯\n✅ Unbeatable Prices 💰\n✅ Trusted by Thousands 🤝\n\n🚀 *LIMITED TIME DEAL:* \n💥 **${discount || "Massive Discount!"}** 💥\n\n⏰ Jaldi karein! Stock khatam hone se pehle loot lo! 🏃‍♂️💨\n\n📍 **Visit Us:** ${address || "Our Store"}\n📞 **Call Now:** ${contactNumber || "Contact Us"}\n\n👇 *Order Now & Save Big!*`,
+                `🌟 *BIG REVEAL AT ${shopName || "OUR SHOP"}* 🌟\n\nAb shopping hogi aur bhi mazedaar! Hum laye hain aapke liye *${productName}* par ek shandaar deal. 🛍️\n\n💎 **Hamari Khoobiyan:**\n📍 Sabse Sasta, Sabse Accha\n📍 100% Original Products\n📍 Local Support & Trust\n\n🎁 **EXCLUSISVE OFFER:**\n🔥 *${discount || "Special Price"}* 🔥\n\nDon't wait! Ye offer sirf kuch hi dino ke liye hai. ⏳\n\n📍 **Location:** ${address}\n📱 **WhatsApp:** ${contactNumber}\n\n*Milte hain shop par!* 👋`,
+                `🤝 *A TRUSTED NAME: ${shopName || "OFFER MITRA"}* 🤝\n\nQuality se samjhauta nahi! Local customers ke liye humne nikala hai ek dum fresh deal on *${productName}*. ✨\n\n✅ Super Fast Service\n✅ Friendly Staff\n✅ Satisfaction Guaranteed\n\n💰 **TODAY'S BEST PRICE:**\n🌟 *${discount || "Flat OFF"}* 🌟\n\nVisit today for the best experience in town! 📍\n\n📍 **Address:** ${address}\n📞 **Contact:** ${contactNumber}\n\n*Aapka swagat hai!*`
+            ];
 
             return NextResponse.json({
-                text: `${mockFestivalLine}\n\n📢 **ATTENTION EVERYONE!** 📢\n\nAb paaiye sabse behtareen *${productName || "Products"}* pure shehar mein sabse kam daam par! 📉\n\n✨ **Why Choose Us?**\n✅ Best Quality Guaranteed 💯\n✅ Unbeatable Prices 💰\n✅ Trusted by Thousands 🤝\n\n🚀 *LIMITED TIME DEAL:* \n💥 **${discount ? `Flat ${discount} OFF!` : "Massive Discount Available!"}** 💥\n\n⏰ Jaldi karein! Stock khatam hone se pehle loot lo! 🏃‍♂️💨\n\n📍 **Visit Us:** ${address || "City Center"}\n📞 **Call Now:** ${extraInfo || "Contact Shop"}\n\n👇 *Order Now & Save Big!*`,
+                text: options[0],
+                options,
                 videoScript: [
                     festival ? `Namaskar! ${festival} ki dher saari shubhkamnayein! Aayiye, aayiye!` : "Namaskar! Aayiye aayiye! Swagat hai aapka shehar ki sabse behtareen shop mein!",
                     `Aaj hum laye hain khaas aapke liye ${productName || 'ek shandaar product'}!`,
@@ -50,51 +55,42 @@ export async function POST(req: Request) {
 
             userMessage = `User said: "${productName}"\nRespond as Rishabh AI Assistant.`;
         } else {
-            // Randomize Style to ensure uniqueness
-            const styles = [
-                "EMOJI HEAVY & EXCITING",
-                "PROFESSIONAL & TRUSTWORTHY",
-                "URGENT & FLASH SALE",
-                "STORYTELLING & RELATABLE"
-            ];
-            const selectedStyle = styles[Math.floor(Math.random() * styles.length)];
-
-            systemPrompt = `You are an expert Indian Retail Marketing Consultant and Copywriter (Creative & Viral Specialist).
-            YOUR GOAL: Generate a POWERFUL, UNIQUE, and HIGH-CONVERSION marketing message (WhatsApp format) and a 5-scene HIGH-ENERGY video script.
-
-            🔥 CURRENT STYLE PROTOCOL: ${selectedStyle} (Must follow this tone strictly!)
-
-            CRITICAL RULES FOR "TEXT" (WhatsApp Message):
-            1. **DIVERSITY IS KEY**: Do NOT always start with "Namaskar". Mix it up! Use greetings relevant to the style (e.g., "Hello Ji!", "Attention!", "Khushkhabri!").
-            2. **STRUCTURE**:
-               - **Headline**: Catchy, urgent, short.
-               - **Product**: Clear value proposition.
-               - **Offer**: The specific discount/deal.
-               - **CTA**: Clear instruction (Call/Visit).
-            3. **FORMATTING**: Use Bold (*Text*), Italics, and Bullet points.
-            4. **Emoji Strategy**: If "EMOJI HEAVY", use 10+ emojis. If "PROFESSIONAL", use minimal but impact emojis (✅, 📍).
-
-            CRITICAL RULES FOR "VIDEO SCRIPT":
-            1. **Scene 1**: MUST be a high-energy "Hook". (e.g. "Ruka ruka ruka!", "Kya aap pareshan hain?", "Tyohar ki badhai!").
-            2. **Voice Over Style**: Write exactly what the voiceover should say. Conversational and punchy.
-
-            LANGUAGE RULES:
-            - Language: "${language}"
-            - **Hinglish**: Use naturally spoken Roman Hindi (e.g., "Sabse sasta!", "Mauka haath se na jaane de!").
+            systemPrompt = `You are a world-class Indian Creative Marketing Agent. Your job is to ensure that EVERY ad you write is a unique masterpiece. 
             
-            OUTPUT FORMAT: JSON with "text", "videoScript" (5 strings), "videoTitles" (5 strings).`;
+            STRICT RULE: NEVER use the same template twice. Even if the product is the same, change the angle, vocabulary, and structure completely.
+
+            CRITICAL DIVERSITY PROTOCOL:
+            1. **VOICE & ANGLE**: For each of the 3 options, pick a random "Life Angle":
+               - Option A: *Traditional/Respectful* (Focus on sanskar, quality, and legacy).
+               - Option B: *Modern/Fast-paced* (Focus on style, status, and saving time).
+               - Option C: *Emotional/Local* (Focus on neighborly trust, family happiness, and community).
+            2. **STRUCTURE VARIATION**: Do NOT use fixed sections. 
+               - Instead of "Why Choose Us", use "Log humein pasand karte hain kyunki...", "Hamari Pehchan", or "Aapki bachat hamara vaada".
+               - Vary the position of the Offer. Sometimes start with the price, sometimes end with it.
+            3. **PRODUCT STORY**: Look at the product name. Write 1 line about WHY it matters in a real Indian household (e.g., if it's a mobile, talk about connecting with parents; if it's grocery, talk about home-cooked taste).
+            4. **NO CLICHÉS**: Avoid robotic phrases like "Attention Everyone" or "Limited Time". Use natural starts like "Ek zaroori baat...", "Aapke liye khushkhabri...", "Shehar mein sabse bada dhamaka!".
+            5. **DETAIL**: Keep the length around 10-15 lines. Use rich emojis and bold text for impact.
+
+            OUTPUT FORMAT (JSON):
+            {
+                "text": "The primary/best option",
+                "options": ["Option 1", "Option 2", "Option 3"],
+                "videoScript": ["Scene 1", "Scene 2", "Scene 3", "Scene 4", "Scene 5"],
+                "videoTitles": ["Title 1", "Title 2", "Title 3", "Title 4", "Title 5"]
+            }`;
 
             userMessage = `
-            BUSINESS: ${businessType}
-            SHOP NAME: ${shopName}
-            LOCATION: ${address}
-            PRODUCT/SERVICE: ${productName}
-            DETAILS: ${extraInfo}
-            DISCOUNT/OFFER: ${discount}
-            FESTIVAL/OCCASION: ${festival || "None"}
-            CTA: ${cta}
+            BUSINESS_DATA:
+            - Type: ${businessType}
+            - Name: ${shopName}
+            - Shop Description: ${shopDescription}
+            - Product: ${productName}
+            - Offer: ${discount}
+            - Location: ${address}
+            - Phone: ${contactNumber}
+            - Context: ${festival || "Regular Day"} / ${extraInfo}
             
-            Task: Generate unique content for this specific shop and product. Do not use generic placeholders.`;
+            GENERATE 3 HYPER-UNIQUE ADS. BREAK ALL TEMPLATES. USE FRESH VOCABULARY.`;
         }
 
         try {
@@ -110,9 +106,14 @@ export async function POST(req: Request) {
         } catch (geminiError) {
             console.error("Gemini API Error (Falling back to mock):", geminiError);
 
-            // Fallback Mock Response (High Energy)
+            const fallbackOptions = [
+                `🔥 *${shopName || "Special Offer"}* 🔥\n\n📢 **ATTENTION EVERYONE!** 📢\n\nAb paaiye sabse behtareen *${productName || "Products"}* pure shehar mein sabse kam daam par! 📉\n\n✨ **Why Choose Us?**\n✅ Best Quality Guaranteed 💯\n✅ Unbeatable Prices 💰\n✅ Trusted by Thousands 🤝\n\n🚀 *LIMITED TIME DEAL:* \n💥 **${discount || "Massive Discount!"}** 💥\n\n⏰ Jaldi karein! Stock khatam hone se pehle loot lo! 🏃‍♂️💨\n\n📍 **Visit Us:** ${address || "Our Store"}\n📞 **Call Now:** ${contactNumber || "Contact Us"}\n\n👇 *Order Now & Save Big!*`,
+                `🌟 *BIG REVEAL AT ${shopName || "OUR SHOP"}* 🌟\n\nAb shopping hogi aur bhi mazedaar! Hum laye hain aapke liye *${productName}* par ek shandaar deal. 🛍️\n\n💎 **Hamari Khoobiyan:**\n📍 Sabse Sasta, Sabse Accha\n📍 100% Original Products\n📍 Local Support & Trust\n\n🎁 **EXCLUSISVE OFFER:**\n🔥 *${discount || "Special Price"}* 🔥\n\nDon't wait! Ye offer sirf kuch hi dino ke liye hai. ⏳\n\n📍 **Location:** ${address}\n📱 **WhatsApp:** ${contactNumber}\n\n*Milte hain shop par!* 👋`
+            ];
+
             return NextResponse.json({
-                text: `🔥 *${shopName || "Special Offer"}* 🔥\n\n📢 **ATTENTION EVERYONE!** 📢\n\nAb paaiye sabse behtareen *${productName || "Products"}* pure shehar mein sabse kam daam par! 📉\n\n✨ **Why Choose Us?**\n✅ Best Quality Guaranteed 💯\n✅ Unbeatable Prices 💰\n✅ Trusted by Thousands 🤝\n\n🚀 *LIMITED TIME DEAL:* \n💥 **${discount ? `Flat ${discount} OFF!` : "Massive Discount Available!"}** 💥\n\n⏰ Jaldi karein! Stock khatam hone se pehle loot lo! 🏃‍♂️💨\n\n📍 **Visit Us:** ${address || "City Center"}\n📞 **Call Now:** ${extraInfo || "Contact Shop"}\n\n👇 *Order Now & Save Big!*`,
+                text: fallbackOptions[0],
+                options: fallbackOptions,
                 videoScript: [
                     "Namaskar! Aayiye aayiye! Swagat hai aapka shehar ki sabse behtareen shop mein!",
                     `Aaj hum laye hain khaas aapke liye ${productName || 'ek shandaar product'}!`,

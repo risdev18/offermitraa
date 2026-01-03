@@ -10,6 +10,11 @@ export async function POST(req: Request) {
             // Mock Suggestions for Demo
             await new Promise(resolve => setTimeout(resolve, 1000));
             const mocks: Record<string, any[]> = {
+                grocery: [
+                    { title: "Sunday Grocery Sale", product: "All Pulses & Rice", discount: "10% Off" },
+                    { title: "Monthly Ration Pack", product: "Oil + Sugar + Flour", discount: "Save ₹200" },
+                    { title: "Buy 1 Get 1", product: "Surf Excel", discount: "BOGO" }
+                ],
                 kirana: [
                     { title: "Sunday Grocery Sale", product: "All Pulses & Rice", discount: "10% Off" },
                     { title: "Monthly Ration Pack", product: "Oil + Sugar + Flour", discount: "Save ₹200" },
@@ -24,6 +29,16 @@ export async function POST(req: Request) {
                     { title: "End of Season Sale", product: "Jeans & Shirts", discount: "Flat 50% Off" },
                     { title: "Kurta Special", product: "Cotton Kurtas", discount: "Buy 2 Get 1 Free" },
                     { title: "Wedding Collection", product: "Lehengas & Suits", discount: "Early Bird 20%" }
+                ],
+                restaurant: [
+                    { title: "Family Combo", product: "Large Pizza + Coke", discount: "Save ₹150" },
+                    { title: "Midweek Feast", product: "All Thalis", discount: "15% Off" },
+                    { title: "Sweet Surprise", product: "Desserts", discount: "Free on ₹500+" }
+                ],
+                medical: [
+                    { title: "Health Checkup", product: "Vitamins & BP Kit", discount: "10% Off" },
+                    { title: "First Aid Kit", product: "Standard Box", discount: "Flat ₹50 OFF" },
+                    { title: "Generic Savings", product: "Generic Medicines", discount: "Extra 15% Off" }
                 ]
             };
             return NextResponse.json({

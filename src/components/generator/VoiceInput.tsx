@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Mic, MicOff, Loader2 } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface VoiceInputProps {
     onTranscript: (text: string) => void;
@@ -63,13 +64,15 @@ export default function VoiceInput({ onTranscript, lang = 'hi-IN' }: VoiceInputP
         <button
             type="button"
             onClick={toggleListening}
-            className={`p-3 rounded-full transition-all ${isListening
-                    ? "bg-red-100 text-red-600 animate-pulse ring-2 ring-red-400"
-                    : "bg-gray-100 text-gray-600 hover:bg-indigo-50 hover:text-indigo-600"
-                }`}
+            className={cn(
+                "p-4 rounded-2xl transition-all shadow-sm active:scale-90",
+                isListening
+                    ? "bg-red-500 text-white animate-pulse shadow-lg shadow-red-500/20"
+                    : "bg-slate-100 text-primary hover:bg-slate-200"
+            )}
             title="Tap to speak"
         >
-            {isListening ? <MicOff className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
+            {isListening ? <MicOff size={20} /> : <Mic size={20} />}
         </button>
     );
 }

@@ -27,6 +27,28 @@ export default function ShopSetup({ onComplete }: ShopSetupProps) {
     // File input ref
     const fileInputRef = useRef<HTMLInputElement>(null);
 
+    useEffect(() => {
+        // Voice Welcome for first-time users
+        const welcomeText = "Welcome to OfferMitra! Hope you will enjoy the experience.";
+        const speakWelcome = () => {
+            const utterance = new SpeechSynthesisUtterance(welcomeText);
+            const voices = window.speechSynthesis.getVoices();
+            const engVoice = voices.find(v => v.lang.includes('en-GB')) || voices.find(v => v.lang.includes('en-US')) || voices[0];
+            if (engVoice) utterance.voice = engVoice;
+            utterance.rate = 1.2; // High energy
+            utterance.pitch = 1.1; // Slightly higher pitch for excitement
+            window.speechSynthesis.speak(utterance);
+        };
+
+        if (window.speechSynthesis.getVoices().length === 0) {
+            window.speechSynthesis.addEventListener('voiceschanged', speakWelcome, { once: true });
+        } else {
+            speakWelcome();
+        }
+
+        return () => window.speechSynthesis.cancel();
+    }, []);
+
     const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file) {

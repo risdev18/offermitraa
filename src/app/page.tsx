@@ -7,7 +7,7 @@ import VideoGenerator from "@/components/preview/VideoGenerator";
 import AccessCodeModal from "@/components/subscription/AccessCodeModal";
 import BusinessTypeSelector from "@/components/onboarding/BusinessTypeSelector";
 import { motion, AnimatePresence } from "framer-motion";
-import { Loader2, Send, Sparkles, Video, Image as ImageIcon, Crown, Calendar, MessageSquare, Play, Zap } from "lucide-react";
+import { Loader2, Sparkles, Layout, BarChart3, User, Calendar, Crown } from "lucide-react";
 import { useState, useEffect } from "react";
 import RishabhChat from "@/components/chat/RishabhChat";
 import { db } from "@/lib/firebase";
@@ -17,6 +17,7 @@ import { getBusinessType, BusinessType, getBusinessConfig } from "@/lib/business
 import { t, Language } from "@/lib/i18n";
 import ShopSetup, { ShopDetails } from "@/components/onboarding/ShopSetup";
 import RevenueTracker from "@/components/revenue/RevenueTracker";
+import BottomNav from "@/components/layout/BottomNav";
 
 export default function Home() {
   const { usageCount, isPro, loading, incrementUsage } = useAccess();
@@ -24,6 +25,8 @@ export default function Home() {
   const [showAccessModal, setShowAccessModal] = useState(false);
   const [showBusinessSelector, setShowBusinessSelector] = useState(false);
   const [generatedOffer, setGeneratedOffer] = useState<string | null>(null);
+  const [offerOptions, setOfferOptions] = useState<string[]>([]);
+  const [selectedOptionIndex, setSelectedOptionIndex] = useState(0);
   const [lastInputData, setLastInputData] = useState<any>(null);
   const [videoScript, setVideoScript] = useState<string[] | undefined>(undefined);
   const [videoTitles, setVideoTitles] = useState<string[] | undefined>(undefined);
@@ -31,6 +34,7 @@ export default function Home() {
   const [trackedReach, setTrackedReach] = useState(0);
   const [historyCount, setHistoryCount] = useState(0);
   const [language, setLanguage] = useState<Language>('hinglish');
+  const [activeTab, setActiveTab] = useState('home');
 
   // Shop Setup persistence
   const [showShopSetup, setShowShopSetup] = useState(false);
@@ -46,21 +50,16 @@ export default function Home() {
     setTrackedReach(prev => prev + Math.floor(Math.random() * 50) + 10);
   };
 
-  // Check if business type is selected on mount and restore data
   useEffect(() => {
-    // 1. Check for Shop Details (Mandatory Step 1)
     try {
       const savedDetails = localStorage.getItem("om_shop_details");
       if (savedDetails) {
         setShopDetails(JSON.parse(savedDetails));
       } else {
-        // If no shop details, show setup
         setShowShopSetup(true);
       }
     } catch (e) { console.error("Error reading shop details", e); }
 
-
-    // 2. Business Type Check
     const businessType = getBusinessType();
     if (!businessType) {
       setShowBusinessSelector(true);
@@ -68,14 +67,17 @@ export default function Home() {
       setSelectedBusinessType(businessType);
     }
 
-    // Restore last session
     try {
       const savedOffer = localStorage.getItem("om_last_offer");
+      const savedOptions = localStorage.getItem("om_last_options");
+      const savedIndex = localStorage.getItem("om_selected_index");
       const savedData = localStorage.getItem("om_last_input");
       const savedScript = localStorage.getItem("om_last_script");
       const savedTitles = localStorage.getItem("om_last_titles");
 
       if (savedOffer) setGeneratedOffer(savedOffer);
+      if (savedOptions) setOfferOptions(JSON.parse(savedOptions));
+      if (savedIndex) setSelectedOptionIndex(parseInt(savedIndex));
       if (savedData) setLastInputData(JSON.parse(savedData));
       if (savedScript) setVideoScript(JSON.parse(savedScript));
       if (savedTitles) setVideoTitles(JSON.parse(savedTitles));
@@ -90,16 +92,16 @@ export default function Home() {
     }
   }, []);
 
-  // Persist current session
   useEffect(() => {
     if (generatedOffer) localStorage.setItem("om_last_offer", generatedOffer);
+    if (offerOptions.length > 0) localStorage.setItem("om_last_options", JSON.stringify(offerOptions));
+    localStorage.setItem("om_selected_index", selectedOptionIndex.toString());
     if (lastInputData) localStorage.setItem("om_last_input", JSON.stringify(lastInputData));
     if (videoScript) localStorage.setItem("om_last_script", JSON.stringify(videoScript));
     if (videoTitles) localStorage.setItem("om_last_titles", JSON.stringify(videoTitles));
-  }, [generatedOffer, lastInputData, videoScript, videoTitles]);
+  }, [generatedOffer, offerOptions, selectedOptionIndex, lastInputData, videoScript, videoTitles]);
 
   const handleGenerate = async (data: any) => {
-    // Check usage limit
     if (!isPro && usageCount >= 3) {
       setShowAccessModal(true);
       return;
@@ -113,17 +115,21 @@ export default function Home() {
       const res = await fetch("/api/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
+        body: JSON.stringify({
+          ...data,
+          shopDescription: shopDetails?.shopDescription
+        }),
       });
 
       const result = await res.json();
       if (result.text) {
         setGeneratedOffer(result.text);
+        setOfferOptions(result.options || [result.text]);
+        setSelectedOptionIndex(0);
         setVideoScript(result.videoScript);
         setVideoTitles(result.videoTitles);
         incrementUsage();
 
-        // Save to local history
         try {
           const history = JSON.parse(localStorage.getItem("om_history") || "[]");
           const newItem = {
@@ -134,7 +140,7 @@ export default function Home() {
             videoTitles: result.videoTitles,
             timestamp: new Date().toISOString()
           };
-          const updatedHistory = [newItem, ...history].slice(0, 50); // Keep last 50
+          const updatedHistory = [newItem, ...history].slice(0, 50);
           localStorage.setItem("om_history", JSON.stringify(updatedHistory));
           setHistoryCount(updatedHistory.length);
         } catch (e) {
@@ -142,28 +148,12 @@ export default function Home() {
         }
 
         try {
-          // Log to global history (Crores of Data Optimized)
           await addDoc(collection(db, "offers_history"), {
             ...data,
             generatedText: result.text,
             createdAt: new Date().toISOString(),
             isProUser: isPro,
             shopId: `${data.shopName}_${data.contactNumber}`.replace(/\s+/g, '_'),
-            clientDetails: {
-              ip: 'logged',
-              userAgent: typeof window !== 'undefined' ? window.navigator.userAgent : 'unknown'
-            }
-          });
-
-          // Log to partitioned shop storage for massive scalability
-          const shopSlug = (data.shopName || 'anonymous').toLowerCase().replace(/\s+/g, '-');
-          await addDoc(collection(db, `shops/${shopSlug}/generations`), {
-            product: data.productName,
-            discount: data.discount,
-            language: data.language,
-            isPro: isPro,
-            timestamp: new Date().toISOString(),
-            fullText: result.text
           });
         } catch (err) {
           console.warn("Analytics sync failed", err);
@@ -180,311 +170,100 @@ export default function Home() {
 
   if (loading) {
     return (
-      <div className="flex h-screen w-full items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-indigo-600" />
+      <div className="flex h-screen w-full items-center justify-center bg-white">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     );
   }
 
-  // No more Login needed
-
   return (
     <main className={cn(
-      "min-h-screen transition-colors duration-1000 pb-20 relative overflow-hidden",
-      isPro
-        ? "bg-[#020617] text-white dark"
-        : "bg-slate-50 text-slate-900"
+      "min-h-screen bg-slate-50 text-slate-900 pb-24 lg:pb-0 relative overflow-x-hidden",
+      isPro && "bg-slate-900 text-white"
     )}>
-      {/* Background Decor */}
-      <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none z-0">
-        <div className={cn(
-          "absolute top-0 left-0 w-full h-full bg-cover bg-center transition-all duration-1000",
-          isPro ? "opacity-40" : "opacity-20"
-        )}
-          style={{
-            backgroundImage: `url(${getBusinessConfig(selectedBusinessType).backgroundImage || "https://images.unsplash.com/photo-1557683316-973673baf926?auto=format&fit=crop&q=80"})`
-          }}
-        />
-        <div className="absolute inset-0 bg-gradient-to-b from-[#020617] via-[#020617]/90 to-[#020617] pointer-events-none" />
+      {/* Premium Background Elements */}
+      <div className="absolute top-0 left-0 w-full h-[500px] bg-gradient-to-b from-primary/5 to-transparent pointer-events-none -z-10" />
 
-        <div className={cn(
-          "absolute -top-[10%] -left-[10%] w-[40%] h-[40%] rounded-full blur-[120px] opacity-20",
-          isPro ? "bg-indigo-600" : "bg-indigo-400"
-        )} />
-        <div className={cn(
-          "absolute top-[20%] -right-[10%] w-[40%] h-[40%] rounded-full blur-[120px] opacity-20",
-          isPro ? "bg-purple-600" : "bg-purple-400"
-        )} />
-        {isPro && (
-          <div className="absolute bottom-0 left-[20%] w-[60%] h-[30%] bg-pink-600/10 blur-[150px] rounded-full" />
-        )}
-
-        {/* Dynamic Interactive Blobs */}
-        <motion.div
-          animate={{
-            scale: [1, 1.2, 1],
-            x: [0, 50, 0],
-            y: [0, -30, 0]
-          }}
-          transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-          className="absolute top-[40%] left-[10%] w-[300px] h-[300px] bg-indigo-500/10 blur-[100px] rounded-full"
-        />
-        <motion.div
-          animate={{
-            scale: [1, 1.3, 1],
-            x: [0, -60, 0],
-            y: [0, 40, 0]
-          }}
-          transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
-          className="absolute bottom-[20%] right-[10%] w-[400px] h-[400px] bg-purple-500/10 blur-[120px] rounded-full"
-        />
-      </div>
-
-      {/* Header */}
-      <header className={cn(
-        "sticky top-0 z-50 backdrop-blur-xl border-b transition-all duration-500",
-        isPro
-          ? "bg-slate-950/80 border-white/5 shadow-2xl"
-          : "bg-white/80 border-slate-200 shadow-sm"
-      )}>
-        <div className="max-w-7xl mx-auto px-4 md:px-6 h-20 flex items-center justify-between">
-          <div className="flex items-center gap-2 md:gap-4 shrink-0">
-            <div className={cn(
-              "p-2 md:p-3 rounded-2xl shadow-xl transform hover:scale-110 active:scale-95 transition-all cursor-pointer",
-              isPro ? "pro-gradient shadow-indigo-500/20" : "bg-indigo-600 shadow-indigo-200"
-            )}>
-              <Sparkles className="w-5 h-5 md:w-6 md:h-6 text-white" />
+      {/* Header - Minimalist */}
+      <header className="sticky top-0 z-40 bg-white/80 backdrop-blur-md border-b border-slate-200">
+        <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center text-white">
+              <Sparkles size={18} />
             </div>
-            <div>
-              <h1 className={cn(
-                "text-lg md:text-2xl font-black tracking-tight flex items-center gap-1 md:gap-2",
-                isPro ? "text-white" : "text-slate-900"
-              )}>
-                OfferMitra
-                {isPro && (
-                  <span className="pro-gradient bg-clip-text text-transparent text-[8px] md:text-[10px] font-black uppercase tracking-[0.2em] border border-indigo-500/30 px-2 py-0.5 rounded-full">
-                    Premium
-                  </span>
-                )}
-              </h1>
-              <p className={cn("text-[8px] md:text-[10px] font-bold uppercase tracking-[0.2em] md:tracking-[0.3em]", isPro ? "text-indigo-400" : "text-indigo-600")}>
-                AI Marketing Suite
-              </p>
-            </div>
+            <h1 className="text-xl font-extrabold tracking-tight text-primary">OfferMitra</h1>
           </div>
 
-          <div className="flex items-center gap-2 md:gap-4 shrink-0">
-            <button
-              onClick={() => window.location.href = '/history'}
-              className={cn(
-                "flex items-center gap-2 px-3 md:px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all",
-                isPro ? "bg-slate-900 text-slate-400 hover:text-white border border-white/5" : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-              )}
-              title={t('history', language)}
-            >
-              <Calendar className="w-4 h-4 md:hidden text-indigo-500" />
-              <span className="hidden md:inline">{t('history', language)}</span>
-              {historyCount > 0 && (
-                <span className="bg-indigo-500 text-white w-4 h-4 rounded-full flex items-center justify-center text-[8px]">
-                  {historyCount}
-                </span>
-              )}
-            </button>
-            <button
-              onClick={() => window.location.href = '/admin'}
-              className={cn(
-                "hidden sm:block px-4 md:px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all",
-                isPro ? "bg-slate-900 text-slate-400 hover:text-white border border-white/5" : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-              )}
-            >
-              {t('admin', language)}
-            </button>
-            <button
-              onClick={() => setShowAccessModal(true)}
-              className={cn(
-                "px-4 md:px-8 py-2 md:py-3 rounded-xl md:rounded-2xl text-[10px] font-black uppercase tracking-[0.1em] md:tracking-[0.2em] transition-all shadow-xl active:scale-95 truncate sm:overflow-visible",
-                isPro
-                  ? "pro-gradient text-white shadow-purple-500/25"
-                  : "bg-indigo-600 text-white shadow-indigo-500/20 hover:bg-indigo-700"
-              )}
-            >
-              {isPro ? t('dashboard', language) : t('activate_pro', language)}
-            </button>
+          <div className="flex items-center gap-4">
+            {!isPro && (
+              <button
+                onClick={() => setShowAccessModal(true)}
+                className="hidden sm:flex items-center gap-2 px-4 py-2 bg-accent text-white rounded-full text-xs font-bold shadow-lg shadow-accent/20 hover:scale-105 transition-all"
+              >
+                <Crown size={14} />
+                Go Pro (₹99)
+              </button>
+            )}
+            <div className="flex items-center gap-1 bg-slate-100 px-3 py-1.5 rounded-full text-[10px] font-bold text-slate-600">
+              <span className={cn(usageCount >= 3 ? "text-red-500" : "text-primary")}>{3 - usageCount}</span>/3 Left
+            </div>
           </div>
         </div>
       </header>
 
-      <div className="relative z-10 p-4 md:p-10 max-w-[1600px] mx-auto space-y-16 mt-4">
-
-        <div className={cn(
-          "max-w-3xl mx-auto p-6 md:p-12 rounded-[2rem] md:rounded-[3rem] transition-all duration-1000 shadow-2xl relative group overflow-hidden",
-          isPro
-            ? "glass-card border-white/10"
-            : "bg-white border border-slate-200"
-        )}>
-          {isPro && (
-            <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/10 blur-3xl -mr-16 -mt-16 group-hover:bg-indigo-500/20 transition-colors" />
-          )}
-
-          <div className="flex items-center gap-6 mb-10">
-            <div className={cn(
-              "p-4 rounded-3xl shadow-lg",
-              isPro ? "bg-indigo-500/20 text-indigo-400" : "bg-indigo-50 text-indigo-600"
-            )}>
-              <Sparkles className="w-8 h-8" />
-            </div>
-            <div>
-              <h2 className={cn("text-3xl font-black tracking-tighter", isPro ? "text-white" : "text-slate-900")}>
-                Create Viral Offer
-              </h2>
-              <p className={cn("text-xs font-bold uppercase tracking-widest mt-1 opacity-80", isPro ? "text-indigo-200" : "text-slate-600")}>
-                AI-Powered Marketing Intelligence
-              </p>
-            </div>
+      <div className="max-w-5xl mx-auto px-6 pt-12 space-y-20">
+        {/* Step 1: Generator */}
+        <section id="offer-generator" className="scroll-mt-24">
+          <div className="mb-8">
+            <h2 className="text-3xl font-extrabold mb-2">Create Viral Offer</h2>
+            <p className="text-slate-500 font-medium">Generate high-converting ads in seconds.</p>
           </div>
 
-          <OfferForm
-            onGenerate={handleGenerate}
-            isGenerating={isGenerating}
-            isPro={isPro}
-            defaultValues={lastInputData}
-            usageCount={usageCount}
-            shopDetails={shopDetails}
-          />
-        </div>
+          <div className="bg-white rounded-3xl border border-slate-200 shadow-premium p-8 md:p-12">
+            <OfferForm
+              onGenerate={handleGenerate}
+              isGenerating={isGenerating}
+              isPro={isPro}
+              defaultValues={lastInputData}
+              usageCount={usageCount}
+              shopDetails={shopDetails}
+              businessType={selectedBusinessType}
+            />
+          </div>
+        </section>
 
-        {/* REVENUE TRACKER SECTION */}
-        <RevenueTracker isPro={isPro} language={language} />
-
-        {/* RESULTS SECTION */}
-        {generatedOffer && (
-          <div className="space-y-16 animate-in fade-in slide-in-from-bottom-10 duration-1000">
-
-            {/* INSIGHTS */}
-            {isPro && (() => {
-              const config = getBusinessConfig(getBusinessType());
-              return (
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                  {[
-                    { label: 'Industry Suggestion', value: config.peakEngagementTime, icon: Calendar, color: 'text-amber-400', bg: 'bg-amber-400/10' },
-                    { label: 'Live Reach Tracker', value: trackedReach.toLocaleString(), sub: `/ ${config.averageReach.match(/\d+/)?.[0] || '1.5k'} Goal`, icon: Send, color: 'text-indigo-400', bg: 'bg-indigo-400/10', progress: (trackedReach / (parseInt(config.averageReach.match(/\d+/)?.[0] || '1500')) * 100) },
-                    { label: 'Trust Index', value: '9.8 / 10', sub: 'High Trust Rating', icon: Crown, color: 'text-emerald-400', bg: 'bg-emerald-400/10' }
-                  ].map((stat, i) => (
-                    <div key={i} className="glass-card border-white/5 p-10 rounded-[2.5rem] hover:scale-105 transition-all duration-500 group">
-                      <div className="flex items-center gap-4 mb-6">
-                        <div className={cn("p-4 rounded-2xl group-hover:scale-110 transition-transform", stat.bg, stat.color)}>
-                          <stat.icon className="w-6 h-6" />
-                        </div>
-                        <h3 className="font-black text-[10px] uppercase tracking-[0.3em] opacity-40">{stat.label}</h3>
-                      </div>
-                      <div className="flex items-baseline gap-2">
-                        <p className={cn("text-3xl font-black", stat.color)}>{stat.value}</p>
-                        {stat.sub && <p className="text-slate-500 text-xs font-bold uppercase">{stat.sub}</p>}
-                      </div>
-                      {stat.progress !== undefined && (
-                        <div className="w-full h-2.5 bg-slate-800 rounded-full mt-6 overflow-hidden border border-white/5">
-                          <motion.div
-                            initial={{ width: 0 }}
-                            animate={{ width: `${Math.min(stat.progress, 100)}%` }}
-                            className="h-full pro-gradient shadow-[0_0_20px_rgba(168,85,247,0.4)]"
-                          />
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              );
-            })()}
-
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
-              {/* WhatsApp Text Preview */}
-              <div className={cn(
-                "lg:col-span-5 p-10 rounded-[3rem] shadow-2xl space-y-8 flex flex-col transition-all relative overflow-hidden",
-                isPro ? "glass-card border-white/5" : "bg-white border border-slate-100"
-              )}>
-                <div className="flex items-center justify-between relative z-10">
-                  <div>
-                    <h3 className="text-xl font-black uppercase tracking-widest">WhatsApp Text</h3>
-                    <p className="text-[10px] font-black text-indigo-500 tracking-widest uppercase mt-1">AI Optimized Copy</p>
-                  </div>
+        {/* Results Screen - Full Screen WOW */}
+        <AnimatePresence>
+          {generatedOffer && (
+            <motion.section
+              initial={{ opacity: 0, y: 40 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="space-y-12"
+            >
+              <div className="flex items-center justify-between">
+                <h2 className="text-2xl font-bold">Your Marketing Kit</h2>
+                <div className="flex p-1 bg-slate-200 rounded-xl">
                   <button
-                    onClick={() => {
-                      navigator.clipboard.writeText(generatedOffer);
-                      alert("Copied to clipboard! 📋");
-                    }}
-                    className={cn(
-                      "flex items-center gap-2 px-8 py-3 rounded-2xl transition-all text-[10px] font-black uppercase tracking-widest border",
-                      isPro ? "bg-white/5 border-white/10 text-white hover:bg-white/10" : "bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100"
-                    )}
+                    onClick={() => setOutputMode('banner')}
+                    className={cn("px-4 py-2 rounded-lg text-xs font-bold transition-all", outputMode === 'banner' ? "bg-white text-primary shadow-sm" : "text-slate-500")}
                   >
-                    Copy
+                    Graphics
+                  </button>
+                  <button
+                    onClick={() => setOutputMode('video')}
+                    className={cn("px-4 py-2 rounded-lg text-xs font-bold transition-all", outputMode === 'video' ? "bg-white text-primary shadow-sm" : "text-slate-500")}
+                  >
+                    Video Ad
                   </button>
                 </div>
-
-                <textarea
-                  value={generatedOffer}
-                  onChange={(e) => setGeneratedOffer(e.target.value)}
-                  className={cn(
-                    "w-full h-[500px] p-10 rounded-[2.5rem] font-bold outline-none resize-none text-lg transition-all leading-relaxed relative z-10",
-                    isPro
-                      ? "bg-black/30 text-indigo-100 border border-white/5 focus:border-indigo-500/50"
-                      : "bg-slate-50 text-slate-800 border border-slate-200 focus:border-indigo-400"
-                  )}
-                />
-
-                <a
-                  href={`https://wa.me/?text=${encodeURIComponent(generatedOffer)}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  onClick={handleShareTrack}
-                  className="w-full bg-[#25D366] text-white font-black py-7 rounded-[2.5rem] shadow-2xl hover:bg-[#20b85a] hover:scale-[1.02] transition-all flex items-center justify-center gap-5 text-xl active:scale-95 group relative z-10"
-                >
-                  <Send className="w-7 h-7 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
-                  WhatsApp par bhejein
-                </a>
               </div>
 
-              {/* Visual Preview Section */}
-              <div className={cn(
-                "lg:col-span-12 xl:col-span-7 p-8 md:p-12 rounded-[3.5rem] shadow-2xl space-y-8 flex flex-col transition-all relative overflow-hidden min-h-[700px]",
-                isPro ? "bg-slate-900/50 border border-white/10 backdrop-blur-xl" : "bg-slate-50 border border-slate-200"
-              )}>
-                {/* Mode Switcher */}
-                <div className="flex justify-center w-full relative z-10">
-                  <div className={cn(
-                    "flex p-1.5 rounded-[2rem] border transition-all shadow-inner",
-                    isPro ? "bg-black/40 border-white/5" : "bg-slate-200 border-slate-300"
-                  )}>
-                    <button
-                      onClick={() => setOutputMode('banner')}
-                      className={cn(
-                        "flex items-center gap-3 px-8 py-4 rounded-[1.5rem] text-[11px] font-black tracking-widest uppercase transition-all whitespace-nowrap",
-                        outputMode === 'banner'
-                          ? "pro-gradient text-white shadow-xl scale-105"
-                          : isPro ? "text-slate-500 hover:text-white" : "text-slate-500 hover:text-slate-900"
-                      )}
-                    >
-                      <ImageIcon className="w-5 h-5" /> Graphics
-                    </button>
-                    <button
-                      onClick={() => setOutputMode('video')}
-                      className={cn(
-                        "flex items-center gap-3 px-8 py-4 rounded-[1.5rem] text-[11px] font-black tracking-widest uppercase transition-all whitespace-nowrap",
-                        outputMode === 'video'
-                          ? "pro-gradient text-white shadow-xl scale-105"
-                          : isPro ? "text-slate-500 hover:text-white" : "text-slate-500 hover:text-slate-900"
-                      )}
-                    >
-                      <Video className="w-5 h-5" /> Video Ad
-                    </button>
-                  </div>
-                </div>
-
-                {/* Content Area */}
-                <div className="flex-1 flex justify-center items-center relative z-10 w-full">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+                {/* Visual Preview */}
+                <div className="bg-slate-900 rounded-[2.5rem] p-4 aspect-[9/16] relative overflow-hidden shadow-2xl border-8 border-slate-800">
                   {outputMode === 'banner' ? (
                     <BannerGenerator
-                      text={generatedOffer}
+                      text={offerOptions[selectedOptionIndex] || generatedOffer}
                       shopType={getBusinessType() || "grocery"}
                       shopName={lastInputData?.shopName}
                       isPro={isPro}
@@ -492,11 +271,12 @@ export default function Home() {
                       address={lastInputData?.address}
                       contactNumber={lastInputData?.contactNumber}
                       productName={lastInputData?.productName}
+                      shopDescription={shopDetails?.shopDescription}
                       onShare={handleShareTrack}
                     />
                   ) : (
                     <VideoGenerator
-                      offerText={generatedOffer}
+                      offerText={offerOptions[selectedOptionIndex] || generatedOffer}
                       productName={lastInputData?.productName || ""}
                       discount={lastInputData?.discount || ""}
                       shopType={getBusinessType() || "grocery"}
@@ -509,107 +289,131 @@ export default function Home() {
                       onShare={handleShareTrack}
                       productImage={lastInputData?.productImage}
                       shopImage={lastInputData?.shopImage || shopDetails?.shopPhoto}
+                      shopDescription={shopDetails?.shopDescription}
                     />
                   )}
                 </div>
+
+                {/* WhatsApp Text Kit */}
+                <div className="space-y-6">
+                  <div className="bg-white rounded-3xl border border-slate-200 p-8 shadow-premium space-y-4">
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-lg font-bold">WhatsApp Message</h3>
+                      <div className="flex gap-2">
+                        {offerOptions.map((_, idx) => (
+                          <button
+                            key={idx}
+                            onClick={() => setSelectedOptionIndex(idx)}
+                            className={cn(
+                              "w-8 h-8 rounded-full flex items-center justify-center text-xs font-black transition-all",
+                              selectedOptionIndex === idx
+                                ? "bg-primary text-white scale-110 shadow-lg"
+                                : "bg-slate-100 text-slate-400 hover:bg-slate-200"
+                            )}
+                          >
+                            {idx + 1}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                    <div className="bg-slate-50 p-6 rounded-2xl border border-slate-100 font-medium whitespace-pre-wrap text-slate-800 leading-relaxed min-h-[120px] max-h-[400px] overflow-y-auto italic">
+                      {offerOptions[selectedOptionIndex] || generatedOffer}
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <button
+                        onClick={() => {
+                          const textArea = document.createElement("textarea");
+                          const textToCopy = offerOptions[selectedOptionIndex] || generatedOffer || "";
+                          textArea.value = textToCopy;
+                          document.body.appendChild(textArea);
+                          textArea.select();
+                          try {
+                            document.execCommand('copy');
+                            alert("Option " + (selectedOptionIndex + 1) + " Copied! 📋");
+                          } catch (err) {
+                            console.error('Copy failed', err);
+                          }
+                          document.body.removeChild(textArea);
+                        }}
+                        className="w-full py-4 rounded-xl border-2 border-slate-200 font-black uppercase tracking-widest text-[10px] hover:bg-slate-50 transition-all active:scale-95"
+                      >
+                        Copy Text
+                      </button>
+                      <a
+                        href={`https://api.whatsapp.com/send?text=${encodeURIComponent(offerOptions[selectedOptionIndex] || generatedOffer || "")}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={handleShareTrack}
+                        className="w-full bg-[#25D366] text-white font-black uppercase tracking-widest text-[10px] py-4 rounded-xl shadow-xl shadow-green-500/20 hover:scale-105 transition-all flex items-center justify-center gap-2 active:scale-95"
+                      >
+                        Send WhatsApp
+                      </a>
+                    </div>
+                  </div>
+
+                  {isPro && (
+                    <div className="bg-primary text-white p-8 rounded-3xl shadow-xl relative overflow-hidden">
+                      <div className="relative z-10">
+                        <h4 className="font-bold mb-2">Pro Insight</h4>
+                        <p className="text-indigo-100 text-sm">This offer has a 12% higher chance of conversion based on peak engagement trends.</p>
+                      </div>
+                      <div className="absolute top-0 right-0 w-24 h-24 bg-white/10 blur-2xl -mr-12 -mt-12" />
+                    </div>
+                  )}
+                </div>
               </div>
-            </div>
+            </motion.section>
+          )}
+        </AnimatePresence>
+
+        {/* Step 2: Revenue Tracker */}
+        <section id="revenue-tracker" className="scroll-mt-24">
+          <div className="mb-8">
+            <h2 className="text-3xl font-extrabold mb-2">Revenue Tracker</h2>
+            <p className="text-slate-500 font-medium">Monitor your business health daily.</p>
           </div>
+          <RevenueTracker isPro={isPro} language={language} />
+        </section>
+
+        {/* Pro Upsell - Calm & Consistent */}
+        {!isPro && (
+          <section className="bg-primary rounded-[3rem] p-12 text-center text-white relative overflow-hidden">
+            <div className="relative z-10 max-w-lg mx-auto">
+              <h2 className="text-3xl font-extrabold mb-4">Unlimited Potential with Pro</h2>
+              <p className="text-indigo-100 mb-8 font-medium">Unlock daily tracker history, unlimited AI offers, and premium video templates.</p>
+              <button
+                onClick={() => setShowAccessModal(true)}
+                className="bg-white text-primary px-10 py-5 rounded-2xl font-black shadow-2xl hover:scale-105 transition-all uppercase tracking-widest text-sm"
+              >
+                Join Pro - ₹99/month
+              </button>
+            </div>
+            {/* Subtle patterns instead of loud blobs */}
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-from)_0%,_transparent_100%)] from-white/10 opacity-30" />
+          </section>
         )}
 
-        {/* DYNAMIC MARKETING CLIPS / VISUALS */}
-        <section className="py-20">
-          <div className="flex items-center gap-4 mb-12">
-            <div className="p-3 bg-amber-500/20 rounded-2xl text-amber-500">
-              <Play className="w-6 h-6" />
+        <footer className="pt-20 pb-32 border-t border-slate-200">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-8">
+            <div className="flex items-center gap-2">
+              <Sparkles className="text-primary" />
+              <span className="font-extrabold text-primary">OfferMitra</span>
             </div>
-            <h3 className="text-2xl font-black tracking-tight uppercase italic">Viral Marketing Lab</h3>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-            {[
-              { label: 'Boost SEO', color: 'bg-blue-500', icon: Zap },
-              { label: 'High CTR', color: 'bg-emerald-500', icon: Crown },
-              { label: 'Viral Reach', color: 'bg-purple-500', icon: Sparkles },
-              { label: 'AI Magic', color: 'bg-pink-500', icon: Video }
-            ].map((item, idx) => (
-              <motion.div
-                key={idx}
-                whileHover={{ y: -10, scale: 1.05 }}
-                className="relative h-64 rounded-[2.5rem] overflow-hidden group cursor-pointer"
-              >
-                <div className={cn("absolute inset-0 opacity-40 group-hover:opacity-60 transition-opacity", item.color)} />
-                <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent" />
-                <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center">
-                  <item.icon className="w-12 h-12 text-white mb-4 drop-shadow-lg" />
-                  <p className="text-white font-black text-lg uppercase tracking-widest">{item.label}</p>
-                </div>
-                <div className="absolute bottom-4 left-0 right-0 flex justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                  <div className="px-4 py-1 bg-white/20 backdrop-blur-md rounded-full text-[8px] font-black text-white uppercase tracking-widest border border-white/20">
-                    Preview Clip
-                  </div>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </section>
-
-        {/* FEEDBACK SECTION */}
-        <section className="max-w-3xl mx-auto p-12 rounded-[3rem] glass-card border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.3)] relative overflow-hidden bg-slate-900/50">
-          <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/10 blur-3xl -mr-16 -mt-16" />
-          <div className="flex items-center gap-6 mb-10">
-            <div className="p-4 rounded-3xl bg-indigo-500/20 text-indigo-400">
-              <MessageSquare className="w-8 h-8" />
+            <div className="flex gap-8 text-xs font-bold text-slate-400 uppercase tracking-widest">
+              <span>Privacy</span>
+              <span>Support</span>
+              <span>Admin</span>
             </div>
-            <div>
-              <h2 className="text-3xl font-black tracking-tighter">Share Feedback</h2>
-              <p className="text-xs font-bold uppercase tracking-widest mt-1 opacity-60 text-slate-400">Help us improve your experience</p>
-            </div>
-          </div>
-          <form className="space-y-6" onSubmit={(e) => { e.preventDefault(); alert('Thank you for your feedback! 🚀'); }}>
-            <textarea
-              placeholder="What can we do better? Your suggestions help us grow!"
-              className="w-full bg-black/40 border border-white/10 rounded-2xl px-6 py-4 text-white outline-none focus:border-indigo-500/50 transition-all font-bold placeholder:text-white/20 h-32 resize-none"
-            />
-            <button className="w-full pro-gradient text-white font-black py-5 rounded-2xl shadow-xl hover:scale-[1.01] active:scale-[0.98] transition-all uppercase tracking-widest text-xs">
-              Submit Feedback 🚀
-            </button>
-          </form>
-        </section>
-
-        <footer className="mt-32 pb-16 text-center">
-          <div className="w-16 h-1 bg-gradient-to-r from-transparent via-indigo-500/20 to-transparent mx-auto mb-8" />
-          <p className="text-[10px] font-black uppercase tracking-[0.8em] text-indigo-500/40">
-            {t('powered_by_ai', language)}
-          </p>
-          <div className="mt-8 space-y-2">
-            <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest flex items-center justify-center gap-2">
-              <span className="w-1 h-1 rounded-full bg-slate-800" />
-              {t('customer_support', language)}
-            </p>
-            <a
-              href="mailto:rishabhsonawane2007@gmail.com"
-              className="text-sm font-black text-indigo-400 hover:text-indigo-300 transition-colors tracking-tight"
-            >
-              rishabhsonawane2007@gmail.com
-            </a>
-          </div>
-          <div className="flex items-center justify-center gap-6 mt-10">
-            <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-            <span className="text-[10px] font-bold text-slate-500 opacity-50 uppercase tracking-widest">{t('network_active', language)}</span>
-          </div>
-
-          <div className="mt-8 opacity-40 hover:opacity-100 transition-opacity">
-            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-indigo-400">
-              Made with ❤️ by Rishabh Sonawane
+            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">
+              Made with ❤️ in India
             </p>
           </div>
         </footer>
-
-        <RishabhChat />
       </div>
 
-      {/* Business Type Selector */}
+      <BottomNav activeTab={activeTab} onTabChange={setActiveTab} />
+      <RishabhChat />
+
       {showBusinessSelector && (
         <BusinessTypeSelector
           onSelect={(type: BusinessType) => {
@@ -628,7 +432,6 @@ export default function Home() {
         <ShopSetup onComplete={(details) => {
           setShopDetails(details);
           setShowShopSetup(false);
-          // Optionally save to generic local storage for redundancy if not done in component
         }} />
       )}
     </main>

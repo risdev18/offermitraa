@@ -437,7 +437,7 @@ export default function Home() {
             <div className="flex flex-col items-center md:items-start gap-3">
               <div className="flex gap-8 text-xs font-bold text-slate-400 uppercase tracking-widest">
                 <Link href="/privacy" className="hover:text-primary transition-colors cursor-pointer">Privacy</Link>
-                <a href="mailto:support@offermitra.com" className="hover:text-primary transition-colors cursor-pointer">Support Email</a>
+                <a href="mailto:saffarlabs@gmail.com" className="hover:text-primary transition-colors cursor-pointer">Support Email</a>
                 <Link href="/admin" className="hover:text-primary transition-colors cursor-pointer">Admin</Link>
               </div>
               <a href="tel:8468943268" className="flex items-center gap-2 text-[11px] font-black text-primary hover:scale-105 transition-all bg-primary/5 px-4 py-2 rounded-full border border-primary/10">

@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Upload, X, Store, FileText, ChevronRight, Check, Phone } from "lucide-react";
+import { Upload, X, Store, FileText, ChevronRight, Check, Phone, ShieldCheck } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface ShopSetupProps {
@@ -295,6 +295,14 @@ export default function ShopSetup({ onComplete }: ShopSetupProps) {
                     </div>
                 </div>
             </motion.div>
+
+            {/* Trust Badge Onboarding */}
+            <div className="bg-slate-900 border-t border-white/5 p-4 flex items-center justify-center gap-2 max-w-lg w-full mx-auto rounded-b-[2.5rem] relative z-20">
+                <ShieldCheck size={14} className="text-emerald-500" />
+                <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">
+                    Trusted by 5000+ local shop owners in India
+                </span>
+            </div>
         </div>
     );
 }

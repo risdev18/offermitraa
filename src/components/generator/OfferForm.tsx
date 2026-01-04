@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
-import { Send, Wand2, Store, Tag, Loader2, Phone, Calendar, MapPin, Sparkles } from "lucide-react";
+import { Send, Wand2, Store, Tag, Loader2, Phone, Calendar, MapPin, Sparkles, Upload, X, ImageIcon } from "lucide-react";
 import { ShopType, OfferType, Language } from "@/types";
 import { cn } from "@/lib/utils";
 import VoiceInput from "./VoiceInput";
@@ -20,19 +20,22 @@ interface OfferFormProps {
     usageCount?: number;
     shopDetails?: ShopDetails | null;
     businessType: string | null;
+    language: Language;
+    onLanguageChange: (lang: Language) => void;
 }
 
-export default function OfferForm({ onGenerate, isGenerating, isPro, defaultValues, usageCount = 0, shopDetails, businessType }: OfferFormProps) {
+export default function OfferForm({ onGenerate, isGenerating, isPro, defaultValues, usageCount = 0, shopDetails, businessType, language, onLanguageChange }: OfferFormProps) {
     const { register, handleSubmit, setValue, watch, reset, formState: { errors } } = useForm({
         defaultValues: defaultValues || {}
     });
 
-    const [language, setLanguage] = useState<Language>('hinglish');
+    const [productImage, setProductImage] = useState<string | null>(defaultValues?.productImage || null);
+
 
     useEffect(() => {
         if (defaultValues) {
             reset(defaultValues);
-            if (defaultValues.language) setLanguage(defaultValues.language);
+            if (defaultValues.language) onLanguageChange(defaultValues.language);
         }
     }, [defaultValues, reset]);
 
@@ -54,6 +57,7 @@ export default function OfferForm({ onGenerate, isGenerating, isPro, defaultValu
             shopName: data.shopName || shopDetails?.shopName,
             contactNumber: data.contactNumber || shopDetails?.shopMobile,
             shopImage: data.shopImage || shopDetails?.shopPhoto,
+            productImage: productImage,
             language,
             businessType: businessType || 'grocery',
             cta: businessConfig?.ctaText || 'Call Now',
@@ -210,6 +214,54 @@ export default function OfferForm({ onGenerate, isGenerating, isPro, defaultValu
                         className={inputClasses}
                     />
                 </div>
+
+                {/* Product Photo Upload */}
+                <div className="space-y-1">
+                    <label className={labelClasses}>
+                        <ImageIcon size={14} className="text-primary" />
+                        Product Photo (Optional)
+                    </label>
+                    <div className="flex items-center gap-4">
+                        <div className={cn(
+                            "w-24 h-24 rounded-2xl border-2 border-dashed flex flex-col items-center justify-center cursor-pointer overflow-hidden transition-all",
+                            productImage ? "border-primary bg-primary/5" : "border-slate-200 bg-slate-50 hover:border-primary/50"
+                        )} onClick={() => document.getElementById('productPhoto')?.click()}>
+                            {productImage ? (
+                                <img src={productImage} alt="Product" className="w-full h-full object-cover" />
+                            ) : (
+                                <Upload className="w-6 h-6 text-slate-300" />
+                            )}
+                            <input
+                                id="productPhoto"
+                                type="file"
+                                accept="image/*"
+                                className="hidden"
+                                onChange={(e) => {
+                                    const file = e.target.files?.[0];
+                                    if (file) {
+                                        const reader = new FileReader();
+                                        reader.onloadend = () => setProductImage(reader.result as string);
+                                        reader.readAsDataURL(file);
+                                    }
+                                }}
+                            />
+                        </div>
+                        {productImage && (
+                            <button
+                                type="button"
+                                onClick={() => setProductImage(null)}
+                                className="text-[10px] font-black uppercase text-red-500 hover:text-red-600"
+                            >
+                                Remove Photo
+                            </button>
+                        )}
+                        {!productImage && (
+                            <p className="text-[10px] font-bold text-slate-400 max-w-[150px]">
+                                Upload a photo of your product for a better ad.
+                            </p>
+                        )}
+                    </div>
+                </div>
             </div>
 
             {/* Language & Submit Section */}
@@ -220,7 +272,7 @@ export default function OfferForm({ onGenerate, isGenerating, isPro, defaultValu
                             key={lang}
                             type="button"
                             onClick={() => {
-                                setLanguage(lang);
+                                onLanguageChange(lang);
                                 localStorage.setItem("om_language", lang);
                             }}
                             className={cn(

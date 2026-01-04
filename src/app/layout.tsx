@@ -14,7 +14,7 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: "OfferMitra - AI Offer Generator",
+  title: "OfferMitra - SaffarLabs Mitra Pvt LTD",
   description: "Generate WhatsApp offers for your shop instantly in Hindi/Hinglish",
 };
 

@@ -16,6 +16,8 @@ interface BannerGeneratorProps {
     productName?: string;
     shopDescription?: string;
     onShare?: () => void;
+    productImage?: string;
+    shopImage?: string;
 }
 
 const PREMIUM_BACKGROUNDS = [
@@ -27,7 +29,10 @@ const PREMIUM_BACKGROUNDS = [
     "bg-gradient-to-br from-blue-100 to-indigo-200 border-none",   // Professional (Brighter)
 ];
 
-export default function BannerGenerator({ text, shopType, shopName, isPro, language, address, contactNumber, productName, shopDescription, onShare }: BannerGeneratorProps) {
+export default function BannerGenerator({
+    text, shopType, shopName, isPro, language, address, contactNumber,
+    productName, shopDescription, onShare, productImage, shopImage
+}: BannerGeneratorProps) {
     const bannerRef = useRef<HTMLDivElement>(null);
     const [bgIndex, setBgIndex] = useState(0);
     const [isCapturing, setIsCapturing] = useState(false);
@@ -128,14 +133,20 @@ export default function BannerGenerator({ text, shopType, shopName, isPro, langu
                     <div className="absolute bottom-0 left-0 w-64 h-64 bg-primary/10 blur-[100px] rounded-full" />
                     <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-[0.03] pointer-events-none" />
 
-                    {/* Header Tag */}
-                    <div className={cn(
-                        "mb-10 p-3 px-10 rounded-2xl text-[12px] font-black uppercase tracking-[0.3em] border-2 shadow-xl backdrop-blur-md",
-                        isDarkBg
-                            ? "bg-amber-500/20 text-amber-400 border-amber-500/40"
-                            : "bg-white/90 text-primary border-primary/10"
-                    )}>
-                        {shopName || `${shopType} Exclusive`}
+                    <div {... (shopImage ? { className: "mb-6 flex flex-col items-center gap-2" } : { className: "mb-10" })}>
+                        {shopImage && (
+                            <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-amber-500 shadow-lg">
+                                <img src={shopImage} alt="Shop" className="w-full h-full object-cover" />
+                            </div>
+                        )}
+                        <div className={cn(
+                            "p-3 px-10 rounded-2xl text-[12px] font-black uppercase tracking-[0.3em] border-2 shadow-xl backdrop-blur-md",
+                            isDarkBg
+                                ? "bg-amber-500/20 text-amber-400 border-amber-500/40"
+                                : "bg-white/90 text-primary border-primary/10"
+                        )}>
+                            {shopName || `${shopType} Exclusive`}
+                        </div>
                     </div>
 
                     {/* Main Content Area */}
@@ -163,6 +174,14 @@ export default function BannerGenerator({ text, shopType, shopName, isPro, langu
                                     )}>
                                         {headline}
                                     </h2>
+
+                                    {productImage && (
+                                        <div className="my-4 w-full flex justify-center">
+                                            <div className="w-48 h-48 md:w-64 md:h-64 rounded-3xl overflow-hidden border-4 border-white shadow-2xl transform rotate-1">
+                                                <img src={productImage} alt="Product" className="w-full h-full object-cover" />
+                                            </div>
+                                        </div>
+                                    )}
 
                                     {productDisplay && (
                                         <h1 className={cn(

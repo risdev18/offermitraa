@@ -28,7 +28,8 @@ const translations = {
         'banner': 'पोस्टर',
         'video': 'वीडियो',
         'revenue_tracker': 'आय ट्रैकर',
-        'add_sales': 'आज की बिक्री जोड़ें'
+        'add_sales': 'आज की बिक्री जोड़ें',
+        'trusted_by': 'स्थानीय और बड़े दुकानदारों का भरोसा'
     },
     hinglish: {
         'history': 'Purana History',
@@ -57,7 +58,8 @@ const translations = {
         'banner': 'Poster',
         'video': 'Video',
         'revenue_tracker': 'Revenue Tracker',
-        'add_sales': 'Aaj ki Sales Add Karein'
+        'add_sales': 'Aaj ki Sales Add Karein',
+        'trusted_by': 'Local aur bade shop owners ka bharosa'
     },
     english: {
         'history': 'History',
@@ -86,7 +88,8 @@ const translations = {
         'banner': 'Poster',
         'video': 'Video',
         'revenue_tracker': 'Revenue Tracker',
-        'add_sales': 'Add Today\'s Sales'
+        'add_sales': 'Add Today\'s Sales',
+        'trusted_by': 'Trusted by local and big shop owners'
     }
 };
 

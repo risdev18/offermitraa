@@ -1,7 +1,7 @@
 "use client";
 
 import { useAuth } from "@/components/auth/AuthProvider";
-import { Loader2, Check } from "lucide-react";
+import { Loader2, Check, ShieldCheck } from "lucide-react";
 import { useState } from "react";
 
 // Mock Razorpay type
@@ -127,7 +127,9 @@ export default function PlanModal({ isOpen, onClose }: PlanModalProps) {
                 <div className="bg-indigo-600 p-6 text-center text-white relative overflow-hidden">
                     <div className="absolute top-0 left-0 w-full h-full bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
                     <h2 className="text-2xl font-bold relative z-10">Upgrade to Pro 🚀</h2>
-                    <p className="text-indigo-100 text-sm mt-1 relative z-10">Unlock Unlimited Offers</p>
+                    <p className="text-indigo-100 text-sm mt-1 relative z-10 flex items-center justify-center gap-1.5">
+                        <ShieldCheck size={14} /> Trusted by 5000+ Shop Owners
+                    </p>
                 </div>
 
                 {/* Limit Message */}
@@ -164,6 +166,14 @@ export default function PlanModal({ isOpen, onClose }: PlanModalProps) {
                     <button onClick={() => { upgradeToPremium(); onClose(); }} className="w-full text-xs text-gray-300 hover:text-gray-500 underline">
                         [Dev Only] Bypass Payment
                     </button>
+                </div>
+
+                {/* Trust Footer */}
+                <div className="bg-slate-50 p-4 border-t border-slate-100 flex items-center justify-center gap-2">
+                    <ShieldCheck className="w-4 h-4 text-emerald-500" />
+                    <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">
+                        100% Secure & Trusted by local shop owners
+                    </span>
                 </div>
 
             </div>

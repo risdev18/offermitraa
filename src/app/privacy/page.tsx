@@ -9,7 +9,7 @@ export default function PrivacyPolicy() {
 
                 <section className="mb-8">
                     <h2 className="text-xl font-semibold mb-3 text-slate-700">1. Information We Collect</h2>
-                    <p className="text-slate-600 mb-2">OfferMitra collects limited information to provide marketing services:</p>
+                    <p className="text-slate-600 mb-2">OfferMitra, a product by SaffarLabs Mitra Pvt LTD, collects limited information to provide marketing services:</p>
                     <ul className="list-disc ml-6 text-slate-600 space-y-1">
                         <li>Shop details (Name, Address)</li>
                         <li>Product details for offer generation</li>
@@ -39,7 +39,7 @@ export default function PrivacyPolicy() {
 
                 <section className="mb-8">
                     <h2 className="text-xl font-semibold mb-3 text-slate-700">5. Contact Us</h2>
-                    <p className="text-slate-600">For any questions regarding privacy, contact us at: support@offermitra.com</p>
+                    <p className="text-slate-600">For any questions regarding privacy or our services, contact SaffarLabs Mitra Pvt LTD at: support@offermitra.com</p>
                 </section>
 
                 <div className="mt-12 text-center">

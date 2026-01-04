@@ -7,7 +7,7 @@ import VideoGenerator from "@/components/preview/VideoGenerator";
 import AccessCodeModal from "@/components/subscription/AccessCodeModal";
 import BusinessTypeSelector from "@/components/onboarding/BusinessTypeSelector";
 import { motion, AnimatePresence } from "framer-motion";
-import { Loader2, Sparkles, Layout, BarChart3, User, Calendar, Crown } from "lucide-react";
+import { Loader2, Sparkles, Layout, BarChart3, User, Calendar, Crown, ShieldCheck, CheckCircle2 } from "lucide-react";
 import { useState, useEffect } from "react";
 import RishabhChat from "@/components/chat/RishabhChat";
 import { db } from "@/lib/firebase";
@@ -211,6 +211,33 @@ export default function Home() {
           </div>
         </div>
       </header>
+      {/* Trust Banner - Marquee Version */}
+      <div className="bg-slate-50 border-b border-slate-100 py-3 overflow-hidden select-none">
+        <motion.div
+          animate={{ x: [0, -1000] }}
+          transition={{
+            duration: 30,
+            repeat: Infinity,
+            ease: "linear"
+          }}
+          className="flex whitespace-nowrap gap-12 w-max items-center"
+        >
+          {[1, 2, 3, 4, 5, 6].map((i) => (
+            <div key={i} className="flex items-center gap-8">
+              <div className="flex items-center gap-2 text-slate-500">
+                <ShieldCheck size={16} className="text-emerald-500" />
+                <span className="text-[11px] font-black uppercase tracking-widest">{t('trusted_by', language)}</span>
+              </div>
+              <div className="flex items-center gap-6 opacity-30">
+                <span className="text-xs font-black italic tracking-tighter">LOCAL SHOPS</span>
+                <span className="text-xs font-black italic tracking-tighter">BIG STORES</span>
+                <span className="text-xs font-black italic tracking-tighter">RETAILERS</span>
+                <span className="text-xs font-black italic tracking-tighter">MARKETERS</span>
+              </div>
+            </div>
+          ))}
+        </motion.div>
+      </div>
 
       <div className="max-w-5xl mx-auto px-6 pt-12 space-y-20">
         {/* Step 1: Generator */}
@@ -229,6 +256,8 @@ export default function Home() {
               usageCount={usageCount}
               shopDetails={shopDetails}
               businessType={selectedBusinessType}
+              language={language}
+              onLanguageChange={setLanguage}
             />
           </div>
         </section>
@@ -274,6 +303,8 @@ export default function Home() {
                       productName={lastInputData?.productName}
                       shopDescription={shopDetails?.shopDescription}
                       onShare={handleShareTrack}
+                      productImage={lastInputData?.productImage}
+                      shopImage={lastInputData?.shopImage || shopDetails?.shopPhoto}
                     />
                   ) : (
                     <VideoGenerator
@@ -396,18 +427,24 @@ export default function Home() {
 
         <footer className="pt-20 pb-32 border-t border-slate-200">
           <div className="flex flex-col md:flex-row justify-between items-center gap-8">
-            <div className="flex items-center gap-2">
-              <Sparkles className="text-primary" />
-              <span className="font-extrabold text-primary">OfferMitra</span>
+            <div className="flex flex-col gap-1">
+              <div className="flex items-center gap-2">
+                <Sparkles className="text-primary" size={18} />
+                <span className="font-extrabold text-primary text-lg">OfferMitra</span>
+              </div>
+              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">A Product of SaffarLabs Mitra Pvt LTD</p>
             </div>
             <div className="flex gap-8 text-xs font-bold text-slate-400 uppercase tracking-widest cursor-pointer">
               <Link href="/privacy" className="hover:text-primary transition-colors cursor-pointer">Privacy</Link>
               <a href="mailto:support@offermitra.com" className="hover:text-primary transition-colors cursor-pointer">Support</a>
               <Link href="/admin" className="hover:text-primary transition-colors cursor-pointer">Admin</Link>
             </div>
-            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">
-              Made with ❤️ in India
-            </p>
+            <div className="text-right">
+              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">
+                Made with ❤️ in India
+              </p>
+              <p className="text-[8px] font-medium text-slate-300 mt-1 uppercase tracking-tighter">© 2026 SaffarLabs Mitra Pvt LTD</p>
+            </div>
           </div>
         </footer>
       </div>

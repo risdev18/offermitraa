@@ -7,7 +7,7 @@ import VideoGenerator from "@/components/preview/VideoGenerator";
 import AccessCodeModal from "@/components/subscription/AccessCodeModal";
 import BusinessTypeSelector from "@/components/onboarding/BusinessTypeSelector";
 import { motion, AnimatePresence } from "framer-motion";
-import { Loader2, Sparkles, Layout, BarChart3, User, Calendar, Crown, ShieldCheck, CheckCircle2 } from "lucide-react";
+import { Loader2, Sparkles, Layout, BarChart3, User, Calendar, Crown, ShieldCheck, CheckCircle2, Phone } from "lucide-react";
 import { useState, useEffect } from "react";
 import RishabhChat from "@/components/chat/RishabhChat";
 import { db } from "@/lib/firebase";
@@ -434,10 +434,16 @@ export default function Home() {
               </div>
               <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">A Product of SaffarLabs Mitra Pvt LTD</p>
             </div>
-            <div className="flex gap-8 text-xs font-bold text-slate-400 uppercase tracking-widest cursor-pointer">
-              <Link href="/privacy" className="hover:text-primary transition-colors cursor-pointer">Privacy</Link>
-              <a href="mailto:support@offermitra.com" className="hover:text-primary transition-colors cursor-pointer">Support</a>
-              <Link href="/admin" className="hover:text-primary transition-colors cursor-pointer">Admin</Link>
+            <div className="flex flex-col items-center md:items-start gap-3">
+              <div className="flex gap-8 text-xs font-bold text-slate-400 uppercase tracking-widest">
+                <Link href="/privacy" className="hover:text-primary transition-colors cursor-pointer">Privacy</Link>
+                <a href="mailto:support@offermitra.com" className="hover:text-primary transition-colors cursor-pointer">Support Email</a>
+                <Link href="/admin" className="hover:text-primary transition-colors cursor-pointer">Admin</Link>
+              </div>
+              <a href="tel:8468943268" className="flex items-center gap-2 text-[11px] font-black text-primary hover:scale-105 transition-all bg-primary/5 px-4 py-2 rounded-full border border-primary/10">
+                <Phone size={12} />
+                CUSTOMER CARE: 8468943268
+              </a>
             </div>
             <div className="text-right">
               <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">

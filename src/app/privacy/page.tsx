@@ -39,7 +39,11 @@ export default function PrivacyPolicy() {
 
                 <section className="mb-8">
                     <h2 className="text-xl font-semibold mb-3 text-slate-700">5. Contact Us</h2>
-                    <p className="text-slate-600">For any questions regarding privacy or our services, contact SaffarLabs Mitra Pvt LTD at: support@offermitra.com</p>
+                    <p className="text-slate-600">For any questions regarding privacy or our services, contact SaffarLabs Mitra Pvt LTD at:</p>
+                    <div className="mt-3 space-y-2">
+                        <p className="text-slate-600 font-bold">Email: <a href="mailto:support@offermitra.com" className="text-indigo-600">support@offermitra.com</a></p>
+                        <p className="text-slate-600 font-bold">Customer Care: <a href="tel:8468943268" className="text-indigo-600">8468943268</a></p>
+                    </div>
                 </section>
 
                 <div className="mt-12 text-center">

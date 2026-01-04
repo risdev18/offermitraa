@@ -7,7 +7,7 @@ import VideoGenerator from "@/components/preview/VideoGenerator";
 import AccessCodeModal from "@/components/subscription/AccessCodeModal";
 import BusinessTypeSelector from "@/components/onboarding/BusinessTypeSelector";
 import { motion, AnimatePresence } from "framer-motion";
-import { Loader2, Sparkles, Layout, BarChart3, User, Calendar, Crown, ShieldCheck, CheckCircle2, Phone } from "lucide-react";
+import { Loader2, Sparkles, Layout, BarChart3, User, Calendar, Crown, ShieldCheck, CheckCircle2, Phone, MessageCircle, Mail } from "lucide-react";
 import { useState, useEffect } from "react";
 import RishabhChat from "@/components/chat/RishabhChat";
 import { db } from "@/lib/firebase";
@@ -425,6 +425,84 @@ export default function Home() {
           </section>
         )}
 
+        {/* Support Hub - 3D Animated Cubes */}
+        <section className="py-12">
+          <div className="text-center mb-10">
+            <h3 className="text-xl font-black uppercase tracking-widest text-slate-400">Direct Support</h3>
+            <p className="text-slate-500 text-sm">Tap on a cube to connect with us</p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 px-6">
+            {[
+              {
+                id: 'whatsapp',
+                icon: <MessageCircle className="w-8 h-8" />,
+                label: 'WhatsApp',
+                color: 'bg-emerald-500',
+                link: 'https://wa.me/8468943268',
+                desc: 'Fast Chat'
+              },
+              {
+                id: 'email',
+                icon: <Mail className="w-8 h-8" />,
+                label: 'Email',
+                color: 'bg-indigo-600',
+                link: 'mailto:saffarlabs@gmail.com',
+                desc: 'Official Inquiry'
+              },
+              {
+                id: 'call',
+                icon: <Phone className="w-8 h-8" />,
+                label: 'Call Us',
+                color: 'bg-primary',
+                link: 'tel:8468943268',
+                desc: 'Instant Help'
+              }
+            ].map((item) => (
+              <motion.a
+                key={item.id}
+                href={item.link}
+                target={item.id === 'whatsapp' ? '_blank' : '_self'}
+                rel="noopener noreferrer"
+                whileHover={{
+                  rotateY: 180,
+                  scale: 1.05
+                }}
+                transition={{ duration: 0.6, type: "spring", stiffness: 100 }}
+                style={{ transformStyle: "preserve-3d" }}
+                className="relative h-48 group cursor-pointer"
+              >
+                {/* Front Side */}
+                <div
+                  style={{ backfaceVisibility: "hidden" }}
+                  className={cn(
+                    "absolute inset-0 rounded-[2.5rem] flex flex-col items-center justify-center p-6 shadow-2xl transition-all",
+                    item.color, "text-white"
+                  )}
+                >
+                  {item.icon}
+                  <span className="mt-4 font-black uppercase tracking-widest text-xs">{item.label}</span>
+                </div>
+
+                {/* Back Side (The "Turned" motion redirected state feeling) */}
+                <div
+                  style={{
+                    backfaceVisibility: "hidden",
+                    transform: "rotateY(180deg)"
+                  }}
+                  className="absolute inset-0 rounded-[2.5rem] bg-white flex flex-col items-center justify-center p-6 shadow-2xl border-2 border-slate-100"
+                >
+                  <div className={cn("w-12 h-12 rounded-full flex items-center justify-center text-white mb-2", item.color)}>
+                    <Sparkles size={20} />
+                  </div>
+                  <span className="font-black text-slate-900 uppercase tracking-widest text-[10px]">{item.desc}</span>
+                  <span className="text-primary font-bold text-xs mt-1">Open Now →</span>
+                </div>
+              </motion.a>
+            ))}
+          </div>
+        </section>
+
         <footer className="pt-20 pb-32 border-t border-slate-200">
           <div className="flex flex-col md:flex-row justify-between items-center gap-8">
             <div className="flex flex-col gap-1">
@@ -473,10 +551,12 @@ export default function Home() {
       />
 
       {showShopSetup && (
-        <ShopSetup onComplete={(details) => {
-          setShopDetails(details);
-          setShowShopSetup(false);
-        }} />
+        <ShopSetup
+          onComplete={(details) => {
+            setShopDetails(details);
+            setShowShopSetup(false);
+          }}
+        />
       )}
     </main>
   );

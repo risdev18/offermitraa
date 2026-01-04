@@ -105,7 +105,7 @@ export default function AccessCodeModal({ isOpen, onClose }: AccessCodeModalProp
                         <div>
                             <label className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 block flex justify-between">
                                 <span>Have a Code?</span>
-                                <a href="https://wa.me/919876543210?text=I%20want%20to%20buy%20OfferMitra%20Pro" target="_blank" className="text-indigo-500 hover:text-indigo-600">Buy Code on WhatsApp &rarr;</a>
+                                <a href="https://wa.me/918468943268?text=I%20want%20to%20buy%20OfferMitra%20Pro" target="_blank" className="text-indigo-500 hover:text-indigo-600">Buy Code on WhatsApp &rarr;</a>
                             </label>
                             <div className="flex gap-2">
                                 <input

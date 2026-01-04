@@ -83,7 +83,8 @@ export default function RevenueTracker({ isPro, language = 'hinglish' }: { isPro
         staff: "",
         stock: "",
         electricity: "",
-        other: ""
+        other: "",
+        totalExpenses: ""
     });
 
     useEffect(() => {
@@ -115,6 +116,7 @@ export default function RevenueTracker({ isPro, language = 'hinglish' }: { isPro
     const todayStats = {
         totalRevenue: todayEntries.reduce((sum, l) => sum + l.totalRevenue, 0),
         netProfit: todayEntries.reduce((sum, l) => sum + l.netProfit, 0),
+        totalExpenses: todayEntries.reduce((sum, l) => sum + l.totalExpenses, 0),
         cashSales: todayEntries.reduce((sum, l) => sum + l.cashSales, 0),
         onlineSales: todayEntries.reduce((sum, l) => sum + l.onlineSales, 0),
         expenses: todayEntries.reduce((acc, l) => {
@@ -127,6 +129,13 @@ export default function RevenueTracker({ isPro, language = 'hinglish' }: { isPro
         }, { rent: 0, staff: 0, stock: 0, electricity: 0, other: 0 })
     };
 
+    // Calculate All-Time stats for Balance and Total Expenses
+    const allTimeStats = {
+        totalRevenue: displayLogs.reduce((sum, l) => sum + l.totalRevenue, 0),
+        totalExpenses: displayLogs.reduce((sum, l) => sum + l.totalExpenses, 0),
+        currentBalance: displayLogs.reduce((sum, l) => sum + l.netProfit, 0)
+    };
+
     const handleAdd = (e: React.FormEvent) => {
         e.preventDefault();
         const cash = parseFloat(formData.cashSales) || 0;
@@ -136,9 +145,10 @@ export default function RevenueTracker({ isPro, language = 'hinglish' }: { isPro
         const stock = parseFloat(formData.stock) || 0;
         const elec = parseFloat(formData.electricity) || 0;
         const other = parseFloat(formData.other) || 0;
+        const directTotalExp = parseFloat(formData.totalExpenses) || 0;
 
         const totalRevenue = cash + online;
-        const totalExpenses = rent + staff + stock + elec + other;
+        const totalExpenses = directTotalExp || (rent + staff + stock + elec + other);
         const netProfit = totalRevenue - totalExpenses;
 
         const newEntry: RevenueEntry = {
@@ -160,12 +170,14 @@ export default function RevenueTracker({ isPro, language = 'hinglish' }: { isPro
 
         setIsAddModalOpen(false);
         resetForm();
+        alert("✅ Daily sales log saved successfully!");
     };
 
     const resetForm = () => {
         setFormData({
             cashSales: "", onlineSales: "", rent: "",
-            staff: "", stock: "", electricity: "", other: ""
+            staff: "", stock: "", electricity: "", other: "",
+            totalExpenses: ""
         });
     };
 
@@ -205,12 +217,19 @@ export default function RevenueTracker({ isPro, language = 'hinglish' }: { isPro
         if (confirm("Are you sure you want to clear ALL revenue logs? This cannot be undone.")) {
             setLogs([]);
             localStorage.setItem(STORAGE_KEY, JSON.stringify([]));
-            localStorage.removeItem("om_revenue_interacted");
+            localStorage.setItem("om_revenue_interacted", "true");
         }
     };
 
     const deleteEntry = (id: string, isDummy?: boolean) => {
-        if (isDummy) return;
+        if (isDummy) {
+            if (confirm("This is sample data. Hide sample data and start fresh?")) {
+                localStorage.setItem("om_revenue_interacted", "true");
+                // Force state update to refresh isShowingDummy
+                setLogs([]);
+            }
+            return;
+        }
         if (confirm("Delete this entry?")) {
             setLogs(prev => {
                 const updated = prev.filter(l => l.id !== id);
@@ -242,25 +261,35 @@ export default function RevenueTracker({ isPro, language = 'hinglish' }: { isPro
                 </div>
             )}
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8">
                 <StatCard
-                    label="Today's Revenue"
+                    label="Current Balance"
+                    value={allTimeStats.currentBalance.toLocaleString()}
+                    icon={Wallet}
+                    color="text-emerald-500"
+                    accent
+                    onClick={() => setIsAddModalOpen(true)}
+                />
+                <StatCard
+                    label="Today's Sales"
                     value={todayStats.totalRevenue.toLocaleString()}
                     icon={IndianRupee}
                     color="text-accent"
-                    accent
+                    onClick={() => setIsAddModalOpen(true)}
                 />
                 <StatCard
-                    label="Today's Profit"
-                    value={todayStats.netProfit.toLocaleString()}
-                    icon={TrendingUp}
-                    color="text-emerald-500"
+                    label="Total Expenses"
+                    value={allTimeStats.totalExpenses.toLocaleString()}
+                    icon={ArrowDownRight}
+                    color="text-rose-500"
+                    onClick={() => setIsAddModalOpen(true)}
                 />
                 <StatCard
-                    label="Weekly Total"
+                    label="Weekly Revenue"
                     value={weekData.reduce((acc, d) => acc + d.revenue, 0).toLocaleString()}
                     icon={BarChart3}
                     color="text-primary"
+                    onClick={() => setActiveTab('week')}
                 />
             </div>
 
@@ -337,7 +366,10 @@ export default function RevenueTracker({ isPro, language = 'hinglish' }: { isPro
                                                         </div>
                                                         <div>
                                                             <p className="font-black text-lg text-slate-900 leading-none mb-1">₹{log.totalRevenue.toLocaleString()}</p>
-                                                            <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">{log.netProfit >= 0 ? 'Profit' : 'Loss'}: ₹{Math.abs(log.netProfit)}</p>
+                                                            <div className="flex gap-2">
+                                                                <p className="text-[10px] text-emerald-500 font-bold uppercase tracking-widest">Profit: ₹{log.netProfit}</p>
+                                                                <p className="text-[10px] text-rose-500 font-bold uppercase tracking-widest">Exp: ₹{log.totalExpenses}</p>
+                                                            </div>
                                                         </div>
                                                     </div>
                                                     <button
@@ -398,7 +430,7 @@ export default function RevenueTracker({ isPro, language = 'hinglish' }: { isPro
                                             </p>
                                         </div>
                                     </div>
-                                    <button onClick={() => deleteEntry(log.id)} className="p-3 text-slate-300 hover:text-rose-500 transition-all">
+                                    <button onClick={() => deleteEntry(log.id, log.isDummy)} className="p-3 text-slate-300 hover:text-rose-500 transition-all">
                                         <Trash2 size={18} />
                                     </button>
                                 </div>
@@ -421,20 +453,26 @@ export default function RevenueTracker({ isPro, language = 'hinglish' }: { isPro
                                 <div className="grid grid-cols-2 gap-6">
                                     <div className="space-y-2">
                                         <label className="text-[10px] font-black uppercase text-slate-400 ml-2">Cash Sales (₹)</label>
-                                        <input type="number" placeholder="4500" value={formData.cashSales} onChange={e => setFormData({ ...formData, cashSales: e.target.value })} className="w-full p-4 bg-slate-50 border-2 border-slate-100 rounded-2xl font-bold outline-none focus:border-primary/50 transition-all" />
+                                        <input type="number" placeholder="4500" value={formData.cashSales} onChange={e => setFormData({ ...formData, cashSales: e.target.value })} className="w-full p-4 bg-slate-50 border-2 border-slate-100 rounded-2xl font-bold text-slate-900 placeholder:text-slate-400 outline-none focus:border-primary/50 transition-all" />
                                     </div>
                                     <div className="space-y-2">
                                         <label className="text-[10px] font-black uppercase text-slate-400 ml-2">UPI / Online (₹)</label>
-                                        <input type="number" placeholder="3200" value={formData.onlineSales} onChange={e => setFormData({ ...formData, onlineSales: e.target.value })} className="w-full p-4 bg-slate-50 border-2 border-slate-100 rounded-2xl font-bold outline-none focus:border-primary/50 transition-all" />
+                                        <input type="number" placeholder="3200" value={formData.onlineSales} onChange={e => setFormData({ ...formData, onlineSales: e.target.value })} className="w-full p-4 bg-slate-50 border-2 border-slate-100 rounded-2xl font-bold text-slate-900 placeholder:text-slate-400 outline-none focus:border-primary/50 transition-all" />
                                     </div>
                                 </div>
                                 <div className="space-y-4">
-                                    <h4 className="text-[10px] font-black uppercase text-slate-400 ml-2">Expenses</h4>
+                                    <div className="flex items-center justify-between ml-2">
+                                        <h4 className="text-[10px] font-black uppercase text-slate-400">Expenses</h4>
+                                        <span className="text-[9px] text-slate-400 italic">Enter Total OR breakdown below</span>
+                                    </div>
+                                    <div className="space-y-2">
+                                        <input type="number" placeholder="Total Expenses (Optional)" value={formData.totalExpenses} onChange={e => setFormData({ ...formData, totalExpenses: e.target.value })} className="w-full p-4 bg-rose-50 border-2 border-rose-100 rounded-2xl font-bold text-rose-900 placeholder:text-rose-300 outline-none focus:border-rose-300 transition-all" />
+                                    </div>
                                     <div className="grid grid-cols-2 gap-4">
-                                        <input type="number" placeholder="Rent" value={formData.rent} onChange={e => setFormData({ ...formData, rent: e.target.value })} className="p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm font-bold" />
-                                        <input type="number" placeholder="Staff" value={formData.staff} onChange={e => setFormData({ ...formData, staff: e.target.value })} className="p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm font-bold" />
-                                        <input type="number" placeholder="Inventory" value={formData.stock} onChange={e => setFormData({ ...formData, stock: e.target.value })} className="p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm font-bold" />
-                                        <input type="number" placeholder="Other" value={formData.other} onChange={e => setFormData({ ...formData, other: e.target.value })} className="p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm font-bold" />
+                                        <input type="number" placeholder="Rent" value={formData.rent} onChange={e => setFormData({ ...formData, rent: e.target.value })} className="p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm font-bold text-slate-900 placeholder:text-slate-400" />
+                                        <input type="number" placeholder="Staff" value={formData.staff} onChange={e => setFormData({ ...formData, staff: e.target.value })} className="p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm font-bold text-slate-900 placeholder:text-slate-400" />
+                                        <input type="number" placeholder="Inventory" value={formData.stock} onChange={e => setFormData({ ...formData, stock: e.target.value })} className="p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm font-bold text-slate-900 placeholder:text-slate-400" />
+                                        <input type="number" placeholder="Other" value={formData.other} onChange={e => setFormData({ ...formData, other: e.target.value })} className="p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm font-bold text-slate-900 placeholder:text-slate-400" />
                                     </div>
                                 </div>
                                 <button type="submit" className="w-full bg-primary text-white py-5 rounded-2xl font-black uppercase tracking-widest shadow-xl shadow-primary/20 active:scale-95 transition-all">Save Today's Log</button>
@@ -447,9 +485,15 @@ export default function RevenueTracker({ isPro, language = 'hinglish' }: { isPro
     );
 }
 
-function StatCard({ label, value, icon: Icon, color, accent }: any) {
+function StatCard({ label, value, icon: Icon, color, accent, onClick }: any) {
     return (
-        <div className={cn("bg-white p-10 rounded-[2.5rem] border border-slate-100 shadow-premium transition-all hover:scale-[1.02]", accent && "ring-4 ring-primary/5 border-primary/10")}>
+        <div
+            onClick={onClick}
+            className={cn(
+                "bg-white p-10 rounded-[2.5rem] border border-slate-100 shadow-premium transition-all hover:scale-[1.02] cursor-pointer active:scale-95",
+                accent && "ring-4 ring-primary/5 border-primary/10"
+            )}
+        >
             <div className="flex items-center gap-4 mb-6">
                 <div className={cn("p-4 rounded-2xl bg-slate-50", color)}>
                     <Icon size={20} />

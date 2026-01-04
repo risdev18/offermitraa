@@ -17,6 +17,7 @@ import { getBusinessType, BusinessType, getBusinessConfig } from "@/lib/business
 import { t, Language } from "@/lib/i18n";
 import ShopSetup, { ShopDetails } from "@/components/onboarding/ShopSetup";
 import RevenueTracker from "@/components/revenue/RevenueTracker";
+import Link from "next/link";
 import BottomNav from "@/components/layout/BottomNav";
 
 export default function Home() {
@@ -399,10 +400,10 @@ export default function Home() {
               <Sparkles className="text-primary" />
               <span className="font-extrabold text-primary">OfferMitra</span>
             </div>
-            <div className="flex gap-8 text-xs font-bold text-slate-400 uppercase tracking-widest">
-              <span>Privacy</span>
-              <span>Support</span>
-              <span>Admin</span>
+            <div className="flex gap-8 text-xs font-bold text-slate-400 uppercase tracking-widest cursor-pointer">
+              <Link href="/privacy" className="hover:text-primary transition-colors cursor-pointer">Privacy</Link>
+              <a href="mailto:support@offermitra.com" className="hover:text-primary transition-colors cursor-pointer">Support</a>
+              <Link href="/admin" className="hover:text-primary transition-colors cursor-pointer">Admin</Link>
             </div>
             <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">
               Made with ❤️ in India

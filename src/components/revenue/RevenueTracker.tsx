@@ -293,6 +293,84 @@ export default function RevenueTracker({ isPro, language = 'hinglish' }: { isPro
                 />
             </div>
 
+            {/* Revenue Trend Graph */}
+            <div className="bg-white rounded-[2.5rem] border border-slate-200 shadow-premium p-10">
+                <div className="flex items-center justify-between mb-8">
+                    <div>
+                        <h3 className="text-sm font-black uppercase tracking-widest text-slate-900">Revenue Trend</h3>
+                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Last 7 Days Growth</p>
+                    </div>
+                    {growth && (
+                        <div className={cn(
+                            "px-4 py-2 rounded-xl flex items-center gap-2",
+                            parseFloat(growth) >= 0 ? "bg-emerald-50 text-emerald-600" : "bg-rose-50 text-rose-600"
+                        )}>
+                            {parseFloat(growth) >= 0 ? <TrendingUp size={14} /> : <ArrowDownRight size={14} />}
+                            <span className="text-xs font-black">{growth}%</span>
+                        </div>
+                    )}
+                </div>
+
+                <div className="h-48 w-full relative group">
+                    {/* Simple SVG Line Chart */}
+                    <svg className="w-full h-full overflow-visible" viewBox="0 0 700 100" preserveAspectRatio="none">
+                        <defs>
+                            <linearGradient id="chartGradient" x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="0%" stopColor="var(--primary)" stopOpacity="0.2" />
+                                <stop offset="100%" stopColor="var(--primary)" stopOpacity="0" />
+                            </linearGradient>
+                        </defs>
+
+                        {/* Area Path */}
+                        <motion.path
+                            initial={{ pathLength: 0, opacity: 0 }}
+                            animate={{ pathLength: 1, opacity: 1 }}
+                            transition={{ duration: 1.5, ease: "easeInOut" }}
+                            d={`M 0 100 ${weekData.map((d, i) => `L ${i * 100} ${100 - (d.revenue / maxWeekRevenue) * 80}`).join(' ')} L 600 100 Z`}
+                            fill="url(#chartGradient)"
+                            stroke="none"
+                        />
+
+                        {/* Line Path */}
+                        <motion.path
+                            initial={{ pathLength: 0 }}
+                            animate={{ pathLength: 1 }}
+                            transition={{ duration: 1.5, ease: "easeInOut" }}
+                            d={`M 0 ${100 - (weekData[0].revenue / maxWeekRevenue) * 80} ${weekData.slice(1).map((d, i) => `L ${(i + 1) * 100} ${100 - (d.revenue / maxWeekRevenue) * 80}`).join(' ')}`}
+                            fill="none"
+                            stroke="var(--color-primary)"
+                            strokeWidth="4"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                        />
+
+                        {/* Data Points */}
+                        {weekData.map((d, i) => (
+                            <circle
+                                key={i}
+                                cx={i * 100}
+                                cy={100 - (d.revenue / maxWeekRevenue) * 80}
+                                r="6"
+                                fill="white"
+                                stroke="var(--color-primary)"
+                                strokeWidth="3"
+                                className="transition-all hover:r-8 cursor-pointer"
+                            />
+                        ))}
+                    </svg>
+
+                    {/* Labels */}
+                    <div className="flex justify-between mt-4">
+                        {weekData.map((d, i) => (
+                            <div key={i} className="text-center">
+                                <span className="text-[9px] font-black uppercase text-slate-400 tracking-tighter">{d.label}</span>
+                                <p className="text-[10px] font-black text-slate-900">₹{d.revenue >= 1000 ? (d.revenue / 1000).toFixed(1) + 'k' : d.revenue}</p>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </div>
+
             <div className="bg-white rounded-[2.5rem] border border-slate-200 shadow-premium p-10 overflow-hidden">
                 <div className="flex items-center justify-between mb-10">
                     <div className="flex bg-slate-100 p-1.5 rounded-2xl border border-slate-200">
@@ -395,22 +473,30 @@ export default function RevenueTracker({ isPro, language = 'hinglish' }: { isPro
                     )}
 
                     {activeTab === "week" && (
-                        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="h-64 flex items-end justify-between gap-4">
-                            {weekData.map((d, i) => (
-                                <div key={i} className="flex-1 flex flex-col items-center gap-4">
-                                    <div className="w-full bg-slate-50 rounded-2xl h-48 relative overflow-hidden flex flex-col justify-end">
-                                        <motion.div
-                                            initial={{ height: 0 }}
-                                            animate={{ height: `${(d.revenue / maxWeekRevenue) * 100}%` }}
-                                            className="w-full bg-primary/20 border-t-4 border-primary rounded-t-lg"
-                                        />
-                                        <div className="absolute inset-0 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity bg-white/60 backdrop-blur-sm">
-                                            <span className="font-black text-[10px]">₹{d.revenue}</span>
+                        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="pt-10">
+                            <div className="h-64 flex items-end justify-between gap-6 px-4">
+                                {weekData.map((d, i) => (
+                                    <div key={i} className="flex-1 flex flex-col items-center gap-4 group">
+                                        <div className="w-full bg-slate-50 rounded-[1.5rem] h-full relative overflow-hidden flex flex-col justify-end border border-slate-100 shadow-inner">
+                                            <motion.div
+                                                initial={{ height: 0 }}
+                                                animate={{ height: `${(d.revenue / maxWeekRevenue) * 100}%` }}
+                                                transition={{ duration: 1, delay: i * 0.1 }}
+                                                className="w-full bg-gradient-to-t from-primary to-indigo-400 border-t-2 border-white shadow-[0_-5px_15px_rgba(var(--color-primary-rgb),0.3)]"
+                                            />
+                                            <div className="absolute inset-0 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-all bg-white/80 backdrop-blur-sm transform translate-y-2 group-hover:translate-y-0">
+                                                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Revenue</span>
+                                                <span className="font-black text-lg text-primary">₹{d.revenue}</span>
+                                                <span className="text-[8px] font-bold text-emerald-500 mt-1">PROFIT: ₹{d.profit}</span>
+                                            </div>
+                                        </div>
+                                        <div className="text-center">
+                                            <span className="text-[10px] font-black uppercase text-slate-400 tracking-widest group-hover:text-primary transition-colors">{d.label}</span>
+                                            <p className="text-[8px] font-bold text-slate-300 group-hover:text-slate-500 transition-colors uppercase">{d.date.split('-').slice(1).reverse().join('/')}</p>
                                         </div>
                                     </div>
-                                    <span className="text-[10px] font-black uppercase text-slate-400">{d.label}</span>
-                                </div>
-                            ))}
+                                ))}
+                            </div>
                         </motion.div>
                     )}
 

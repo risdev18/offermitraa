@@ -206,7 +206,7 @@ export default function OfferForm({ onGenerate, isGenerating, isPro, defaultValu
 
                 {/* Extra Info */}
                 <div className="space-y-1">
-                    <label className={labelClasses}>Additional Details (Optional)</label>
+                    <label className={labelClasses}>Extra Benefits (Optional)</label>
                     <input
                         type="text"
                         placeholder="Ex: Limited stock, 2 years warranty..."

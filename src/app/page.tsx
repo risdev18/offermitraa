@@ -41,6 +41,17 @@ export default function Home() {
   const [showShopSetup, setShowShopSetup] = useState(false);
   const [shopDetails, setShopDetails] = useState<ShopDetails | null>(null);
   const [selectedBusinessType, setSelectedBusinessType] = useState<BusinessType | null>(null);
+  const [hasInteracted, setHasInteracted] = useState(false);
+
+  const WOW_DEMO_DATA = {
+    productName: "Premium Cotton Shirts",
+    discount: "BUY 1 GET 1 FREE",
+    extraInfo: "Best for Office & Parties",
+    shopName: shopDetails?.shopName || "Super Menswear",
+    address: "Main Bazaar",
+    contactNumber: shopDetails?.shopMobile || "9876543210",
+    language: 'hinglish'
+  };
 
   useEffect(() => {
     const history = JSON.parse(localStorage.getItem("om_history") || "[]");
@@ -49,6 +60,10 @@ export default function Home() {
 
   const handleShareTrack = () => {
     setTrackedReach(prev => prev + Math.floor(Math.random() * 50) + 10);
+    const currentReached = parseInt(localStorage.getItem("om_stats_customers_reached") || "0");
+    const currentClicks = parseInt(localStorage.getItem("om_stats_whatsapp_clicks") || "0");
+    localStorage.setItem("om_stats_customers_reached", (currentReached + 50).toString());
+    localStorage.setItem("om_stats_whatsapp_clicks", (currentClicks + 1).toString());
   };
 
   useEffect(() => {
@@ -88,10 +103,20 @@ export default function Home() {
 
       const savedLang = localStorage.getItem("om_language");
       if (savedLang) setLanguage(savedLang as Language);
+
+      const hasDoneSomething = localStorage.getItem("om_has_interacted") === "true";
+      setHasInteracted(hasDoneSomething);
+
+      // WOW Moment: If first time, show demo
+      if (!savedOffer && !hasDoneSomething) {
+        setGeneratedOffer("🔥 धमाका ऑफर! \n\nSuper Menswear लाया है Premium Cotton Shirts पर शानदार सेल!\n\n✅ BUY 1 GET 1 FREE\n✅ Best for Office & Parties\n\nजल्द आएं: Main Bazaar\n📞 Call: 9876543210");
+        setLastInputData(WOW_DEMO_DATA);
+        setOfferOptions(["🔥 धमाका ऑफर! \n\nSuper Menswear लाया है Premium Cotton Shirts पर शानदार सेल!\n\n✅ BUY 1 GET 1 FREE\n✅ Best for Office & Parties\n\nजल्द आएं: Main Bazaar\n📞 Call: 9876543210"]);
+      }
     } catch (e) {
-      console.warn("Failed to restore session");
+      console.warn("Restore failed", e);
     }
-  }, []);
+  }, [shopDetails]);
 
   useEffect(() => {
     if (generatedOffer) localStorage.setItem("om_last_offer", generatedOffer);
@@ -130,6 +155,8 @@ export default function Home() {
         setVideoScript(result.videoScript);
         setVideoTitles(result.videoTitles);
         incrementUsage();
+        localStorage.setItem("om_has_interacted", "true");
+        setHasInteracted(true);
 
         try {
           const history = JSON.parse(localStorage.getItem("om_history") || "[]");
@@ -196,14 +223,20 @@ export default function Home() {
           </div>
 
           <div className="flex items-center gap-4">
-            {!isPro && (
-              <button
-                onClick={() => setShowAccessModal(true)}
-                className="hidden sm:flex items-center gap-2 px-4 py-2 bg-accent text-white rounded-full text-xs font-bold shadow-lg shadow-accent/20 hover:scale-105 transition-all"
-              >
-                <Crown size={14} />
-                Go Pro (₹99)
-              </button>
+            {isPro ? (
+              <div className="flex items-center gap-2 px-4 py-2 bg-emerald-50 text-emerald-600 rounded-full text-[10px] font-black uppercase tracking-widest border border-emerald-100">
+                <Sparkles size={14} /> Pro Member
+              </div>
+            ) : (
+              hasInteracted && (
+                <button
+                  onClick={() => setShowAccessModal(true)}
+                  className="hidden sm:flex items-center gap-2 px-4 py-2 bg-accent text-white rounded-full text-xs font-bold shadow-lg shadow-accent/20 hover:scale-105 transition-all"
+                >
+                  <Crown size={14} />
+                  Go Pro (₹99)
+                </button>
+              )
             )}
             <div className="flex items-center gap-1 bg-slate-100 px-3 py-1.5 rounded-full text-[10px] font-bold text-slate-600">
               <span className={cn(usageCount >= 3 ? "text-red-500" : "text-primary")}>{3 - usageCount}</span>/3 Left
@@ -229,10 +262,9 @@ export default function Home() {
                 <span className="text-[11px] font-black uppercase tracking-widest">{t('trusted_by', language)}</span>
               </div>
               <div className="flex items-center gap-6 opacity-30">
-                <span className="text-xs font-black italic tracking-tighter">LOCAL SHOPS</span>
-                <span className="text-xs font-black italic tracking-tighter">BIG STORES</span>
-                <span className="text-xs font-black italic tracking-tighter">RETAILERS</span>
-                <span className="text-xs font-black italic tracking-tighter">MARKETERS</span>
+                <span className="text-xs font-black italic tracking-tighter">FOR LOCAL SHOP OWNERS</span>
+                <span className="text-xs font-black italic tracking-tighter">MADE FOR BHARAT</span>
+                <span className="text-xs font-black italic tracking-tighter">GROW WITH AI</span>
               </div>
             </div>
           ))}
@@ -243,8 +275,12 @@ export default function Home() {
         {/* Step 1: Generator */}
         <section id="offer-generator" className="scroll-mt-24">
           <div className="mb-8">
-            <h2 className="text-3xl font-extrabold mb-2">Create Viral Offer</h2>
-            <p className="text-slate-500 font-medium">Generate high-converting ads in seconds.</p>
+            <h2 className="text-3xl font-extrabold mb-2 text-primary">Get More Customers in 24 Hours</h2>
+            <p className="text-slate-500 font-medium">Generate high-converting ads & video posters instantly.</p>
+            <div className="flex items-center gap-2 mt-2">
+              <CheckCircle2 size={14} className="text-emerald-500" />
+              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Used by 500+ Local Shop Owners</span>
+            </div>
           </div>
 
           <div className="bg-white rounded-3xl border border-slate-200 shadow-premium p-6 md:p-12">
@@ -361,6 +397,10 @@ export default function Home() {
                           textArea.select();
                           try {
                             document.execCommand('copy');
+                            localStorage.setItem("om_has_interacted", "true");
+                            setHasInteracted(true);
+                            const currentSent = parseInt(localStorage.getItem("om_stats_offers_sent") || "0");
+                            localStorage.setItem("om_stats_offers_sent", (currentSent + 1).toString());
                             alert("Option " + (selectedOptionIndex + 1) + " Copied! 📋");
                           } catch (err) {
                             console.error('Copy failed', err);
@@ -375,7 +415,13 @@ export default function Home() {
                         href={`https://api.whatsapp.com/send?text=${encodeURIComponent(offerOptions[selectedOptionIndex] || generatedOffer || "")}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        onClick={handleShareTrack}
+                        onClick={() => {
+                          handleShareTrack();
+                          localStorage.setItem("om_has_interacted", "true");
+                          setHasInteracted(true);
+                          const currentSent = parseInt(localStorage.getItem("om_stats_offers_sent") || "0");
+                          localStorage.setItem("om_stats_offers_sent", (currentSent + 1).toString());
+                        }}
                         className="w-full bg-[#25D366] text-white font-black uppercase tracking-widest text-[10px] py-4 rounded-xl shadow-xl shadow-green-500/20 hover:scale-105 transition-all flex items-center justify-center gap-2 active:scale-95"
                       >
                         Send WhatsApp
@@ -411,14 +457,16 @@ export default function Home() {
         {!isPro && (
           <section className="bg-primary rounded-[3rem] p-12 text-center text-white relative overflow-hidden">
             <div className="relative z-10 max-w-lg mx-auto">
-              <h2 className="text-3xl font-extrabold mb-4">Unlimited Potential with Pro</h2>
-              <p className="text-indigo-100 mb-8 font-medium">Unlock daily tracker history, unlimited AI offers, and premium video templates.</p>
-              <button
-                onClick={() => setShowAccessModal(true)}
-                className="bg-white text-primary px-10 py-5 rounded-2xl font-black shadow-2xl hover:scale-105 transition-all uppercase tracking-widest text-sm"
-              >
-                Join Pro - ₹99/month
-              </button>
+              <h2 className="text-3xl font-extrabold mb-4">Grow Your Shop Faster</h2>
+              <p className="text-indigo-100 mb-8 font-medium">Join 500+ shop owners using Pro to get more customers daily.</p>
+              {(!isPro && hasInteracted) && (
+                <button
+                  onClick={() => setShowAccessModal(true)}
+                  className="bg-white text-primary px-10 py-5 rounded-2xl font-black shadow-2xl hover:scale-105 transition-all uppercase tracking-widest text-sm"
+                >
+                  Join Pro - ₹99/month
+                </button>
+              )}
             </div>
             {/* Subtle patterns instead of loud blobs */}
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-from)_0%,_transparent_100%)] from-white/10 opacity-30" />

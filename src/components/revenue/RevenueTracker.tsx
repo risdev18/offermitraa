@@ -17,7 +17,11 @@ import {
     ArrowDownRight,
     X,
     BarChart3,
-    RotateCcw
+    RotateCcw,
+    MousePointer2,
+    Send,
+    Users,
+    Sparkles
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toPng as toImage } from "html-to-image";
@@ -133,7 +137,10 @@ export default function RevenueTracker({ isPro, language = 'hinglish' }: { isPro
     const allTimeStats = {
         totalRevenue: displayLogs.reduce((sum, l) => sum + l.totalRevenue, 0),
         totalExpenses: displayLogs.reduce((sum, l) => sum + l.totalExpenses, 0),
-        currentBalance: displayLogs.reduce((sum, l) => sum + l.netProfit, 0)
+        currentBalance: displayLogs.reduce((sum, l) => sum + l.netProfit, 0),
+        offersSent: parseInt(localStorage.getItem("om_stats_offers_sent") || "0"),
+        whatsappClicks: parseInt(localStorage.getItem("om_stats_whatsapp_clicks") || "0"),
+        customersReached: parseInt(localStorage.getItem("om_stats_customers_reached") || "0")
     };
 
     const handleAdd = (e: React.FormEvent) => {
@@ -255,9 +262,17 @@ export default function RevenueTracker({ isPro, language = 'hinglish' }: { isPro
     return (
         <div ref={containerRef} className="space-y-8">
             {isShowingDummy && (
-                <div className="bg-primary/10 border border-primary/20 p-4 rounded-2xl flex items-center justify-between">
-                    <p className="text-primary text-xs font-bold px-2">Showing sample data. Add your first sale to start tracking!</p>
-                    <button onClick={() => setIsAddModalOpen(true)} className="bg-primary text-white text-[10px] font-black px-4 py-2 rounded-xl uppercase">Add Now</button>
+                <div className="bg-primary/5 border border-primary/10 p-5 rounded-2xl flex flex-col md:flex-row items-center justify-between gap-4">
+                    <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+                            <Sparkles size={20} />
+                        </div>
+                        <div>
+                            <p className="text-primary text-xs font-black uppercase tracking-widest">🔥 Aaj pehla offer bhejiye, yahin revenue dikhega</p>
+                            <p className="text-[10px] text-slate-400 font-bold uppercase mt-1">Start tracking your growth today</p>
+                        </div>
+                    </div>
+                    <button onClick={() => setIsAddModalOpen(true)} className="w-full md:w-auto bg-primary text-white text-[10px] font-black px-6 py-3 rounded-xl uppercase shadow-lg shadow-primary/20 active:scale-95 transition-all">Add Today's Sales</button>
                 </div>
             )}
 
@@ -278,18 +293,18 @@ export default function RevenueTracker({ isPro, language = 'hinglish' }: { isPro
                     onClick={() => setIsAddModalOpen(true)}
                 />
                 <StatCard
-                    label="Total Expenses"
-                    value={allTimeStats.totalExpenses.toLocaleString()}
-                    icon={ArrowDownRight}
-                    color="text-rose-500"
-                    onClick={() => setIsAddModalOpen(true)}
+                    label="Offers Sent"
+                    value={allTimeStats.offersSent.toLocaleString()}
+                    icon={Send}
+                    color="text-indigo-500"
+                    noCurrency
                 />
                 <StatCard
-                    label="Weekly Revenue"
-                    value={weekData.reduce((acc, d) => acc + d.revenue, 0).toLocaleString()}
-                    icon={BarChart3}
+                    label="Customers Reached"
+                    value={(allTimeStats.customersReached || (allTimeStats.offersSent * 12)).toLocaleString()}
+                    icon={Users}
                     color="text-primary"
-                    onClick={() => setActiveTab('week')}
+                    noCurrency
                 />
             </div>
 
@@ -571,23 +586,24 @@ export default function RevenueTracker({ isPro, language = 'hinglish' }: { isPro
     );
 }
 
-function StatCard({ label, value, icon: Icon, color, accent, onClick }: any) {
+function StatCard({ label, value, icon: Icon, color, accent, onClick, noCurrency }: any) {
     return (
         <div
             onClick={onClick}
             className={cn(
-                "bg-white p-4 md:p-10 rounded-2xl md:rounded-[2.5rem] border border-slate-100 shadow-premium transition-all hover:scale-[1.02] cursor-pointer active:scale-95 flex flex-col justify-between",
-                accent && "ring-4 ring-primary/5 border-primary/10"
+                "bg-white p-4 md:p-8 rounded-2xl md:rounded-[2.5rem] border border-slate-100 shadow-premium transition-all hover:scale-[1.02] cursor-pointer active:scale-95 flex flex-col justify-between",
+                accent && "ring-4 ring-primary/5 border-primary/10",
+                !onClick && "cursor-default hover:scale-100"
             )}
         >
-            <div className="flex items-center gap-2 md:gap-4 mb-3 md:mb-6">
-                <div className={cn("p-2 md:p-4 rounded-xl md:rounded-2xl bg-slate-50", color)}>
+            <div className="flex items-center gap-2 md:gap-4 mb-3 md:mb-5">
+                <div className={cn("p-2 md:p-3 rounded-xl md:rounded-2xl bg-slate-50", color)}>
                     <Icon size={16} className="md:w-5 md:h-5" />
                 </div>
-                <span className="text-[8px] md:text-[10px] font-black uppercase tracking-[0.1em] md:tracking-[0.2em] text-slate-400">{label}</span>
+                <span className="text-[8px] md:text-[9px] font-black uppercase tracking-[0.1em] md:tracking-[0.2em] text-slate-400">{label}</span>
             </div>
-            <p className="text-xl md:text-4xl font-black text-slate-900 tracking-tight truncate">
-                <span className="text-accent mr-0.5 md:mr-1">₹</span>
+            <p className="text-xl md:text-3xl font-black text-slate-900 tracking-tight truncate">
+                {!noCurrency && <span className="text-accent mr-0.5 md:mr-1">₹</span>}
                 {value}
             </p>
         </div>

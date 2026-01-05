@@ -176,7 +176,7 @@ export default function VideoGenerator({
     return (
         <div className="flex flex-col items-center gap-10 w-full">
             <audio ref={audioRef} src={BG_MUSIC_URL} loop />
-            <div className="relative w-[320px] md:w-[380px] h-[568px] md:h-[675px] rounded-[3.5rem] overflow-hidden shadow-2xl border-[12px] border-slate-900 bg-black">
+            <div className="relative w-[280px] sm:w-[320px] md:w-[380px] h-[500px] sm:h-[568px] md:h-[675px] rounded-3xl md:rounded-[3.5rem] overflow-hidden shadow-2xl border-[8px] md:border-[12px] border-slate-900 bg-black">
                 <AnimatePresence mode="wait">
                     <motion.div
                         key={scene}
@@ -184,7 +184,7 @@ export default function VideoGenerator({
                         animate={{ opacity: 1, scale: 1 }}
                         exit={{ opacity: 0, scale: 0.95 }}
                         transition={{ duration: 0.4, ease: "easeOut" }}
-                        className={cn("absolute inset-0 flex flex-col items-center justify-center p-12 text-center", scenes[scene].bg)}
+                        className={cn("absolute inset-0 flex flex-col items-center justify-center p-6 md:p-12 text-center", scenes[scene].bg)}
                     >
                         <div className="absolute top-10 left-10 right-10 flex gap-2">
                             {[0, 1, 2, 3, 4].map(i => (
@@ -196,7 +196,7 @@ export default function VideoGenerator({
                         </div>
                         <motion.div animate={scenes[scene].animation} className="flex flex-col items-center">
                             <div className="mb-8">{scenes[scene].icon}</div>
-                            <h2 className="text-4xl md:text-5xl font-black text-white mb-4 tracking-tighter uppercase italic">{scenes[scene].title}</h2>
+                            <h2 className="text-3xl md:text-5xl font-black text-white mb-4 tracking-tighter uppercase italic">{scenes[scene].title}</h2>
                             <div className="px-6 py-2 bg-white/10 backdrop-blur-md rounded-full text-[10px] font-black text-white/80 uppercase tracking-widest border border-white/10">{scenes[scene].subtitle}</div>
                         </motion.div>
                     </motion.div>
@@ -219,11 +219,11 @@ export default function VideoGenerator({
                     </div>
                 )}
             </div>
-            <div className="flex items-center gap-4 bg-white p-4 rounded-[2.5rem] border border-slate-100 shadow-xl w-full">
-                <button onClick={toggleMute} className={cn("p-5 rounded-2xl transition-all border-2", isMuting ? "bg-slate-50 border-slate-100 text-slate-300" : "bg-primary/5 border-primary text-primary")}>
+            <div className="flex flex-col sm:flex-row items-center gap-2 md:gap-4 bg-white p-3 md:p-4 rounded-2xl md:rounded-[2.5rem] border border-slate-100 shadow-xl w-full">
+                <button onClick={toggleMute} className={cn("hidden sm:block p-5 rounded-2xl transition-all border-2", isMuting ? "bg-slate-50 border-slate-100 text-slate-300" : "bg-primary/5 border-primary text-primary")}>
                     {isMuting ? <VolumeX size={24} /> : <Volume2 size={24} />}
                 </button>
-                <button onClick={downloadVideo} disabled={isCapturing} className="flex-1 flex items-center justify-center gap-2 py-5 bg-accent text-white rounded-2xl font-black uppercase tracking-widest text-[10px] shadow-lg shadow-accent/20 active:translate-y-1">
+                <button onClick={downloadVideo} disabled={isCapturing} className="w-full sm:flex-1 flex items-center justify-center gap-2 py-4 md:py-5 bg-accent text-white rounded-xl md:rounded-2xl font-black uppercase tracking-widest text-[9px] md:text-[10px] shadow-lg shadow-accent/20 active:translate-y-1">
                     <Download size={16} /> Save HD Video
                 </button>
                 <button
@@ -237,7 +237,7 @@ export default function VideoGenerator({
                         navigator.clipboard.writeText(shareUrl);
                         alert("Link Copied! Share this on WhatsApp status. 🚀");
                     }}
-                    className="flex-1 flex items-center justify-center gap-2 py-5 bg-primary text-white rounded-2xl font-black uppercase tracking-widest text-[10px] active:translate-y-1"
+                    className="w-full sm:flex-1 flex items-center justify-center gap-2 py-4 md:py-5 bg-primary text-white rounded-xl md:rounded-2xl font-black uppercase tracking-widest text-[9px] md:text-[10px] active:translate-y-1"
                 >
                     <Share2 size={16} /> Share Link
                 </button>

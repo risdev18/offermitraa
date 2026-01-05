@@ -124,7 +124,7 @@ export default function BannerGenerator({
                 <div
                     ref={bannerRef}
                     className={cn(
-                        "relative p-8 md:p-14 rounded-[3rem] shadow-[0_30px_60px_-15px_rgba(0,0,0,0.3)] min-h-[500px] md:min-h-[650px] w-full max-w-[500px] flex flex-col items-center text-center overflow-hidden transition-all duration-700",
+                        "relative p-6 md:p-14 rounded-3xl md:rounded-[3rem] shadow-[0_30px_60px_-15px_rgba(0,0,0,0.3)] min-h-[450px] md:min-h-[650px] w-full max-w-[500px] flex flex-col items-center text-center overflow-hidden transition-all duration-700",
                         activeBackgrounds[finalBgIndex]
                     )}
                 >
@@ -169,15 +169,15 @@ export default function BannerGenerator({
                                 <>
                                     <h2 className={cn(
                                         "font-black tracking-tighter leading-[1.1] transition-all",
-                                        headline.length > 30 ? "text-xl" : "text-2xl md:text-5xl",
+                                        headline.length > 30 ? "text-lg md:text-xl" : "text-xl md:text-5xl",
                                         isDarkBg ? "text-white/90" : "text-slate-900"
                                     )}>
                                         {headline}
                                     </h2>
 
                                     {productImage && (
-                                        <div className="my-4 w-full flex justify-center">
-                                            <div className="w-48 h-48 md:w-64 md:h-64 rounded-3xl overflow-hidden border-4 border-white shadow-2xl transform rotate-1">
+                                        <div className="my-2 md:my-4 w-full flex justify-center">
+                                            <div className="w-32 h-32 md:w-64 md:h-64 rounded-2xl md:rounded-3xl overflow-hidden border-4 border-white shadow-2xl transform rotate-1">
                                                 <img src={productImage} alt="Product" className="w-full h-full object-cover" />
                                             </div>
                                         </div>
@@ -185,7 +185,7 @@ export default function BannerGenerator({
 
                                     {productDisplay && (
                                         <h1 className={cn(
-                                            "text-4xl md:text-7xl font-black uppercase tracking-tighter my-2 drop-shadow-2xl",
+                                            "text-3xl md:text-7xl font-black uppercase tracking-tighter my-1 md:my-2 drop-shadow-2xl",
                                             isDarkBg ? "text-transparent bg-clip-text bg-gradient-to-r from-indigo-200 to-purple-200" : "text-slate-900"
                                         )}>
                                             {productDisplay}
@@ -194,7 +194,7 @@ export default function BannerGenerator({
 
                                     {description && description !== productDisplay && (
                                         <p className={cn(
-                                            "text-lg font-bold opacity-80 max-w-[80%] line-clamp-3 leading-tight",
+                                            "text-sm md:text-lg font-bold opacity-80 max-w-[90%] md:max-w-[80%] line-clamp-3 leading-tight",
                                             isDarkBg ? "text-indigo-200/80" : "text-slate-600"
                                         )}>
                                             {description}
@@ -203,7 +203,7 @@ export default function BannerGenerator({
 
                                     {mainOffer && mainOffer !== "OFF" && (
                                         <div className={cn(
-                                            "mt-6 p-5 md:p-10 rounded-[3rem] transform rotate-[-2deg] shadow-2xl transition-all",
+                                            "mt-4 md:mt-6 p-4 md:p-10 rounded-2xl md:rounded-[3rem] transform rotate-[-2deg] shadow-2xl transition-all",
                                             isDarkBg
                                                 ? "bg-gradient-to-r from-accent to-orange-600 text-white scale-110"
                                                 : "bg-red-600 text-white scale-105"
@@ -213,7 +213,7 @@ export default function BannerGenerator({
                                             </div>
                                             <div className={cn(
                                                 "font-black tracking-tighter drop-shadow-lg",
-                                                mainOffer.length > 8 ? "text-xl md:text-4xl" : "text-3xl md:text-6xl"
+                                                mainOffer.length > 8 ? "text-lg md:text-4xl" : "text-2xl md:text-6xl"
                                             )}>
                                                 {mainOffer}
                                             </div>
@@ -227,7 +227,7 @@ export default function BannerGenerator({
                     {/* Contact Section */}
                     <div className="w-full mt-10 space-y-4">
                         <div className={cn(
-                            "p-6 rounded-[2.5rem] backdrop-blur-xl border transition-all",
+                            "p-4 md:p-6 rounded-2xl md:rounded-[2.5rem] backdrop-blur-xl border transition-all",
                             isDarkBg
                                 ? "bg-black/30 border-white/5 shadow-2xl"
                                 : "bg-white/50 border-white shadow-xl"
@@ -243,7 +243,7 @@ export default function BannerGenerator({
                                 )}
                                 {contactNumber && (
                                     <div className={cn(
-                                        "flex items-center justify-center gap-2 text-lg font-black",
+                                        "flex items-center justify-center gap-2 text-base md:text-lg font-black",
                                         isDarkBg ? "text-accent" : "text-primary"
                                     )}>
                                         📞 {contactNumber}
@@ -266,11 +266,11 @@ export default function BannerGenerator({
             </div>
 
             {/* Actions */}
-            <div className="flex gap-4 w-full pt-4">
+            <div className="flex gap-2 md:gap-4 w-full pt-4">
                 <button
                     onClick={handleDownload}
                     disabled={isCapturing}
-                    className="flex-1 bg-white border-2 border-primary/10 text-primary py-5 rounded-2xl font-black uppercase tracking-widest text-[10px] flex items-center justify-center gap-2 hover:bg-slate-50 transition-all active:scale-95"
+                    className="flex-1 bg-white border-2 border-primary/10 text-primary py-4 md:py-5 rounded-xl md:rounded-2xl font-black uppercase tracking-widest text-[9px] md:text-[10px] flex items-center justify-center gap-1 md:gap-2 hover:bg-slate-50 transition-all active:scale-95"
                 >
                     {isCapturing ? <Loader2 className="animate-spin w-4 h-4" /> : <Download className="w-4 h-4" />}
                     Save Poster
@@ -278,10 +278,10 @@ export default function BannerGenerator({
                 <button
                     onClick={handleShare}
                     disabled={isCapturing}
-                    className="flex-1 bg-accent text-white py-5 rounded-2xl font-black uppercase tracking-widest text-[10px] flex items-center justify-center gap-2 hover:opacity-90 transition-all shadow-xl shadow-accent/20 active:scale-95"
+                    className="flex-1 bg-accent text-white py-4 md:py-5 rounded-xl md:rounded-2xl font-black uppercase tracking-widest text-[9px] md:text-[10px] flex items-center justify-center gap-1 md:gap-2 hover:opacity-90 transition-all shadow-xl shadow-accent/20 active:scale-95"
                 >
                     <Share2 className="w-4 h-4" />
-                    Share on WhatsApp
+                    Share WhatsApp
                 </button>
             </div>
         </div>

@@ -239,7 +239,7 @@ export default function Home() {
         </motion.div>
       </div>
 
-      <div className="max-w-5xl mx-auto px-6 pt-12 space-y-20">
+      <div className="max-w-5xl mx-auto px-4 md:px-6 pt-12 space-y-12 md:space-y-20">
         {/* Step 1: Generator */}
         <section id="offer-generator" className="scroll-mt-24">
           <div className="mb-8">
@@ -247,7 +247,7 @@ export default function Home() {
             <p className="text-slate-500 font-medium">Generate high-converting ads in seconds.</p>
           </div>
 
-          <div className="bg-white rounded-3xl border border-slate-200 shadow-premium p-8 md:p-12">
+          <div className="bg-white rounded-3xl border border-slate-200 shadow-premium p-6 md:p-12">
             <OfferForm
               onGenerate={handleGenerate}
               isGenerating={isGenerating}
@@ -288,9 +288,9 @@ export default function Home() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 items-start">
                 {/* Visual Preview */}
-                <div className="bg-slate-900 rounded-[2.5rem] p-4 md:p-8 relative shadow-2xl border-8 border-slate-800 h-full flex flex-col">
+                <div className="bg-slate-900 rounded-[2rem] md:rounded-[2.5rem] p-3 md:p-8 relative shadow-2xl border-4 md:border-8 border-slate-800 h-full flex flex-col items-center">
                   {outputMode === 'banner' ? (
                     <BannerGenerator
                       text={offerOptions[selectedOptionIndex] || generatedOffer}
@@ -476,7 +476,7 @@ export default function Home() {
                 <div
                   style={{ backfaceVisibility: "hidden" }}
                   className={cn(
-                    "absolute inset-0 rounded-[2.5rem] flex flex-col items-center justify-center p-6 shadow-2xl transition-all",
+                    "absolute inset-0 rounded-3xl md:rounded-[2.5rem] flex flex-col items-center justify-center p-6 shadow-2xl transition-all",
                     item.color, "text-white"
                   )}
                 >
@@ -490,7 +490,7 @@ export default function Home() {
                     backfaceVisibility: "hidden",
                     transform: "rotateY(180deg)"
                   }}
-                  className="absolute inset-0 rounded-[2.5rem] bg-white flex flex-col items-center justify-center p-6 shadow-2xl border-2 border-slate-100"
+                  className="absolute inset-0 rounded-3xl md:rounded-[2.5rem] bg-white flex flex-col items-center justify-center p-6 shadow-2xl border-2 border-slate-100"
                 >
                   <div className={cn("w-12 h-12 rounded-full flex items-center justify-center text-white mb-2", item.color)}>
                     <Sparkles size={20} />
@@ -510,7 +510,7 @@ export default function Home() {
                 <Sparkles className="text-primary" size={18} />
                 <span className="font-extrabold text-primary text-lg">OfferMitra</span>
               </div>
-              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">A Product of SaffarLabs Mitra Pvt LTD</p>
+              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">A Product of SaffarLabs Mitra</p>
             </div>
             <div className="flex flex-col items-center md:items-start gap-3">
               <div className="flex gap-8 text-xs font-bold text-slate-400 uppercase tracking-widest">
@@ -527,7 +527,7 @@ export default function Home() {
               <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">
                 Made with ❤️ in India
               </p>
-              <p className="text-[8px] font-medium text-slate-300 mt-1 uppercase tracking-tighter">© 2026 SaffarLabs Mitra Pvt LTD</p>
+              <p className="text-[8px] font-medium text-slate-300 mt-1 uppercase tracking-tighter">© 2026 SaffarLabs Mitra</p>
             </div>
           </div>
         </footer>

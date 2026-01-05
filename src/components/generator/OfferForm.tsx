@@ -79,7 +79,7 @@ export default function OfferForm({ onGenerate, isGenerating, isPro, defaultValu
     };
 
     const inputClasses = cn(
-        "w-full p-4 rounded-2xl border-2 transition-all outline-none text-lg font-bold shadow-sm focus:ring-4",
+        "w-full p-3 md:p-4 rounded-xl md:rounded-2xl border-2 transition-all outline-none text-base md:text-lg font-bold shadow-sm focus:ring-4",
         isPro
             ? "bg-slate-800 border-slate-700 text-white placeholder:text-slate-500 focus:border-primary focus:ring-primary/10"
             : "bg-slate-50 border-slate-200 text-slate-900 placeholder:text-slate-400 focus:border-primary focus:ring-primary/5"
@@ -266,7 +266,7 @@ export default function OfferForm({ onGenerate, isGenerating, isPro, defaultValu
 
             {/* Language & Submit Section */}
             <div className="pt-6 space-y-8">
-                <div className="flex bg-slate-100 p-1.5 rounded-2xl border border-slate-200">
+                <div className="flex bg-slate-100 p-1 md:p-1.5 rounded-xl md:rounded-2xl border border-slate-200">
                     {(['hindi', 'hinglish'] as Language[]).map((lang) => (
                         <button
                             key={lang}
@@ -276,7 +276,7 @@ export default function OfferForm({ onGenerate, isGenerating, isPro, defaultValu
                                 localStorage.setItem("om_language", lang);
                             }}
                             className={cn(
-                                "flex-1 py-4 text-[10px] font-black rounded-xl transition-all uppercase tracking-widest",
+                                "flex-1 py-3 md:py-4 text-[9px] md:text-[10px] font-black rounded-lg md:rounded-xl transition-all uppercase tracking-widest",
                                 language === lang
                                     ? "bg-white text-primary shadow-sm"
                                     : "text-slate-400 hover:text-slate-600"
@@ -291,7 +291,7 @@ export default function OfferForm({ onGenerate, isGenerating, isPro, defaultValu
                     type="submit"
                     disabled={isGenerating}
                     className={cn(
-                        "w-full bg-primary text-white font-black py-6 rounded-[2rem] shadow-xl shadow-primary/20 active:scale-95 transition-all flex items-center justify-center gap-3 text-xl disabled:opacity-50"
+                        "w-full bg-primary text-white font-black py-4 md:py-6 rounded-2xl md:rounded-[2rem] shadow-xl shadow-primary/20 active:scale-95 transition-all flex items-center justify-center gap-3 text-lg md:text-xl disabled:opacity-50"
                     )}
                 >
                     {isGenerating ? (

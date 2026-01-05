@@ -74,7 +74,7 @@ export default function HistoryPage() {
                             <ArrowLeft className="w-6 h-6" />
                         </button>
                         <div>
-                            <h1 className="text-3xl font-black tracking-tighter uppercase italic">{t('your_history', language)}</h1>
+                            <h1 className="text-2xl md:text-3xl font-black tracking-tighter uppercase italic">{t('your_history', language)}</h1>
                             <p className={cn("text-xs font-bold uppercase tracking-widest opacity-60", isPro ? "text-indigo-400" : "text-indigo-600")}>
                                 {t('previous_generations', language)} ({history.length})
                             </p>
@@ -135,7 +135,7 @@ export default function HistoryPage() {
                                 >
                                     <div
                                         onClick={() => toggleExpand(item.id)}
-                                        className="p-6 md:p-8 flex flex-col md:flex-row md:items-center justify-between gap-6 cursor-pointer relative z-10"
+                                        className="p-5 md:p-8 flex flex-col md:flex-row md:items-center justify-between gap-4 md:gap-6 cursor-pointer relative z-10"
                                     >
                                         <div className="flex-1 space-y-3">
                                             <div className="flex items-center gap-3">
@@ -184,7 +184,7 @@ export default function HistoryPage() {
                                                 initial={{ height: 0, opacity: 0 }}
                                                 animate={{ height: "auto", opacity: 1 }}
                                                 exit={{ height: 0, opacity: 0 }}
-                                                className="border-t border-white/10 bg-black/20 p-8 space-y-8 relative z-10"
+                                                className="border-t border-white/10 bg-black/20 p-5 md:p-8 space-y-6 md:space-y-8 relative z-10"
                                             >
                                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                                                     {/* Message Preview */}

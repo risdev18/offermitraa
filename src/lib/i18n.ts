@@ -29,7 +29,18 @@ const translations = {
         'video': 'वीडियो',
         'revenue_tracker': 'आय ट्रैकर',
         'add_sales': 'आज की बिक्री जोड़ें',
-        'trusted_by': 'स्थानीय और बड़े दुकानदारों का भरोसा'
+        'trusted_by': 'स्थानीय और बड़े दुकानदारों का भरोसा',
+        'shop_name': 'दुकान का नाम',
+        'mobile_number': 'मोबाइल नंबर',
+        'address': 'पता',
+        'product_name': 'प्रोडक्ट का नाम',
+        'offer_discount': 'ऑफर / डिस्काउंट',
+        'occasion': 'अवसर',
+        'extra_benefits': 'अतिरिक्त लाभ',
+        'product_photo_optional': 'प्रोडक्ट का फोटो (वैकल्पिक)',
+        'generating': 'बन रहा है',
+        'create_offer': 'ऑफर बनाएं',
+        'tokens_left': 'टोकन बचे'
     },
     hinglish: {
         'history': 'Purana History',
@@ -59,7 +70,18 @@ const translations = {
         'video': 'Video',
         'revenue_tracker': 'Revenue Tracker',
         'add_sales': 'Aaj ki Sales Add Karein',
-        'trusted_by': 'Local aur bade shop owners ka bharosa'
+        'trusted_by': 'Local aur bade shop owners ka bharosa',
+        'shop_name': 'Shop Name',
+        'mobile_number': 'Mobile Number',
+        'address': 'Address',
+        'product_name': 'Product Name',
+        'offer_discount': 'Offer / Discount',
+        'occasion': 'Occasion',
+        'extra_benefits': 'Extra Benefits',
+        'product_photo_optional': 'Product Photo (Optional)',
+        'generating': 'Generating',
+        'create_offer': 'Create Offer',
+        'tokens_left': 'Tokens Left'
     },
     english: {
         'history': 'History',
@@ -89,10 +111,22 @@ const translations = {
         'video': 'Video',
         'revenue_tracker': 'Revenue Tracker',
         'add_sales': 'Add Today\'s Sales',
-        'trusted_by': 'Trusted by local and big shop owners'
+        'trusted_by': 'Trusted by local and big shop owners',
+        'shop_name': 'Shop Name',
+        'mobile_number': 'Mobile Number',
+        'address': 'Address',
+        'product_name': 'Product Name',
+        'offer_discount': 'Offer / Discount',
+        'occasion': 'Occasion',
+        'extra_benefits': 'Extra Benefits',
+        'product_photo_optional': 'Product Photo (Optional)',
+        'generating': 'Generating',
+        'create_offer': 'Create Offer',
+        'tokens_left': 'Tokens Left'
     }
 };
 
 export const t = (key: string, lang: Language = 'hinglish') => {
     return translations[lang]?.[key as keyof typeof translations['english']] || key;
 };
+

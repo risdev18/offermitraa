@@ -206,84 +206,153 @@ export default function Home() {
 
   return (
     <main className={cn(
-      "min-h-screen bg-slate-50 text-slate-900 pb-24 lg:pb-0 relative overflow-x-hidden",
-      isPro && "bg-slate-900 text-white"
+      "min-h-screen transition-colors duration-700 pb-24 lg:pb-0 relative overflow-x-hidden",
+      isPro
+        ? "bg-[#020617] text-slate-100"
+        : "bg-slate-50 text-slate-900"
     )}>
-      {/* Premium Background Elements */}
-      <div className="absolute top-0 left-0 w-full h-[500px] bg-gradient-to-b from-primary/5 to-transparent pointer-events-none -z-10" />
+      {/* Decorative Background Elements - More Premium */}
+      <div className="absolute top-0 left-0 w-full h-[600px] overflow-hidden pointer-events-none -z-10">
+        <div className={cn(
+          "absolute -top-24 -left-24 w-96 h-96 blur-[120px] rounded-full opacity-30",
+          isPro ? "bg-indigo-500/20" : "bg-primary/10"
+        )} />
+        <div className={cn(
+          "absolute top-48 -right-24 w-72 h-72 blur-[100px] rounded-full opacity-20",
+          isPro ? "bg-purple-500/20" : "bg-accent/10"
+        )} />
+      </div>
 
-      {/* Header - Minimalist */}
-      <header className="sticky top-0 z-40 bg-white/80 backdrop-blur-md border-b border-slate-200">
-        <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center text-white">
-              <Sparkles size={18} />
+      {/* Header - Glassmorphism */}
+      <header className={cn(
+        "sticky top-0 z-40 backdrop-blur-xl border-b transition-all duration-300",
+        isPro
+          ? "bg-[#020617]/80 border-white/5"
+          : "bg-white/80 border-slate-200"
+      )}>
+        <div className="max-w-7xl mx-auto px-4 md:px-8 h-16 md:h-20 flex items-center justify-between">
+          <div className="flex items-center gap-2 md:gap-4 group cursor-pointer">
+            <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center text-white shadow-lg shadow-primary/20 group-hover:scale-110 transition-transform">
+              <Sparkles size={20} />
             </div>
-            <h1 className="text-xl font-extrabold tracking-tight text-primary">OfferMitra</h1>
+            <div className="flex flex-col">
+              <h1 className={cn(
+                "text-lg md:text-2xl font-black tracking-tight",
+                isPro ? "text-white" : "text-primary"
+              )}>OfferMitra</h1>
+              <span className="text-[8px] md:text-[10px] font-bold uppercase tracking-[0.2em] opacity-50">AI Marketing Bot</span>
+            </div>
           </div>
 
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 md:gap-4">
             {isPro ? (
-              <div className="flex items-center gap-2 px-4 py-2 bg-emerald-50 text-emerald-600 rounded-full text-[10px] font-black uppercase tracking-widest border border-emerald-100">
-                <Sparkles size={14} /> Pro Member
+              <div className="flex items-center gap-2 px-3 py-1.5 md:px-4 md:py-2 bg-indigo-500/10 text-indigo-400 rounded-full text-[9px] md:text-[10px] font-black uppercase tracking-widest border border-indigo-500/20 shadow-glow">
+                <Crown size={12} className="text-amber-400" /> Pro
               </div>
             ) : (
               hasInteracted && (
                 <button
                   onClick={() => setShowAccessModal(true)}
-                  className="hidden sm:flex items-center gap-2 px-4 py-2 bg-accent text-white rounded-full text-xs font-bold shadow-lg shadow-accent/20 hover:scale-105 transition-all"
+                  className="hidden xs:flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-full text-[10px] font-black shadow-lg shadow-amber-500/20 hover:scale-105 active:scale-95 transition-all uppercase tracking-widest"
                 >
-                  <Crown size={14} />
-                  Go Pro (₹99)
+                  <Crown size={14} /> Upgrade
                 </button>
               )
             )}
-            <div className="flex items-center gap-1 bg-slate-100 px-3 py-1.5 rounded-full text-[10px] font-bold text-slate-600">
-              <span className={cn(usageCount >= 3 ? "text-red-500" : "text-primary")}>{3 - usageCount}</span>/3 Left
+            <div className={cn(
+              "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-black tracking-widest uppercase border",
+              usageCount >= 3
+                ? "bg-red-500/10 text-red-500 border-red-500/20"
+                : isPro
+                  ? "bg-indigo-500/10 text-indigo-400 border-indigo-500/20"
+                  : "bg-slate-100 text-slate-500 border-slate-200"
+            )}>
+              <span className="opacity-60">{t('tokens_left', language)}:</span>
+              <span className="font-black">{3 - usageCount}</span>
             </div>
           </div>
         </div>
       </header>
-      {/* Trust Banner - Marquee Version */}
-      <div className="bg-slate-50 border-b border-slate-100 py-3 overflow-hidden select-none">
+
+      {/* Trust Banner - Refined */}
+      <div className={cn(
+        "border-b py-2.5 overflow-hidden select-none",
+        isPro ? "bg-white/5 border-white/5" : "bg-slate-50 border-slate-100"
+      )}>
         <motion.div
           animate={{ x: [0, -1000] }}
-          transition={{
-            duration: 30,
-            repeat: Infinity,
-            ease: "linear"
-          }}
-          className="flex whitespace-nowrap gap-12 w-max items-center"
+          transition={{ duration: 40, repeat: Infinity, ease: "linear" }}
+          className="flex whitespace-nowrap gap-16 w-max items-center"
         >
           {[1, 2, 3, 4, 5, 6].map((i) => (
-            <div key={i} className="flex items-center gap-8">
-              <div className="flex items-center gap-2 text-slate-500">
-                <ShieldCheck size={16} className="text-emerald-500" />
-                <span className="text-[11px] font-black uppercase tracking-widest">{t('trusted_by', language)}</span>
+            <div key={i} className="flex items-center gap-12">
+              <div className="flex items-center gap-2.5">
+                <ShieldCheck size={14} className="text-emerald-500" />
+                <span className={cn(
+                  "text-[9px] md:text-[10px] font-black uppercase tracking-[0.2em]",
+                  isPro ? "text-slate-500" : "text-slate-400"
+                )}>{t('trusted_by', language)}</span>
               </div>
-              <div className="flex items-center gap-6 opacity-30">
-                <span className="text-xs font-black italic tracking-tighter">FOR LOCAL SHOP OWNERS</span>
-                <span className="text-xs font-black italic tracking-tighter">MADE FOR BHARAT</span>
-                <span className="text-xs font-black italic tracking-tighter">GROW WITH AI</span>
+              <div className={cn(
+                "flex items-center gap-8 opacity-40 grayscale",
+                isPro ? "invert" : ""
+              )}>
+                <span className="text-[10px] font-black italic tracking-tighter">FOR LOCAL SHOP OWNERS</span>
+                <span className="text-[10px] font-black italic tracking-tighter">MADE FOR BHARAT</span>
+                <span className="text-[10px] font-black italic tracking-tighter">GROW WITH AI</span>
               </div>
             </div>
           ))}
         </motion.div>
       </div>
 
-      <div className="max-w-5xl mx-auto px-4 md:px-6 pt-12 space-y-12 md:space-y-20">
+      <div className="max-w-6xl mx-auto px-4 md:px-8 pt-8 md:pt-16 space-y-16 md:space-y-32">
         {/* Step 1: Generator */}
         <section id="offer-generator" className="scroll-mt-24">
-          <div className="mb-8">
-            <h2 className="text-3xl font-extrabold mb-2 text-primary">Get More Customers in 24 Hours</h2>
-            <p className="text-slate-500 font-medium">Generate high-converting ads & video posters instantly.</p>
-            <div className="flex items-center gap-2 mt-2">
-              <CheckCircle2 size={14} className="text-emerald-500" />
-              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Used by 500+ Local Shop Owners</span>
-            </div>
+          <div className="mb-10 md:mb-16 text-center md:text-left">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+            >
+              <h2 className={cn(
+                "text-3xl md:text-6xl font-black mb-4 leading-[1.1] tracking-tight",
+                isPro ? "text-white" : "text-primary"
+              )}>
+                {language === 'hindi' ? "24 घंटे में ज्यादा ग्राहक पाएं" : "Get More Customers in 24 Hours"}
+              </h2>
+              <p className={cn(
+                "text-sm md:text-xl font-medium opacity-60 max-w-2xl",
+                isPro ? "text-slate-300" : "text-slate-600"
+              )}>
+                AI-powered marketing kit for your shop. Generate posters & videos in seconds.
+              </p>
+              <div className="flex items-center justify-center md:justify-start gap-3 mt-6">
+                <div className="flex -space-x-2">
+                  {[1, 2, 3].map(i => (
+                    <div key={i} className="w-8 h-8 rounded-full border-2 border-slate-50 bg-slate-200 overflow-hidden">
+                      <img src={`https://i.pravatar.cc/100?u=${i}`} alt="User" />
+                    </div>
+                  ))}
+                </div>
+                <span className="text-[10px] md:text-xs font-black text-slate-400 uppercase tracking-widest">
+                  Joined by <span className={isPro ? "text-indigo-400" : "text-primary"}>500+</span> shop owners today
+                </span>
+              </div>
+            </motion.div>
           </div>
 
-          <div className="bg-white rounded-3xl border border-slate-200 shadow-premium p-6 md:p-12">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.98 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true }}
+            className={cn(
+              "rounded-[2.5rem] md:rounded-[3.5rem] border shadow-2xl p-6 md:p-16 relative overflow-hidden",
+              isPro
+                ? "bg-[#0f172a]/50 border-white/5 shadow-indigo-500/5"
+                : "bg-white border-slate-100"
+            )}
+          >
             <OfferForm
               onGenerate={handleGenerate}
               isGenerating={isGenerating}
@@ -295,38 +364,60 @@ export default function Home() {
               language={language}
               onLanguageChange={setLanguage}
             />
-          </div>
+          </motion.div>
         </section>
 
-        {/* Results Screen - Full Screen WOW */}
+        {/* Results Screen */}
         <AnimatePresence>
           {generatedOffer && (
             <motion.section
-              initial={{ opacity: 0, y: 40 }}
+              initial={{ opacity: 0, y: 60 }}
               animate={{ opacity: 1, y: 0 }}
-              className="space-y-12"
+              className="space-y-10 md:space-y-16"
             >
-              <div className="flex items-center justify-between">
-                <h2 className="text-2xl font-bold">Your Marketing Kit</h2>
-                <div className="flex p-1 bg-slate-200 rounded-xl">
+              <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+                <div className="text-center md:text-left">
+                  <h3 className={cn(
+                    "text-2xl md:text-4xl font-black mb-2 tracking-tight",
+                    isPro ? "text-white" : "text-slate-900"
+                  )}>Your Marketing Kit</h3>
+                  <p className="text-xs md:text-sm font-bold text-slate-400 uppercase tracking-[0.2em]">Ready to blast on WhatsApp</p>
+                </div>
+                <div className={cn(
+                  "flex p-1.5 rounded-2xl border self-center md:self-auto",
+                  isPro ? "bg-white/5 border-white/10" : "bg-slate-200/50 border-slate-200"
+                )}>
                   <button
                     onClick={() => setOutputMode('banner')}
-                    className={cn("px-4 py-2 rounded-lg text-xs font-bold transition-all", outputMode === 'banner' ? "bg-white text-primary shadow-sm" : "text-slate-500")}
+                    className={cn(
+                      "px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all",
+                      outputMode === 'banner'
+                        ? isPro ? "bg-indigo-600 text-white shadow-lg" : "bg-white text-primary shadow-sm"
+                        : "text-slate-500 hover:text-slate-400"
+                    )}
                   >
                     Graphics
                   </button>
                   <button
                     onClick={() => setOutputMode('video')}
-                    className={cn("px-4 py-2 rounded-lg text-xs font-bold transition-all", outputMode === 'video' ? "bg-white text-primary shadow-sm" : "text-slate-500")}
+                    className={cn(
+                      "px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all",
+                      outputMode === 'video'
+                        ? isPro ? "bg-indigo-600 text-white shadow-lg" : "bg-white text-primary shadow-sm"
+                        : "text-slate-500 hover:text-slate-400"
+                    )}
                   >
                     Video Ad
                   </button>
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 items-start">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-16 items-start">
                 {/* Visual Preview */}
-                <div className="bg-slate-900 rounded-[2rem] md:rounded-[2.5rem] p-3 md:p-8 relative shadow-2xl border-4 md:border-8 border-slate-800 h-full flex flex-col items-center">
+                <div className={cn(
+                  "rounded-[2.5rem] md:rounded-[3.5rem] p-3 md:p-10 relative shadow-2xl border-4 md:border-8 flex flex-col items-center min-h-[500px] justify-center",
+                  isPro ? "bg-slate-950 border-white/5" : "bg-slate-900 border-slate-800"
+                )}>
                   {outputMode === 'banner' ? (
                     <BannerGenerator
                       text={offerOptions[selectedOptionIndex] || generatedOffer}
@@ -363,20 +454,29 @@ export default function Home() {
                 </div>
 
                 {/* WhatsApp Text Kit */}
-                <div className="space-y-6">
-                  <div className="bg-white rounded-3xl border border-slate-200 p-8 shadow-premium space-y-4">
-                    <div className="flex items-center justify-between">
-                      <h3 className="text-lg font-bold">WhatsApp Message</h3>
-                      <div className="flex gap-2">
+                <div className="space-y-8">
+                  <div className={cn(
+                    "rounded-[2.5rem] border p-8 md:p-10 shadow-2xl relative overflow-hidden",
+                    isPro ? "bg-[#0f172a]/80 border-white/10" : "bg-white border-slate-100"
+                  )}>
+                    <div className="flex items-center justify-between mb-8">
+                      <div className="flex flex-col">
+                        <h3 className={cn("text-lg font-black tracking-tight", isPro ? "text-indigo-400" : "text-primary")}>Copy & Paste</h3>
+                        <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">3 Unique AI Variations</span>
+                      </div>
+                      <div className={cn(
+                        "flex gap-2 p-1 rounded-full",
+                        isPro ? "bg-white/5" : "bg-slate-100"
+                      )}>
                         {offerOptions.map((_, idx) => (
                           <button
                             key={idx}
                             onClick={() => setSelectedOptionIndex(idx)}
                             className={cn(
-                              "w-8 h-8 rounded-full flex items-center justify-center text-xs font-black transition-all",
+                              "w-10 h-10 rounded-full flex items-center justify-center text-xs font-black transition-all",
                               selectedOptionIndex === idx
-                                ? "bg-primary text-white scale-110 shadow-lg"
-                                : "bg-slate-100 text-slate-400 hover:bg-slate-200"
+                                ? isPro ? "bg-indigo-600 text-white shadow-glow" : "bg-primary text-white scale-110 shadow-lg"
+                                : "text-slate-400 hover:text-slate-500"
                             )}
                           >
                             {idx + 1}
@@ -384,32 +484,34 @@ export default function Home() {
                         ))}
                       </div>
                     </div>
-                    <div className="bg-slate-50 p-6 rounded-2xl border border-slate-100 font-medium whitespace-pre-wrap text-slate-800 leading-relaxed min-h-[120px] max-h-[400px] overflow-y-auto italic">
+
+                    <div className={cn(
+                      "p-6 md:p-8 rounded-3xl font-medium whitespace-pre-wrap leading-relaxed min-h-[160px] max-h-[400px] overflow-y-auto italic border text-sm md:text-base mb-8",
+                      isPro
+                        ? "bg-slate-950/50 border-white/5 text-slate-300 shadow-inner"
+                        : "bg-slate-50 border-slate-100 text-slate-800"
+                    )}>
                       {offerOptions[selectedOptionIndex] || generatedOffer}
                     </div>
-                    <div className="grid grid-cols-2 gap-4">
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <button
                         onClick={() => {
-                          const textArea = document.createElement("textarea");
-                          const textToCopy = offerOptions[selectedOptionIndex] || generatedOffer || "";
-                          textArea.value = textToCopy;
-                          document.body.appendChild(textArea);
-                          textArea.select();
-                          try {
-                            document.execCommand('copy');
-                            localStorage.setItem("om_has_interacted", "true");
-                            setHasInteracted(true);
-                            const currentSent = parseInt(localStorage.getItem("om_stats_offers_sent") || "0");
-                            localStorage.setItem("om_stats_offers_sent", (currentSent + 1).toString());
-                            alert("Option " + (selectedOptionIndex + 1) + " Copied! 📋");
-                          } catch (err) {
-                            console.error('Copy failed', err);
-                          }
-                          document.body.removeChild(textArea);
+                          navigator.clipboard.writeText(offerOptions[selectedOptionIndex] || generatedOffer || "");
+                          localStorage.setItem("om_has_interacted", "true");
+                          setHasInteracted(true);
+                          const currentSent = parseInt(localStorage.getItem("om_stats_offers_sent") || "0");
+                          localStorage.setItem("om_stats_offers_sent", (currentSent + 1).toString());
+                          alert("AI Variation " + (selectedOptionIndex + 1) + " Copied! 📋");
                         }}
-                        className="w-full py-4 rounded-xl border-2 border-slate-200 font-black uppercase tracking-widest text-[10px] hover:bg-slate-50 transition-all active:scale-95"
+                        className={cn(
+                          "w-full py-5 rounded-2xl font-black uppercase tracking-[0.2em] text-[10px] transition-all active:scale-95 border-2",
+                          isPro
+                            ? "bg-white/5 border-white/10 text-white hover:bg-white/10"
+                            : "bg-white border-slate-200 text-primary hover:bg-slate-50"
+                        )}
                       >
-                        Copy Text
+                        Copy Tool
                       </button>
                       <a
                         href={`https://api.whatsapp.com/send?text=${encodeURIComponent(offerOptions[selectedOptionIndex] || generatedOffer || "")}`}
@@ -422,21 +524,33 @@ export default function Home() {
                           const currentSent = parseInt(localStorage.getItem("om_stats_offers_sent") || "0");
                           localStorage.setItem("om_stats_offers_sent", (currentSent + 1).toString());
                         }}
-                        className="w-full bg-[#25D366] text-white font-black uppercase tracking-widest text-[10px] py-4 rounded-xl shadow-xl shadow-green-500/20 hover:scale-105 transition-all flex items-center justify-center gap-2 active:scale-95"
+                        className="w-full bg-[#25D366] text-white font-black uppercase tracking-[0.2em] text-[10px] py-5 rounded-2xl shadow-xl shadow-green-500/20 hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-2"
                       >
-                        Send WhatsApp
+                        <MessageCircle size={16} /> Send Now
                       </a>
                     </div>
                   </div>
 
                   {isPro && (
-                    <div className="bg-primary text-white p-8 rounded-3xl shadow-xl relative overflow-hidden">
+                    <motion.div
+                      initial={{ opacity: 0, x: 20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      className="bg-gradient-to-br from-indigo-600 to-primary p-8 rounded-[2.5rem] shadow-2xl relative overflow-hidden group"
+                    >
                       <div className="relative z-10">
-                        <h4 className="font-bold mb-2">Pro Insight</h4>
-                        <p className="text-indigo-100 text-sm">This offer has a 12% higher chance of conversion based on peak engagement trends.</p>
+                        <div className="flex items-center gap-2 mb-3">
+                          <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
+                            <Sparkles size={16} className="text-white" />
+                          </div>
+                          <h4 className="font-black text-white uppercase tracking-widest text-xs">AI Insight</h4>
+                        </div>
+                        <p className="text-indigo-100 text-sm font-medium leading-relaxed">
+                          This copy is optimized for <span className="text-white font-bold underline decoration-amber-400">conversion</span>.
+                          Sending this at <span className="text-white font-bold">11:00 AM</span> will likely increase your customer reach by 15%.
+                        </p>
                       </div>
-                      <div className="absolute top-0 right-0 w-24 h-24 bg-white/10 blur-2xl -mr-12 -mt-12" />
-                    </div>
+                      <div className="absolute -bottom-12 -right-12 w-32 h-32 bg-white/10 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-1000" />
+                    </motion.div>
                   )}
                 </div>
               </div>
@@ -446,65 +560,91 @@ export default function Home() {
 
         {/* Step 2: Revenue Tracker */}
         <section id="revenue-tracker" className="scroll-mt-24">
-          <div className="mb-8">
-            <h2 className="text-3xl font-extrabold mb-2">Revenue Tracker</h2>
-            <p className="text-slate-500 font-medium">Monitor your business health daily.</p>
+          <div className="mb-10 md:mb-16 text-center md:text-left">
+            <h2 className={cn(
+              "text-3xl md:text-5xl font-black mb-4 tracking-tight",
+              isPro ? "text-white" : "text-slate-900"
+            )}>Revenue Tracker</h2>
+            <p className={cn(
+              "text-sm md:text-xl font-medium opacity-60",
+              isPro ? "text-slate-300" : "text-slate-600"
+            )}>Monitor your daily sales, expenses, and profits in one place.</p>
           </div>
-          <RevenueTracker isPro={isPro} language={language} />
+          <div className={cn(
+            "rounded-[2.5rem] md:rounded-[3.5rem] p-6 md:p-12 border shadow-2xl overflow-hidden",
+            isPro ? "bg-[#0f172a]/50 border-white/5" : "bg-white border-slate-100"
+          )}>
+            <RevenueTracker isPro={isPro} language={language} />
+          </div>
         </section>
 
-        {/* Pro Upsell - Calm & Consistent */}
+        {/* Pro Upsell */}
         {!isPro && (
-          <section className="bg-primary rounded-[3rem] p-12 text-center text-white relative overflow-hidden">
-            <div className="relative z-10 max-w-lg mx-auto">
-              <h2 className="text-3xl font-extrabold mb-4">Grow Your Shop Faster</h2>
-              <p className="text-indigo-100 mb-8 font-medium">Join 500+ shop owners using Pro to get more customers daily.</p>
-              {(!isPro && hasInteracted) && (
-                <button
-                  onClick={() => setShowAccessModal(true)}
-                  className="bg-white text-primary px-10 py-5 rounded-2xl font-black shadow-2xl hover:scale-105 transition-all uppercase tracking-widest text-sm"
-                >
-                  Join Pro - ₹99/month
-                </button>
-              )}
+          <section className="relative py-12">
+            <div className="bg-primary rounded-[3rem] md:rounded-[5rem] p-10 md:p-24 text-center text-white relative overflow-hidden shadow-[0_50px_100px_-20px_rgba(67,56,202,0.4)]">
+              <div className="relative z-10 max-w-2xl mx-auto">
+                <div className="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center mx-auto mb-8 backdrop-blur-md border border-white/20">
+                  <Crown size={32} className="text-amber-400 animate-float" />
+                </div>
+                <h2 className="text-3xl md:text-6xl font-black mb-6 leading-tight tracking-tighter">Scale Your Shop <br />Like a Pro</h2>
+                <p className="text-indigo-100 mb-12 text-base md:text-xl font-medium">Get unlimited AI generation, premium branding, and deep business analytics.</p>
+                {hasInteracted && (
+                  <button
+                    onClick={() => setShowAccessModal(true)}
+                    className="bg-white text-primary px-10 py-6 md:px-16 md:py-8 rounded-[2rem] font-black shadow-2xl hover:scale-105 active:scale-95 transition-all uppercase tracking-[0.2em] text-xs md:text-sm"
+                  >
+                    Unlock Pro - Only ₹99
+                  </button>
+                )}
+                <p className="mt-8 text-[10px] font-black uppercase tracking-[0.3em] opacity-40">Trusted by over 5000+ local businesses</p>
+              </div>
+              {/* Animated Accents */}
+              <div className="absolute top-0 left-0 w-full h-full pointer-events-none">
+                <div className="absolute top-1/2 left-1/4 w-96 h-96 bg-indigo-400/20 blur-[120px] rounded-full animate-float" />
+                <div className="absolute bottom-0 right-1/4 w-64 h-64 bg-purple-500/20 blur-[100px] rounded-full" style={{ animationDelay: '2s' }} />
+              </div>
             </div>
-            {/* Subtle patterns instead of loud blobs */}
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-from)_0%,_transparent_100%)] from-white/10 opacity-30" />
           </section>
         )}
 
-        {/* Support Hub - 3D Animated Cubes */}
-        <section className="py-12">
-          <div className="text-center mb-10">
-            <h3 className="text-xl font-black uppercase tracking-widest text-slate-400">Direct Support</h3>
-            <p className="text-slate-500 text-sm">Tap on a cube to connect with us</p>
+        {/* Support Hub */}
+        <section className="py-20 md:py-32">
+          <div className="text-center mb-16 md:mb-24">
+            <h3 className={cn(
+              "text-xs font-black uppercase tracking-[0.5em] mb-4",
+              isPro ? "text-indigo-400" : "text-slate-400"
+            )}>Support Hub</h3>
+            <h2 className={cn(
+              "text-3xl md:text-5xl font-black tracking-tight",
+              isPro ? "text-white" : "text-slate-900"
+            )}>We're Here to Help</h2>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 px-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-10">
             {[
               {
                 id: 'whatsapp',
-                icon: <MessageCircle className="w-8 h-8" />,
-                label: 'WhatsApp',
+                icon: <MessageCircle className="w-10 h-10" />,
+                label: 'WhatsApp Support',
                 color: 'bg-emerald-500',
                 link: 'https://wa.me/8468943268',
-                desc: 'Fast Chat'
+                desc: 'Chat with our team'
               },
               {
                 id: 'email',
-                icon: <Mail className="w-8 h-8" />,
-                label: 'Email',
+                icon: <Mail className="w-10 h-10" />,
+                label: 'Email Official',
                 color: 'bg-indigo-600',
                 link: 'mailto:saffarlabs@gmail.com',
-                desc: 'Official Inquiry'
+                desc: 'Send us an inquiry'
               },
               {
                 id: 'call',
-                icon: <Phone className="w-8 h-8" />,
-                label: 'Call Us',
+                icon: <Phone className="w-10 h-10" />,
+                label: 'Call Us Now',
                 color: 'bg-primary',
                 link: 'tel:8468943268',
-                desc: 'Instant Help'
+                desc: 'Support: 8468943268'
               }
             ].map((item) => (
               <motion.a
@@ -512,70 +652,72 @@ export default function Home() {
                 href={item.link}
                 target={item.id === 'whatsapp' ? '_blank' : '_self'}
                 rel="noopener noreferrer"
-                whileHover={{
-                  rotateY: 180,
-                  scale: 1.05
-                }}
-                transition={{ duration: 0.6, type: "spring", stiffness: 100 }}
-                style={{ transformStyle: "preserve-3d" }}
-                className="relative h-48 group cursor-pointer"
+                whileHover={{ y: -10 }}
+                className={cn(
+                  "p-8 md:p-12 rounded-[2.5rem] flex flex-col items-center text-center transition-all border shadow-xl group",
+                  isPro
+                    ? "bg-[#0f172a] border-white/5 hover:border-white/10"
+                    : "bg-white border-slate-100 hover:border-primary/20"
+                )}
               >
-                {/* Front Side */}
-                <div
-                  style={{ backfaceVisibility: "hidden" }}
-                  className={cn(
-                    "absolute inset-0 rounded-3xl md:rounded-[2.5rem] flex flex-col items-center justify-center p-6 shadow-2xl transition-all",
-                    item.color, "text-white"
-                  )}
-                >
+                <div className={cn(
+                  "w-20 h-20 rounded-3xl flex items-center justify-center text-white mb-8 shadow-2xl group-hover:scale-110 transition-transform",
+                  item.color
+                )}>
                   {item.icon}
-                  <span className="mt-4 font-black uppercase tracking-widest text-xs">{item.label}</span>
                 </div>
-
-                {/* Back Side (The "Turned" motion redirected state feeling) */}
-                <div
-                  style={{
-                    backfaceVisibility: "hidden",
-                    transform: "rotateY(180deg)"
-                  }}
-                  className="absolute inset-0 rounded-3xl md:rounded-[2.5rem] bg-white flex flex-col items-center justify-center p-6 shadow-2xl border-2 border-slate-100"
-                >
-                  <div className={cn("w-12 h-12 rounded-full flex items-center justify-center text-white mb-2", item.color)}>
-                    <Sparkles size={20} />
-                  </div>
-                  <span className="font-black text-slate-900 uppercase tracking-widest text-[10px]">{item.desc}</span>
-                  <span className="text-primary font-bold text-xs mt-1">Open Now →</span>
+                <h4 className={cn("text-lg font-black mb-2", isPro ? "text-white" : "text-slate-900")}>{item.label}</h4>
+                <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">{item.desc}</p>
+                <div className={cn(
+                  "mt-6 py-2 px-6 rounded-full text-[10px] font-black uppercase tracking-widest border transition-all",
+                  isPro
+                    ? "bg-white/5 border-white/10 text-indigo-400 group-hover:bg-white/10"
+                    : "bg-slate-50 border-slate-100 text-primary group-hover:bg-primary/5"
+                )}>
+                  Connect →
                 </div>
               </motion.a>
             ))}
           </div>
         </section>
 
-        <footer className="pt-20 pb-32 border-t border-slate-200">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-8">
-            <div className="flex flex-col gap-1">
-              <div className="flex items-center gap-2">
-                <Sparkles className="text-primary" size={18} />
-                <span className="font-extrabold text-primary text-lg">OfferMitra</span>
+        <footer className={cn(
+          "pt-20 pb-40 border-t",
+          isPro ? "border-white/5" : "border-slate-200"
+        )}>
+          <div className="flex flex-col lg:flex-row justify-between items-center gap-12 text-center lg:text-left">
+            <div className="flex flex-col gap-2">
+              <div className="flex items-center justify-center lg:justify-start gap-3">
+                <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center text-white">
+                  <Sparkles size={16} />
+                </div>
+                <span className={cn("font-black text-2xl tracking-tight", isPro ? "text-white" : "text-primary")}>OfferMitra</span>
               </div>
-              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">A Product of SaffarLabs Mitra</p>
+              <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">A Product of SaffarLabs Mitra</p>
             </div>
-            <div className="flex flex-col items-center md:items-start gap-3">
-              <div className="flex gap-8 text-xs font-bold text-slate-400 uppercase tracking-widest">
-                <Link href="/privacy" className="hover:text-primary transition-colors cursor-pointer">Privacy</Link>
-                <a href="mailto:saffarlabs@gmail.com" className="hover:text-primary transition-colors cursor-pointer">Support Email</a>
-                <Link href="/admin" className="hover:text-primary transition-colors cursor-pointer">Admin</Link>
+
+            <div className="flex flex-col items-center lg:items-start gap-6">
+              <div className="flex flex-wrap justify-center gap-8 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">
+                <Link href="/privacy" className="hover:text-primary transition-colors">Privacy Policy</Link>
+                <a href="mailto:saffarlabs@gmail.com" className="hover:text-primary transition-colors">Support</a>
+                <Link href="/admin" className="hover:text-primary transition-colors">Admin Portal</Link>
               </div>
-              <a href="tel:8468943268" className="flex items-center gap-2 text-[11px] font-black text-primary hover:scale-105 transition-all bg-primary/5 px-4 py-2 rounded-full border border-primary/10">
+              <a href="tel:8468943268" className={cn(
+                "flex items-center gap-2 text-[10px] font-black px-6 py-3 rounded-full border transition-all hover:scale-105",
+                isPro
+                  ? "bg-white/5 border-white/10 text-indigo-400"
+                  : "bg-primary/5 border-primary/10 text-primary"
+              )}>
                 <Phone size={12} />
                 CUSTOMER CARE: 8468943268
               </a>
             </div>
-            <div className="text-right">
-              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">
+
+            <div className="text-center lg:text-right space-y-1">
+              <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.4em]">
                 Made with ❤️ in India
               </p>
-              <p className="text-[8px] font-medium text-slate-300 mt-1 uppercase tracking-tighter">© 2026 SaffarLabs Mitra</p>
+              <p className="text-[10px] font-bold text-slate-300 uppercase">© 2026 SaffarLabs Mitra</p>
             </div>
           </div>
         </footer>
@@ -609,3 +751,4 @@ export default function Home() {
     </main>
   );
 }
+

@@ -2,7 +2,7 @@
 
 import { useRef, useState } from "react";
 import { toPng } from "html-to-image";
-import { Download, Share2, Loader2, Image as ImageIcon } from "lucide-react";
+import { Download, Share2, Loader2, Image as ImageIcon, MessageCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface BannerGeneratorProps {
@@ -266,11 +266,16 @@ export default function BannerGenerator({
             </div>
 
             {/* Actions */}
-            <div className="flex gap-2 md:gap-4 w-full pt-4">
+            <div className="flex flex-col sm:flex-row gap-4 w-full pt-6">
                 <button
                     onClick={handleDownload}
                     disabled={isCapturing}
-                    className="flex-1 bg-white border-2 border-primary/10 text-primary py-4 md:py-5 rounded-xl md:rounded-2xl font-black uppercase tracking-widest text-[9px] md:text-[10px] flex items-center justify-center gap-1 md:gap-2 hover:bg-slate-50 transition-all active:scale-95"
+                    className={cn(
+                        "flex-1 py-5 rounded-[2rem] font-black uppercase tracking-[0.2em] text-[10px] flex items-center justify-center gap-2 transition-all active:scale-95 border-2",
+                        isDarkBg
+                            ? "bg-white/5 border-white/10 text-white hover:bg-white/10"
+                            : "bg-white border-slate-200 text-primary hover:bg-slate-50"
+                    )}
                 >
                     {isCapturing ? <Loader2 className="animate-spin w-4 h-4" /> : <Download className="w-4 h-4" />}
                     Save Poster
@@ -278,12 +283,13 @@ export default function BannerGenerator({
                 <button
                     onClick={handleShare}
                     disabled={isCapturing}
-                    className="flex-1 bg-accent text-white py-4 md:py-5 rounded-xl md:rounded-2xl font-black uppercase tracking-widest text-[9px] md:text-[10px] flex items-center justify-center gap-1 md:gap-2 hover:opacity-90 transition-all shadow-xl shadow-accent/20 active:scale-95"
+                    className="flex-1 bg-[#25D366] text-white py-5 rounded-[2rem] font-black uppercase tracking-[0.2em] text-[10px] flex items-center justify-center gap-2 hover:opacity-90 transition-all shadow-xl shadow-green-500/20 active:scale-95"
                 >
-                    <Share2 className="w-4 h-4" />
+                    <MessageCircle className="w-4 h-4" />
                     Share WhatsApp
                 </button>
             </div>
+
         </div>
     );
 }

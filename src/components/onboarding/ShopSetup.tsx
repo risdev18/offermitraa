@@ -115,11 +115,11 @@ export default function ShopSetup({ onComplete }: ShopSetupProps) {
     }
 
     return (
-        <div className="fixed inset-0 bg-[#020617]/95 backdrop-blur-3xl z-[100] flex items-center justify-center p-4">
+        <div className="fixed inset-0 bg-[#020617]/95 backdrop-blur-3xl z-[100] flex flex-col items-center justify-center p-4 overflow-y-auto">
             <motion.div
                 initial={{ scale: 0.95, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
-                className="w-full max-w-lg bg-slate-900 border border-white/10 rounded-[2.5rem] overflow-hidden shadow-2xl relative"
+                className="w-full max-w-lg bg-slate-900 border border-white/10 rounded-[2.5rem] overflow-hidden shadow-2xl relative mb-4"
             >
                 {/* Dynamic Background Blobs */}
                 <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -152,9 +152,9 @@ export default function ShopSetup({ onComplete }: ShopSetupProps) {
                     />
                 </div>
 
-                <div className="p-8 md:p-12">
+                <div className="p-6 md:p-12">
                     {/* Header */}
-                    <div className="mb-8">
+                    <div className="mb-8 text-center md:text-left">
                         <h2 className="text-2xl font-black text-white tracking-tight mb-2">
                             {step === 1 ? "Shop Details" : "Visual Identity"}
                         </h2>
@@ -173,7 +173,7 @@ export default function ShopSetup({ onComplete }: ShopSetupProps) {
                                 className="space-y-6"
                             >
                                 <div className="space-y-2">
-                                    <label className="text-xs font-bold uppercase tracking-widest text-indigo-400 ml-1">Shop Name</label>
+                                    <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-indigo-400 ml-1">Shop Name</label>
                                     <div className="relative group">
                                         <Store className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500 group-focus-within:text-indigo-500 transition-colors" />
                                         <input
@@ -187,7 +187,7 @@ export default function ShopSetup({ onComplete }: ShopSetupProps) {
                                 </div>
 
                                 <div className="space-y-2">
-                                    <label className="text-xs font-bold uppercase tracking-widest text-indigo-400 ml-1">Description</label>
+                                    <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-indigo-400 ml-1">Description</label>
                                     <div className="relative group">
                                         <FileText className="absolute left-4 top-4 w-5 h-5 text-slate-500 group-focus-within:text-indigo-500 transition-colors" />
                                         <textarea
@@ -203,7 +203,7 @@ export default function ShopSetup({ onComplete }: ShopSetupProps) {
                                 </div>
 
                                 <div className="space-y-2">
-                                    <label className="text-xs font-bold uppercase tracking-widest text-indigo-400 ml-1">Shop Mobile (WhatsApp Number)</label>
+                                    <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-indigo-400 ml-1">Shop Mobile (WhatsApp Number)</label>
                                     <div className="relative group">
                                         <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500 group-focus-within:text-indigo-500 transition-colors" />
                                         <input
@@ -214,7 +214,7 @@ export default function ShopSetup({ onComplete }: ShopSetupProps) {
                                             className="w-full bg-slate-800/50 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white placeholder:text-slate-600 focus:outline-none focus:border-indigo-500/50 focus:bg-slate-800 transition-all font-medium"
                                         />
                                     </div>
-                                    <p className="text-[10px] text-slate-500 italic ml-1">* This will be used as the default contact number for all offers.</p>
+                                    <p className="text-[10px] text-slate-500 italic ml-1">* This will be used for all offers.</p>
                                 </div>
                             </motion.div>
                         ) : (
@@ -226,7 +226,7 @@ export default function ShopSetup({ onComplete }: ShopSetupProps) {
                                 className="space-y-6"
                             >
                                 <div className="space-y-2">
-                                    <label className="text-xs font-bold uppercase tracking-widest text-indigo-400 ml-1">Shop Photo</label>
+                                    <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-indigo-400 ml-1">Shop Photo</label>
                                     <div
                                         onClick={() => fileInputRef.current?.click()}
                                         className={cn(
@@ -257,7 +257,7 @@ export default function ShopSetup({ onComplete }: ShopSetupProps) {
                                                     <Upload className="w-8 h-8 text-indigo-500" />
                                                 </div>
                                                 <p className="text-slate-400 font-medium">Click to upload photo</p>
-                                                <p className="text-slate-600 text-xs mt-2">JPG, PNG (Max 5MB)</p>
+                                                <p className="text-slate-600 text-[10px] mt-2 font-bold tracking-widest uppercase">JPG, PNG (Max 5MB)</p>
                                             </>
                                         )}
                                     </div>
@@ -271,7 +271,7 @@ export default function ShopSetup({ onComplete }: ShopSetupProps) {
                         {step === 2 ? (
                             <button
                                 onClick={() => setStep(1)}
-                                className="text-slate-500 hover:text-white px-4 py-2 text-sm font-bold uppercase tracking-wider transition-colors"
+                                className="text-slate-500 hover:text-white px-4 py-2 text-xs font-black uppercase tracking-[0.2em] transition-colors"
                             >
                                 Back
                             </button>
@@ -283,10 +283,10 @@ export default function ShopSetup({ onComplete }: ShopSetupProps) {
                             onClick={handleContinue}
                             disabled={step === 1 ? !isStep1Valid : !isStep2Valid}
                             className={cn(
-                                "flex items-center gap-3 px-8 py-3 rounded-xl font-bold uppercase tracking-widest text-xs transition-all",
+                                "flex items-center gap-3 px-8 py-4 rounded-2xl font-black uppercase tracking-[0.2em] text-[10px] transition-all",
                                 (step === 1 ? isStep1Valid : isStep2Valid)
-                                    ? "bg-indigo-600 text-white shadow-lg shadow-indigo-600/20 hover:bg-indigo-500 hover:scale-105"
-                                    : "bg-slate-800 text-slate-500 cursor-not-allowed"
+                                    ? "bg-indigo-600 text-white shadow-xl shadow-indigo-600/40 hover:bg-indigo-500 hover:scale-105 active:scale-95"
+                                    : "bg-slate-800 text-slate-500 cursor-not-allowed opacity-50"
                             )}
                         >
                             {step === 1 ? "Next Step" : "Finish Setup"}
@@ -297,12 +297,13 @@ export default function ShopSetup({ onComplete }: ShopSetupProps) {
             </motion.div>
 
             {/* Trust Badge Onboarding */}
-            <div className="bg-slate-900 border-t border-white/5 p-4 flex items-center justify-center gap-2 max-w-lg w-full mx-auto rounded-b-[2.5rem] relative z-20">
-                <ShieldCheck size={14} className="text-emerald-500" />
-                <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">
+            <div className="bg-slate-900 border border-white/10 p-4 flex items-center justify-center gap-3 max-w-lg w-full mx-auto rounded-3xl relative z-20 shadow-xl">
+                <ShieldCheck size={18} className="text-emerald-500 shrink-0" />
+                <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.15em] leading-tight">
                     Trusted by 5000+ local shop owners in India
                 </span>
             </div>
         </div>
+
     );
 }

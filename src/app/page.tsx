@@ -8,7 +8,7 @@ import AccessCodeModal from "@/components/subscription/AccessCodeModal";
 import BusinessTypeSelector from "@/components/onboarding/BusinessTypeSelector";
 import { motion, AnimatePresence } from "framer-motion";
 import { Loader2, Sparkles, Layout, BarChart3, User, Calendar, Crown, ShieldCheck, CheckCircle2, Phone, MessageCircle, Mail } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import RishabhChat from "@/components/chat/RishabhChat";
 import { db } from "@/lib/firebase";
 import { collection, addDoc } from "firebase/firestore";
@@ -43,7 +43,7 @@ export default function Home() {
   const [selectedBusinessType, setSelectedBusinessType] = useState<BusinessType | null>(null);
   const [hasInteracted, setHasInteracted] = useState(false);
 
-  const WOW_DEMO_DATA = {
+  const WOW_DEMO_DATA = useMemo(() => ({
     productName: "Premium Cotton Shirts",
     discount: "BUY 1 GET 1 FREE",
     extraInfo: "Best for Office & Parties",
@@ -51,7 +51,7 @@ export default function Home() {
     address: "Main Bazaar",
     contactNumber: shopDetails?.shopMobile || "9876543210",
     language: 'hinglish'
-  };
+  }), [shopDetails]);
 
   useEffect(() => {
     const history = JSON.parse(localStorage.getItem("om_history") || "[]");
@@ -116,7 +116,7 @@ export default function Home() {
     } catch (e) {
       console.warn("Restore failed", e);
     }
-  }, [shopDetails]);
+  }, []); // Run only once on mount
 
   useEffect(() => {
     if (generatedOffer) localStorage.setItem("om_last_offer", generatedOffer);

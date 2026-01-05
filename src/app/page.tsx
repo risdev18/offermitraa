@@ -723,7 +723,7 @@ export default function Home() {
         </footer>
       </div>
 
-      <BottomNav activeTab={activeTab} onTabChange={setActiveTab} />
+      <BottomNav activeTab={activeTab} onTabChange={setActiveTab} isPro={isPro} />
       <RishabhChat />
 
       {showBusinessSelector && (

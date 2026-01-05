@@ -260,28 +260,48 @@ export default function RevenueTracker({ isPro, language = 'hinglish' }: { isPro
     };
 
     return (
-        <div ref={containerRef} className="space-y-8">
+        <div ref={containerRef} className="space-y-12">
             {isShowingDummy && (
-                <div className="bg-primary/5 border border-primary/10 p-5 rounded-2xl flex flex-col md:flex-row items-center justify-between gap-4">
-                    <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
-                            <Sparkles size={20} />
+                <div className={cn(
+                    "p-6 rounded-[2rem] border-2 border-dashed flex flex-col md:flex-row items-center justify-between gap-6 transition-all",
+                    isPro
+                        ? "bg-indigo-500/5 border-indigo-500/20"
+                        : "bg-primary/5 border-primary/20"
+                )}>
+                    <div className="flex items-center gap-4">
+                        <div className={cn(
+                            "w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg",
+                            isPro ? "bg-indigo-600 text-white" : "bg-primary text-white"
+                        )}>
+                            <Sparkles size={24} />
                         </div>
                         <div>
-                            <p className="text-primary text-xs font-black uppercase tracking-widest">🔥 Aaj pehla offer bhejiye, yahin revenue dikhega</p>
-                            <p className="text-[10px] text-slate-400 font-bold uppercase mt-1">Start tracking your growth today</p>
+                            <p className={cn(
+                                "text-xs font-black uppercase tracking-[0.15em]",
+                                isPro ? "text-indigo-400" : "text-primary"
+                            )}>🔥 Aaj pehla offer bhejiye, yahin revenue dikhega</p>
+                            <p className="text-[10px] text-slate-400 font-bold uppercase mt-1 tracking-widest">Start tracking your business growth automatically</p>
                         </div>
                     </div>
-                    <button onClick={() => setIsAddModalOpen(true)} className="w-full md:w-auto bg-primary text-white text-[10px] font-black px-6 py-3 rounded-xl uppercase shadow-lg shadow-primary/20 active:scale-95 transition-all">Add Today's Sales</button>
+                    <button
+                        onClick={() => setIsAddModalOpen(true)}
+                        className={cn(
+                            "w-full md:w-auto px-8 py-4 rounded-2xl font-black uppercase tracking-widest text-xs shadow-2xl active:scale-95 transition-all text-white",
+                            isPro ? "bg-indigo-600 shadow-indigo-600/20" : "bg-primary shadow-primary/20"
+                        )}
+                    >
+                        Add Today's Sales
+                    </button>
                 </div>
             )}
 
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-8">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8">
                 <StatCard
                     label="Current Balance"
                     value={allTimeStats.currentBalance.toLocaleString()}
                     icon={Wallet}
-                    color="text-emerald-500"
+                    color={isPro ? "text-indigo-400" : "text-emerald-500"}
+                    isPro={isPro}
                     accent
                     onClick={() => setIsAddModalOpen(true)}
                 />
@@ -289,50 +309,62 @@ export default function RevenueTracker({ isPro, language = 'hinglish' }: { isPro
                     label="Today's Sales"
                     value={todayStats.totalRevenue.toLocaleString()}
                     icon={IndianRupee}
-                    color="text-accent"
+                    color="text-amber-500"
+                    isPro={isPro}
                     onClick={() => setIsAddModalOpen(true)}
                 />
                 <StatCard
                     label="Offers Sent"
                     value={allTimeStats.offersSent.toLocaleString()}
                     icon={Send}
-                    color="text-indigo-500"
+                    color={isPro ? "text-indigo-400" : "text-primary"}
+                    isPro={isPro}
                     noCurrency
                 />
                 <StatCard
-                    label="Customers Reached"
+                    label="Reached"
                     value={(allTimeStats.customersReached || (allTimeStats.offersSent * 12)).toLocaleString()}
                     icon={Users}
-                    color="text-primary"
+                    color={isPro ? "text-indigo-400" : "text-slate-400"}
+                    isPro={isPro}
                     noCurrency
                 />
             </div>
 
             {/* Revenue Trend Graph */}
-            <div className="bg-white rounded-3xl md:rounded-[2.5rem] border border-slate-200 shadow-premium p-6 md:p-10">
-                <div className="flex items-center justify-between mb-8">
+            <div className={cn(
+                "rounded-[2.5rem] border p-6 md:p-12 shadow-2xl transition-all",
+                isPro
+                    ? "bg-slate-900 border-white/5"
+                    : "bg-white border-slate-100"
+            )}>
+                <div className="flex items-center justify-between mb-10">
                     <div>
-                        <h3 className="text-sm font-black uppercase tracking-widest text-slate-900">Revenue Trend</h3>
-                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Last 7 Days Growth</p>
+                        <h3 className={cn(
+                            "text-sm font-black uppercase tracking-[0.2em]",
+                            isPro ? "text-white" : "text-slate-900"
+                        )}>Revenue Trend</h3>
+                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1.5 opacity-60">Last 7 Days Growth Analytics</p>
                     </div>
                     {growth && (
                         <div className={cn(
-                            "px-4 py-2 rounded-xl flex items-center gap-2",
-                            parseFloat(growth) >= 0 ? "bg-emerald-50 text-emerald-600" : "bg-rose-50 text-rose-600"
+                            "px-5 py-2.5 rounded-2xl flex items-center gap-2 border",
+                            parseFloat(growth) >= 0
+                                ? "bg-emerald-500/10 text-emerald-500 border-emerald-500/20"
+                                : "bg-rose-500/10 text-rose-500 border-rose-500/20"
                         )}>
-                            {parseFloat(growth) >= 0 ? <TrendingUp size={14} /> : <ArrowDownRight size={14} />}
-                            <span className="text-xs font-black">{growth}%</span>
+                            {parseFloat(growth) >= 0 ? <TrendingUp size={16} /> : <ArrowDownRight size={16} />}
+                            <span className="text-xs font-black tracking-widest">{growth}%</span>
                         </div>
                     )}
                 </div>
 
-                <div className="h-48 w-full relative group">
-                    {/* Simple SVG Line Chart */}
+                <div className="h-64 w-full relative">
                     <svg className="w-full h-full overflow-visible" viewBox="0 0 700 100" preserveAspectRatio="none">
                         <defs>
                             <linearGradient id="chartGradient" x1="0" y1="0" x2="0" y2="1">
-                                <stop offset="0%" stopColor="var(--primary)" stopOpacity="0.2" />
-                                <stop offset="100%" stopColor="var(--primary)" stopOpacity="0" />
+                                <stop offset="0%" stopColor={isPro ? "#6366f1" : "var(--primary)"} stopOpacity="0.3" />
+                                <stop offset="100%" stopColor={isPro ? "#6366f1" : "var(--primary)"} stopOpacity="0" />
                             </linearGradient>
                         </defs>
 
@@ -340,7 +372,7 @@ export default function RevenueTracker({ isPro, language = 'hinglish' }: { isPro
                         <motion.path
                             initial={{ pathLength: 0, opacity: 0 }}
                             animate={{ pathLength: 1, opacity: 1 }}
-                            transition={{ duration: 1.5, ease: "easeInOut" }}
+                            transition={{ duration: 2, ease: "easeOut" }}
                             d={`M 0 100 ${weekData.map((d, i) => `L ${i * 100} ${100 - (d.revenue / maxWeekRevenue) * 80}`).join(' ')} L 600 100 Z`}
                             fill="url(#chartGradient)"
                             stroke="none"
@@ -350,68 +382,89 @@ export default function RevenueTracker({ isPro, language = 'hinglish' }: { isPro
                         <motion.path
                             initial={{ pathLength: 0 }}
                             animate={{ pathLength: 1 }}
-                            transition={{ duration: 1.5, ease: "easeInOut" }}
+                            transition={{ duration: 2, ease: "easeInOut" }}
                             d={`M 0 ${100 - (weekData[0].revenue / maxWeekRevenue) * 80} ${weekData.slice(1).map((d, i) => `L ${(i + 1) * 100} ${100 - (d.revenue / maxWeekRevenue) * 80}`).join(' ')}`}
                             fill="none"
-                            stroke="var(--color-primary)"
-                            strokeWidth="4"
+                            stroke={isPro ? "#6366f1" : "var(--primary)"}
+                            strokeWidth="5"
                             strokeLinecap="round"
                             strokeLinejoin="round"
                         />
 
                         {/* Data Points */}
                         {weekData.map((d, i) => (
-                            <circle
+                            <motion.circle
                                 key={i}
+                                initial={{ scale: 0 }}
+                                animate={{ scale: 1 }}
+                                transition={{ delay: 1 + (i * 0.1) }}
                                 cx={i * 100}
                                 cy={100 - (d.revenue / maxWeekRevenue) * 80}
                                 r="6"
-                                fill="white"
-                                stroke="var(--color-primary)"
+                                fill={isPro ? "#020617" : "white"}
+                                stroke={isPro ? "#6366f1" : "var(--primary)"}
                                 strokeWidth="3"
-                                className="transition-all hover:r-8 cursor-pointer"
+                                className="cursor-pointer"
                             />
                         ))}
                     </svg>
 
-                    {/* Labels */}
-                    <div className="flex justify-between mt-4">
+                    <div className="flex justify-between mt-8">
                         {weekData.map((d, i) => (
                             <div key={i} className="text-center">
-                                <span className="text-[9px] font-black uppercase text-slate-400 tracking-tighter">{d.label}</span>
-                                <p className="text-[10px] font-black text-slate-900">₹{d.revenue >= 1000 ? (d.revenue / 1000).toFixed(1) + 'k' : d.revenue}</p>
+                                <span className="text-[9px] font-black uppercase text-slate-500 tracking-tighter">{d.label}</span>
+                                <p className={cn(
+                                    "text-[10px] font-black mt-1",
+                                    isPro ? "text-slate-300" : "text-slate-900"
+                                )}>₹{d.revenue >= 1000 ? (d.revenue / 1000).toFixed(1) + 'k' : d.revenue}</p>
                             </div>
                         ))}
                     </div>
                 </div>
             </div>
 
-            <div className="bg-white rounded-3xl md:rounded-[2.5rem] border border-slate-200 shadow-premium p-6 md:p-10 overflow-hidden">
-                <div className="flex items-center justify-between mb-10">
-                    <div className="flex bg-slate-100 p-1 rounded-xl md:rounded-2xl border border-slate-200">
+            <div className={cn(
+                "rounded-[2.5rem] border p-6 md:p-12 shadow-2xl overflow-hidden",
+                isPro ? "bg-slate-900 border-white/5" : "bg-white border-slate-100"
+            )}>
+                <div className="flex flex-col sm:flex-row items-center justify-between gap-6 mb-12">
+                    <div className={cn(
+                        "flex p-1.5 rounded-2xl border",
+                        isPro ? "bg-white/5 border-white/5" : "bg-slate-100 border-slate-200"
+                    )}>
                         {(["today", "week", "month"] as const).map((tab) => (
                             <button
                                 key={tab}
                                 onClick={() => setActiveTab(tab)}
                                 className={cn(
-                                    "px-3 md:px-6 py-2 md:py-3 rounded-lg md:rounded-xl text-[9px] md:text-[10px] font-black tracking-widest uppercase transition-all",
-                                    activeTab === tab ? "bg-white text-primary shadow-sm" : "text-slate-400 hover:text-slate-600"
+                                    "px-6 py-3 rounded-xl text-[10px] font-black tracking-[0.2em] uppercase transition-all",
+                                    activeTab === tab
+                                        ? isPro ? "bg-indigo-600 text-white shadow-glow" : "bg-white text-primary shadow-sm"
+                                        : "text-slate-500 hover:text-slate-400"
                                 )}
                             >
                                 {tab}
                             </button>
                         ))}
                     </div>
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-4 w-full sm:w-auto">
                         <button
                             onClick={handleReset}
-                            className="flex items-center gap-1 md:gap-2 px-3 md:px-6 py-3 md:py-4 rounded-xl md:rounded-2xl bg-rose-50 text-rose-600 hover:bg-rose-100 transition-all active:scale-95 text-[9px] md:text-[10px] font-black uppercase tracking-widest"
-                            title="Clear All Data"
+                            className={cn(
+                                "flex-1 sm:flex-none flex items-center justify-center gap-2 px-6 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all",
+                                isPro ? "bg-rose-500/10 text-rose-500 border border-rose-500/20" : "bg-rose-50 text-rose-600"
+                            )}
                         >
                             <RotateCcw size={16} />
-                            Reset All
+                            Reset
                         </button>
-                        <button onClick={() => setIsAddModalOpen(true)} className="flex items-center gap-1 md:gap-2 bg-primary text-white px-3 md:px-6 py-3 md:py-4 rounded-xl md:rounded-2xl font-black uppercase text-[10px] md:text-xs shadow-xl shadow-primary/20 hover:scale-105 active:scale-95 transition-all">
+                        <button
+                            onClick={() => setIsAddModalOpen(true)}
+                            className={cn(
+                                "flex-1 sm:flex-none flex items-center justify-center gap-2 px-8 py-4 rounded-2xl font-black uppercase tracking-widest text-xs shadow-2xl active:scale-95 transition-all text-white",
+                                isPro ? "bg-indigo-600 shadow-indigo-600/20" : "bg-primary shadow-primary/20"
+                            )}
+                        >
                             <Plus size={18} />
                             Add Sale
                         </button>
@@ -420,24 +473,37 @@ export default function RevenueTracker({ isPro, language = 'hinglish' }: { isPro
 
                 <AnimatePresence mode="wait">
                     {activeTab === "today" && (
-                        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-10">
+                        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-12">
                             {todayEntries.length > 0 ? (
                                 <>
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-10">
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
                                         <div className="space-y-6">
-                                            <h3 className="text-[10px] font-black uppercase tracking-widest text-slate-400">Today's Split</h3>
+                                            <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 flex items-center gap-2">
+                                                <div className="w-1.5 h-1.5 rounded-full bg-amber-500" /> Today's Split
+                                            </h3>
                                             <div className="space-y-4">
-                                                <SplitItem label="Total Cash" value={todayStats.cashSales} icon={Wallet} color="text-orange-500" />
-                                                <SplitItem label="Total Online" value={todayStats.onlineSales} icon={CreditCard} color="text-blue-500" />
+                                                <SplitItem label="Total Cash" value={todayStats.cashSales} icon={Wallet} color="text-orange-500" isPro={isPro} />
+                                                <SplitItem label="Total Online" value={todayStats.onlineSales} icon={CreditCard} color="text-indigo-400" isPro={isPro} />
                                             </div>
                                         </div>
                                         <div className="space-y-6">
-                                            <h3 className="text-[10px] font-black uppercase tracking-widest text-slate-400">Today's Expenses</h3>
+                                            <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 flex items-center gap-2">
+                                                <div className="w-1.5 h-1.5 rounded-full bg-rose-500" /> Today's Expenses
+                                            </h3>
                                             <div className="grid grid-cols-2 gap-4">
                                                 {Object.entries(todayStats.expenses).map(([key, val]) => (
-                                                    <div key={key} className="p-4 bg-slate-50 rounded-2xl border border-slate-100 flex justify-between items-center">
-                                                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-tight capitalize">{key}</span>
-                                                        <span className="font-extrabold text-sm">₹{val}</span>
+                                                    <div
+                                                        key={key}
+                                                        className={cn(
+                                                            "p-5 rounded-2xl border flex justify-between items-center transition-all",
+                                                            isPro ? "bg-white/5 border-white/5 hover:border-white/10" : "bg-slate-50 border-slate-100"
+                                                        )}
+                                                    >
+                                                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-tight capitalize">{key}</span>
+                                                        <span className={cn(
+                                                            "font-black text-sm",
+                                                            isPro ? "text-slate-100" : "text-slate-900"
+                                                        )}>₹{val}</span>
                                                     </div>
                                                 ))}
                                             </div>
@@ -445,69 +511,130 @@ export default function RevenueTracker({ isPro, language = 'hinglish' }: { isPro
                                     </div>
 
                                     {/* List today's entries */}
-                                    {todayEntries.length >= 1 && (
-                                        <div className="space-y-4 border-t border-slate-100 pt-10">
-                                            <div className="flex items-center justify-between mb-4">
-                                                <h1 className="text-xs font-black uppercase tracking-widest text-slate-400">Sales Records</h1>
-                                                <span className="text-[10px] font-bold text-primary bg-primary/5 px-3 py-1 rounded-full uppercase tracking-tighter">{todayEntries.length} Entries</span>
-                                            </div>
+                                    <div className="space-y-6 border-t border-white/5 pt-12">
+                                        <div className="flex items-center justify-between mb-2">
+                                            <h1 className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500">Sales Records</h1>
+                                            <span className={cn(
+                                                "px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest",
+                                                isPro ? "bg-indigo-500/10 text-indigo-400" : "bg-primary/5 text-primary"
+                                            )}>{todayEntries.length} Transactions</span>
+                                        </div>
+                                        <div className="space-y-4">
                                             {todayEntries.map((log) => (
-                                                <div key={log.id} className="p-6 bg-slate-50 rounded-[1.5rem] flex justify-between items-center border border-slate-100 hover:border-primary/20 transition-all">
-                                                    <div className="flex items-center gap-4">
-                                                        <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center shadow-sm">
-                                                            <Receipt size={16} className="text-slate-400" />
+                                                <div
+                                                    key={log.id}
+                                                    className={cn(
+                                                        "p-8 rounded-[2rem] flex flex-col sm:flex-row justify-between items-center gap-6 border transition-all group",
+                                                        isPro
+                                                            ? "bg-slate-800/40 border-white/5 hover:border-indigo-500/30"
+                                                            : "bg-slate-50 border-slate-100 hover:shadow-xl shadow-sm"
+                                                    )}
+                                                >
+                                                    <div className="flex items-center gap-6">
+                                                        <div className={cn(
+                                                            "w-14 h-14 rounded-2xl flex items-center justify-center shadow-lg transition-transform group-hover:scale-110",
+                                                            isPro ? "bg-slate-900 border border-white/10" : "bg-white border border-slate-200"
+                                                        )}>
+                                                            <Receipt size={24} className={isPro ? "text-indigo-400" : "text-slate-400"} />
                                                         </div>
                                                         <div>
-                                                            <p className="font-black text-lg text-slate-900 leading-none mb-1">₹{log.totalRevenue.toLocaleString()}</p>
-                                                            <div className="flex gap-2">
-                                                                <p className="text-[10px] text-emerald-500 font-bold uppercase tracking-widest">Profit: ₹{log.netProfit}</p>
-                                                                <p className="text-[10px] text-rose-500 font-bold uppercase tracking-widest">Exp: ₹{log.totalExpenses}</p>
+                                                            <p className={cn(
+                                                                "text-2xl font-black mb-1.5 tracking-tight",
+                                                                isPro ? "text-white" : "text-slate-900"
+                                                            )}>₹{log.totalRevenue.toLocaleString()}</p>
+                                                            <div className="flex gap-4">
+                                                                <p className="text-[10px] text-emerald-500 font-extrabold uppercase tracking-widest flex items-center gap-1">
+                                                                    <ArrowUpRight size={12} /> Profit: ₹{log.netProfit}
+                                                                </p>
+                                                                <p className="text-[10px] text-rose-500 font-extrabold uppercase tracking-widest flex items-center gap-1">
+                                                                    <ArrowDownRight size={12} /> Exp: ₹{log.totalExpenses}
+                                                                </p>
                                                             </div>
                                                         </div>
                                                     </div>
                                                     <button
                                                         onClick={() => deleteEntry(log.id, log.isDummy)}
-                                                        className="flex items-center gap-2 px-4 py-3 rounded-xl bg-rose-50 text-rose-500 hover:bg-rose-100 transition-all font-black uppercase text-[9px] tracking-widest"
+                                                        className={cn(
+                                                            "w-full sm:w-auto px-6 py-4 rounded-xl font-black uppercase text-[10px] tracking-[0.2em] transition-all",
+                                                            isPro
+                                                                ? "bg-rose-500/10 text-rose-500 border border-rose-500/20 hover:bg-rose-500 text-white"
+                                                                : "bg-white border border-rose-100 text-rose-500 hover:bg-rose-600 hover:text-white"
+                                                        )}
                                                     >
-                                                        <Trash2 size={16} />
-                                                        Delete
+                                                        Delete Record
                                                     </button>
                                                 </div>
                                             ))}
                                         </div>
-                                    )}
+                                    </div>
                                 </>
                             ) : (
-                                <div className="text-center py-20 bg-slate-50 rounded-[2.5rem] border-2 border-dashed border-slate-200">
-                                    <IndianRupee size={40} className="mx-auto text-slate-300 mb-4" />
-                                    <p className="text-slate-400 font-black uppercase tracking-[0.2em] text-xs">No entries for today yet</p>
-                                    <button onClick={() => setIsAddModalOpen(true)} className="mt-6 text-primary font-black uppercase text-[10px] tracking-widest border-b-2 border-primary pb-1">Record Your First Sale</button>
+                                <div className={cn(
+                                    "text-center py-24 rounded-[3rem] border-2 border-dashed flex flex-col items-center justify-center",
+                                    isPro ? "border-white/5 bg-white/5" : "border-slate-200 bg-slate-50"
+                                )}>
+                                    <div className={cn(
+                                        "w-20 h-20 rounded-[2rem] flex items-center justify-center mb-6",
+                                        isPro ? "bg-slate-900 text-white shadow-glow" : "bg-white text-slate-300 shadow-xl"
+                                    )}>
+                                        <IndianRupee size={40} />
+                                    </div>
+                                    <p className="text-slate-500 font-black uppercase tracking-[0.3em] text-xs">No entries for today yet</p>
+                                    <button
+                                        onClick={() => setIsAddModalOpen(true)}
+                                        className={cn(
+                                            "mt-8 text-[11px] font-black uppercase tracking-[0.2em] border-b-2 pb-1.5 transition-all",
+                                            isPro ? "text-indigo-400 border-indigo-400/30 hover:border-indigo-400" : "text-primary border-primary/20 hover:border-primary"
+                                        )}
+                                    >Record Your First Sale</button>
                                 </div>
                             )}
                         </motion.div>
                     )}
 
                     {activeTab === "week" && (
-                        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="pt-10">
-                            <div className="h-64 flex items-end justify-between gap-6 px-4">
+                        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="pt-12">
+                            <div className="h-80 flex items-end justify-between gap-4 md:gap-8 px-4">
                                 {weekData.map((d, i) => (
-                                    <div key={i} className="flex-1 flex flex-col items-center gap-2 md:gap-4 group">
-                                        <div className="w-full bg-slate-50 rounded-xl md:rounded-[1.5rem] h-full relative overflow-hidden flex flex-col justify-end border border-slate-100 shadow-inner">
+                                    <div key={i} className="flex-1 flex flex-col items-center gap-6 group">
+                                        <div className={cn(
+                                            "w-full rounded-[1.5rem] md:rounded-[2.5rem] h-full relative overflow-hidden flex flex-col justify-end border shadow-inner transition-all",
+                                            isPro ? "bg-slate-800/50 border-white/5" : "bg-slate-100 border-slate-200"
+                                        )}>
                                             <motion.div
                                                 initial={{ height: 0 }}
                                                 animate={{ height: `${(d.revenue / maxWeekRevenue) * 100}%` }}
-                                                transition={{ duration: 1, delay: i * 0.1 }}
-                                                className="w-full bg-gradient-to-t from-primary to-indigo-400 border-t-2 border-white shadow-[0_-5px_15px_rgba(var(--color-primary-rgb),0.3)]"
-                                            />
-                                            <div className="absolute inset-0 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-all bg-white/80 backdrop-blur-sm transform translate-y-2 group-hover:translate-y-0">
-                                                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Revenue</span>
-                                                <span className="font-black text-sm md:text-lg text-primary">₹{d.revenue}</span>
-                                                <span className="text-[7px] md:text-[8px] font-bold text-emerald-500 mt-1">PROFIT: ₹{d.profit}</span>
+                                                transition={{ duration: 1.5, delay: i * 0.1, ease: "circOut" }}
+                                                className={cn(
+                                                    "w-full border-t-4 border-white shadow-2xl relative",
+                                                    isPro ? "bg-gradient-to-t from-indigo-600 to-indigo-400" : "bg-gradient-to-t from-primary to-primary/60"
+                                                )}
+                                            >
+                                                <div className="absolute top-4 left-0 right-0 text-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                                    <span className="text-[8px] font-black text-white/80 uppercase">₹{d.revenue}</span>
+                                                </div>
+                                            </motion.div>
+                                            <div className={cn(
+                                                "absolute inset-0 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-all backdrop-blur-md transform translate-y-4 group-hover:translate-y-0",
+                                                isPro ? "bg-[#020617]/90" : "bg-white/95"
+                                            )}>
+                                                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Revenue</span>
+                                                <span className={cn(
+                                                    "font-black text-xl leading-none",
+                                                    isPro ? "text-white" : "text-primary"
+                                                )}>₹{d.revenue}</span>
+                                                <div className="mt-4 flex flex-col items-center gap-1">
+                                                    <span className="text-[8px] font-black text-emerald-500 uppercase">Profit: ₹{d.profit}</span>
+                                                    <div className="w-8 h-1 bg-emerald-500/20 rounded-full" />
+                                                </div>
                                             </div>
                                         </div>
-                                        <div className="text-center">
-                                            <span className="text-[10px] font-black uppercase text-slate-400 tracking-widest group-hover:text-primary transition-colors">{d.label}</span>
-                                            <p className="text-[8px] font-bold text-slate-300 group-hover:text-slate-500 transition-colors uppercase">{d.date.split('-').slice(1).reverse().join('/')}</p>
+                                        <div className="text-center space-y-1">
+                                            <span className={cn(
+                                                "text-[10px] font-black uppercase tracking-widest transition-colors",
+                                                isPro ? "text-slate-400 group-hover:text-indigo-400" : "text-slate-400 group-hover:text-primary"
+                                            )}>{d.label}</span>
+                                            <p className="text-[8px] font-bold text-slate-500 uppercase opacity-60">{d.date.split('-').slice(1).reverse().join(' / ')}</p>
                                         </div>
                                     </div>
                                 ))}
@@ -516,23 +643,47 @@ export default function RevenueTracker({ isPro, language = 'hinglish' }: { isPro
                     )}
 
                     {activeTab === "month" && (
-                        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-4">
-                            {displayLogs.slice(0, 7).map((log) => (
-                                <div key={log.id} className="p-6 bg-slate-50 rounded-2xl border border-slate-100 flex items-center justify-between group hover:border-primary/30 transition-all">
-                                    <div className="flex items-center gap-6">
-                                        <div className="text-center w-12">
-                                            <p className="text-[10px] font-black text-slate-400 uppercase">{new Date(log.date).toLocaleDateString("en-IN", { month: "short" })}</p>
-                                            <p className="text-xl font-extrabold">{new Date(log.date).getDate()}</p>
+                        <motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} className="space-y-4 pt-4">
+                            {displayLogs.slice(0, 10).map((log) => (
+                                <div
+                                    key={log.id}
+                                    className={cn(
+                                        "p-8 rounded-[2rem] border flex items-center justify-between group transition-all",
+                                        isPro
+                                            ? "bg-slate-800/30 border-white/5 hover:border-indigo-500/20"
+                                            : "bg-slate-50 border-slate-100 hover:shadow-lg"
+                                    )}
+                                >
+                                    <div className="flex items-center gap-10">
+                                        <div className={cn(
+                                            "text-center w-16 p-4 rounded-2xl border",
+                                            isPro ? "bg-slate-900 border-white/5" : "bg-white border-slate-100 shadow-sm"
+                                        )}>
+                                            <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-1">{new Date(log.date).toLocaleDateString("en-IN", { month: "short" })}</p>
+                                            <p className={cn(
+                                                "text-2xl font-black leading-none",
+                                                isPro ? "text-white" : "text-primary"
+                                            )}>{new Date(log.date).getDate()}</p>
                                         </div>
                                         <div>
-                                            <p className="font-black text-lg">₹{log.totalRevenue.toLocaleString()}</p>
-                                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2">
-                                                Net Profit: <span className={log.netProfit >= 0 ? "text-emerald-600" : "text-rose-600"}>₹{log.netProfit}</span>
+                                            <p className={cn(
+                                                "font-black text-2xl mb-1 tracking-tight",
+                                                isPro ? "text-white" : "text-slate-900"
+                                            )}>₹{log.totalRevenue.toLocaleString()}</p>
+                                            <p className="text-[10px] font-black uppercase tracking-[0.2em] flex items-center gap-3">
+                                                <span className="text-slate-500">Net Profit:</span>
+                                                <span className={log.netProfit >= 0 ? "text-emerald-500" : "text-rose-500"}>₹{log.netProfit.toLocaleString()}</span>
                                             </p>
                                         </div>
                                     </div>
-                                    <button onClick={() => deleteEntry(log.id, log.isDummy)} className="p-3 text-slate-300 hover:text-rose-500 transition-all">
-                                        <Trash2 size={18} />
+                                    <button
+                                        onClick={() => deleteEntry(log.id, log.isDummy)}
+                                        className={cn(
+                                            "p-4 rounded-2xl transition-all",
+                                            isPro ? "bg-rose-500/10 text-rose-500 hover:bg-rose-500 hover:text-white" : "text-slate-300 hover:text-rose-500 hover:bg-rose-50"
+                                        )}
+                                    >
+                                        <Trash2 size={20} />
                                     </button>
                                 </div>
                             ))}
@@ -544,39 +695,113 @@ export default function RevenueTracker({ isPro, language = 'hinglish' }: { isPro
             {/* Add Sales Modal */}
             <AnimatePresence>
                 {isAddModalOpen && (
-                    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-                        <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="bg-white w-full max-w-lg rounded-3xl md:rounded-[3rem] p-6 md:p-10 relative shadow-2xl overflow-y-auto max-h-[90vh]">
-                            <button onClick={() => setIsAddModalOpen(false)} className="absolute top-8 right-8 text-slate-300 hover:text-slate-600">
-                                <X size={24} />
+                    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-950/90 backdrop-blur-2xl">
+                        <motion.div
+                            initial={{ scale: 0.95, opacity: 0, y: 20 }}
+                            animate={{ scale: 1, opacity: 1, y: 0 }}
+                            exit={{ scale: 0.95, opacity: 0, y: 20 }}
+                            className={cn(
+                                "w-full max-w-lg rounded-[3rem] p-8 md:p-12 relative shadow-[0_50px_100px_rgba(0,0,0,0.5)] overflow-y-auto max-h-[90vh] border",
+                                isPro ? "bg-slate-900 border-white/10" : "bg-white border-slate-200"
+                            )}
+                        >
+                            <button
+                                onClick={() => setIsAddModalOpen(false)}
+                                className="absolute top-10 right-10 text-slate-500 hover:text-slate-300 transition-colors"
+                            >
+                                <X size={28} />
                             </button>
-                            <h2 className="text-2xl font-extrabold mb-8 italic">Add Daily Sales</h2>
-                            <form onSubmit={handleAdd} className="space-y-6">
+
+                            <div className="mb-10">
+                                <h2 className={cn(
+                                    "text-3xl font-black italic tracking-tight mb-2",
+                                    isPro ? "text-white" : "text-slate-900"
+                                )}>Add Daily Sales</h2>
+                                <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Track your earnings for today, {new Date().toLocaleDateString("en-IN", { day: 'numeric', month: 'long' })}</p>
+                            </div>
+
+                            <form onSubmit={handleAdd} className="space-y-10">
                                 <div className="grid grid-cols-2 gap-6">
                                     <div className="space-y-2">
-                                        <label className="text-[10px] font-black uppercase text-slate-400 ml-2">Cash Sales (₹)</label>
-                                        <input type="number" placeholder="4500" value={formData.cashSales} onChange={e => setFormData({ ...formData, cashSales: e.target.value })} className="w-full p-4 bg-slate-50 border-2 border-slate-100 rounded-2xl font-bold text-slate-900 placeholder:text-slate-400 outline-none focus:border-primary/50 transition-all" />
+                                        <label className="text-[10px] font-black uppercase text-slate-500 tracking-[0.2em] ml-2">Cash Sales (₹)</label>
+                                        <input
+                                            type="number"
+                                            placeholder="4500"
+                                            value={formData.cashSales}
+                                            onChange={e => setFormData({ ...formData, cashSales: e.target.value })}
+                                            className={cn(
+                                                "w-full p-5 rounded-2xl font-black text-lg outline-none border-2 transition-all",
+                                                isPro
+                                                    ? "bg-slate-950/50 border-white/5 text-white placeholder:text-slate-700 focus:border-indigo-500"
+                                                    : "bg-slate-50 border-slate-100 text-slate-900 placeholder:text-slate-300 focus:border-primary"
+                                            )}
+                                        />
                                     </div>
                                     <div className="space-y-2">
-                                        <label className="text-[10px] font-black uppercase text-slate-400 ml-2">UPI / Online (₹)</label>
-                                        <input type="number" placeholder="3200" value={formData.onlineSales} onChange={e => setFormData({ ...formData, onlineSales: e.target.value })} className="w-full p-4 bg-slate-50 border-2 border-slate-100 rounded-2xl font-bold text-slate-900 placeholder:text-slate-400 outline-none focus:border-primary/50 transition-all" />
+                                        <label className="text-[10px] font-black uppercase text-slate-500 tracking-[0.2em] ml-2">UPI / Online (₹)</label>
+                                        <input
+                                            type="number"
+                                            placeholder="3200"
+                                            value={formData.onlineSales}
+                                            onChange={e => setFormData({ ...formData, onlineSales: e.target.value })}
+                                            className={cn(
+                                                "w-full p-5 rounded-2xl font-black text-lg outline-none border-2 transition-all",
+                                                isPro
+                                                    ? "bg-slate-950/50 border-white/5 text-white placeholder:text-slate-700 focus:border-indigo-500"
+                                                    : "bg-slate-50 border-slate-100 text-slate-900 placeholder:text-slate-300 focus:border-primary"
+                                            )}
+                                        />
                                     </div>
                                 </div>
-                                <div className="space-y-4">
+
+                                <div className="space-y-6">
                                     <div className="flex items-center justify-between ml-2">
-                                        <h4 className="text-[10px] font-black uppercase text-slate-400">Expenses</h4>
-                                        <span className="text-[9px] text-slate-400 italic">Enter Total OR breakdown below</span>
+                                        <h4 className="text-[10px] font-black uppercase text-slate-500 tracking-[0.2em] flex items-center gap-2">
+                                            <div className="w-1.5 h-1.5 rounded-full bg-rose-500" /> Fixed Expenses
+                                        </h4>
                                     </div>
                                     <div className="space-y-2">
-                                        <input type="number" placeholder="Total Expenses (Optional)" value={formData.totalExpenses} onChange={e => setFormData({ ...formData, totalExpenses: e.target.value })} className="w-full p-4 bg-rose-50 border-2 border-rose-100 rounded-2xl font-bold text-rose-900 placeholder:text-rose-300 outline-none focus:border-rose-300 transition-all" />
+                                        <input
+                                            type="number"
+                                            placeholder="Total Expenses (Optional)"
+                                            value={formData.totalExpenses}
+                                            onChange={e => setFormData({ ...formData, totalExpenses: e.target.value })}
+                                            className={cn(
+                                                "w-full p-5 rounded-2xl font-black text-lg outline-none border-2 transition-all",
+                                                isPro
+                                                    ? "bg-rose-500/10 border-rose-500/10 text-rose-500 placeholder:text-rose-900/50 focus:border-rose-500"
+                                                    : "bg-rose-50 border-rose-100 text-rose-900 placeholder:text-rose-200 focus:border-rose-300"
+                                            )}
+                                        />
                                     </div>
                                     <div className="grid grid-cols-2 gap-4">
-                                        <input type="number" placeholder="Rent" value={formData.rent} onChange={e => setFormData({ ...formData, rent: e.target.value })} className="p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm font-bold text-slate-900 placeholder:text-slate-400" />
-                                        <input type="number" placeholder="Staff" value={formData.staff} onChange={e => setFormData({ ...formData, staff: e.target.value })} className="p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm font-bold text-slate-900 placeholder:text-slate-400" />
-                                        <input type="number" placeholder="Inventory" value={formData.stock} onChange={e => setFormData({ ...formData, stock: e.target.value })} className="p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm font-bold text-slate-900 placeholder:text-slate-400" />
-                                        <input type="number" placeholder="Other" value={formData.other} onChange={e => setFormData({ ...formData, other: e.target.value })} className="p-3 bg-slate-50 border border-slate-100 rounded-xl text-sm font-bold text-slate-900 placeholder:text-slate-400" />
+                                        {(['rent', 'staff', 'stock', 'other'] as const).map((field) => (
+                                            <input
+                                                key={field}
+                                                type="number"
+                                                placeholder={field.charAt(0).toUpperCase() + field.slice(1)}
+                                                value={formData[field]}
+                                                onChange={e => setFormData({ ...formData, [field]: e.target.value })}
+                                                className={cn(
+                                                    "p-4 rounded-xl text-xs font-black uppercase tracking-widest outline-none border transition-all",
+                                                    isPro
+                                                        ? "bg-white/5 border-white/10 text-white placeholder:text-slate-700 focus:border-indigo-500"
+                                                        : "bg-slate-50 border-slate-100 text-slate-900 placeholder:text-slate-400 focus:border-primary"
+                                                )}
+                                            />
+                                        ))}
                                     </div>
                                 </div>
-                                <button type="submit" className="w-full bg-primary text-white py-5 rounded-2xl font-black uppercase tracking-widest shadow-xl shadow-primary/20 active:scale-95 transition-all">Save Today's Log</button>
+
+                                <button
+                                    type="submit"
+                                    className={cn(
+                                        "w-full py-6 rounded-[2rem] font-black uppercase tracking-[0.3em] text-sm shadow-2xl active:scale-95 transition-all text-white mt-4",
+                                        isPro ? "bg-indigo-600 shadow-indigo-600/30" : "bg-primary shadow-primary/30"
+                                    )}
+                                >
+                                    💾 Save Today's Log
+                                </button>
                             </form>
                         </motion.div>
                     </div>
@@ -586,41 +811,64 @@ export default function RevenueTracker({ isPro, language = 'hinglish' }: { isPro
     );
 }
 
-function StatCard({ label, value, icon: Icon, color, accent, onClick, noCurrency }: any) {
+function StatCard({ label, value, icon: Icon, color, accent, onClick, noCurrency, isPro }: any) {
     return (
         <div
             onClick={onClick}
             className={cn(
-                "bg-white p-4 md:p-8 rounded-2xl md:rounded-[2.5rem] border border-slate-100 shadow-premium transition-all hover:scale-[1.02] cursor-pointer active:scale-95 flex flex-col justify-between",
-                accent && "ring-4 ring-primary/5 border-primary/10",
+                "p-5 md:p-10 rounded-[2rem] md:rounded-[3rem] border transition-all hover:scale-[1.02] cursor-pointer active:scale-95 flex flex-col justify-between shadow-2xl relative overflow-hidden group",
+                isPro
+                    ? "bg-slate-900 border-white/5"
+                    : "bg-white border-slate-100 shadow-slate-200/50",
+                accent && (isPro ? "ring-2 ring-indigo-500 ring-offset-4 ring-offset-[#020617] !border-indigo-500/20" : "ring-4 ring-primary/5 border-primary/20"),
                 !onClick && "cursor-default hover:scale-100"
             )}
         >
-            <div className="flex items-center gap-2 md:gap-4 mb-3 md:mb-5">
-                <div className={cn("p-2 md:p-3 rounded-xl md:rounded-2xl bg-slate-50", color)}>
-                    <Icon size={16} className="md:w-5 md:h-5" />
+            <div className="flex flex-col gap-4 relative z-10">
+                <div className={cn(
+                    "w-10 h-10 md:w-14 md:h-14 rounded-2xl flex items-center justify-center transition-transform group-hover:rotate-12",
+                    isPro ? "bg-slate-950 border border-white/10" : "bg-slate-50 border border-slate-100",
+                    color
+                )}>
+                    <Icon size={isPro ? 24 : 18} className="md:w-6 md:h-6" />
                 </div>
-                <span className="text-[8px] md:text-[9px] font-black uppercase tracking-[0.1em] md:tracking-[0.2em] text-slate-400">{label}</span>
+                <span className="text-[8px] md:text-[10px] font-black uppercase tracking-[0.25em] text-slate-500">{label}</span>
             </div>
-            <p className="text-xl md:text-3xl font-black text-slate-900 tracking-tight truncate">
-                {!noCurrency && <span className="text-accent mr-0.5 md:mr-1">₹</span>}
+            <p className={cn(
+                "text-2xl md:text-4xl font-black tracking-tighter truncate mt-6 relative z-10",
+                isPro ? "text-white" : "text-slate-900"
+            )}>
+                {!noCurrency && <span className="text-amber-500 mr-0.5 md:mr-1 text-sm md:text-base align-top mt-2 inline-block">₹</span>}
                 {value}
             </p>
+            <div className={cn(
+                "absolute -right-4 -bottom-4 w-24 h-24 rounded-full opacity-5 group-hover:scale-150 transition-transform",
+                isPro ? "bg-indigo-500" : "bg-primary"
+            )} />
         </div>
     );
 }
 
-function SplitItem({ label, value, icon: Icon, color }: any) {
+function SplitItem({ label, value, icon: Icon, color, isPro }: any) {
     return (
-        <div className="flex items-center justify-between p-4 md:p-6 bg-slate-50 rounded-xl md:rounded-2xl border border-slate-100">
+        <div className={cn(
+            "flex items-center justify-between p-6 rounded-2xl border transition-all",
+            isPro ? "bg-white/5 border-white/5" : "bg-slate-50 border-slate-100"
+        )}>
             <div className="flex items-center gap-4">
-                <Icon size={18} className={color} />
-                <span className="text-xs font-black text-slate-400 uppercase tracking-widest">{label}</span>
+                <div className={cn("p-2 rounded-lg", isPro ? "bg-slate-950" : "bg-white shadow-sm")}>
+                    <Icon size={18} className={color} />
+                </div>
+                <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">{label}</span>
             </div>
-            <span className="font-extrabold text-base md:text-xl text-slate-900">
-                <span className="text-accent text-sm mr-1">₹</span>
+            <span className={cn(
+                "font-black text-lg md:text-2xl",
+                isPro ? "text-slate-100" : "text-slate-900"
+            )}>
+                <span className="text-amber-500 text-xs mr-1 align-top mt-1 inline-block">₹</span>
                 {value.toLocaleString()}
             </span>
         </div>
     );
 }
+

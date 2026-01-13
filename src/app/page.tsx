@@ -7,7 +7,7 @@ import VideoGenerator from "@/components/preview/VideoGenerator";
 import AccessCodeModal from "@/components/subscription/AccessCodeModal";
 import BusinessTypeSelector from "@/components/onboarding/BusinessTypeSelector";
 import { motion, AnimatePresence } from "framer-motion";
-import { Loader2, Sparkles, Layout, BarChart3, User, Calendar, Crown, ShieldCheck, CheckCircle2, Phone, MessageCircle, Mail } from "lucide-react";
+import { Loader2, Sparkles, Layout, BarChart3, User, Calendar, Crown, ShieldCheck, CheckCircle2, Phone, MessageCircle, Mail, Lock } from "lucide-react";
 import { useState, useEffect, useMemo } from "react";
 import RishabhChat from "@/components/chat/RishabhChat";
 import { db } from "@/lib/firebase";
@@ -36,6 +36,7 @@ export default function Home() {
   const [historyCount, setHistoryCount] = useState(0);
   const [language, setLanguage] = useState<Language>('hinglish');
   const [activeTab, setActiveTab] = useState('home');
+  const [recentHistory, setRecentHistory] = useState<any[]>([]);
 
   // Shop Setup persistence
   const [showShopSetup, setShowShopSetup] = useState(false);
@@ -56,6 +57,7 @@ export default function Home() {
   useEffect(() => {
     const history = JSON.parse(localStorage.getItem("om_history") || "[]");
     setHistoryCount(history.length);
+    setRecentHistory(history.slice(0, 5));
   }, []);
 
   const handleShareTrack = () => {
@@ -171,6 +173,7 @@ export default function Home() {
           const updatedHistory = [newItem, ...history].slice(0, 50);
           localStorage.setItem("om_history", JSON.stringify(updatedHistory));
           setHistoryCount(updatedHistory.length);
+          setRecentHistory(updatedHistory.slice(0, 5));
         } catch (e) {
           console.warn("Local history save failed", e);
         }
@@ -336,7 +339,7 @@ export default function Home() {
                   ))}
                 </div>
                 <span className="text-[10px] md:text-xs font-black text-slate-400 uppercase tracking-widest">
-                  Joined by <span className={isPro ? "text-indigo-400" : "text-primary"}>500+</span> shop owners today
+                  Join other <span className={isPro ? "text-indigo-400" : "text-primary"}>smart</span> shop owners today
                 </span>
               </div>
             </motion.div>
@@ -381,7 +384,12 @@ export default function Home() {
                     "text-2xl md:text-4xl font-black mb-2 tracking-tight",
                     isPro ? "text-white" : "text-slate-900"
                   )}>Your Marketing Kit</h3>
-                  <p className="text-xs md:text-sm font-bold text-slate-400 uppercase tracking-[0.2em]">Ready to blast on WhatsApp</p>
+                  <div className="flex flex-col gap-1">
+                    <p className="text-xs md:text-sm font-bold text-slate-400 uppercase tracking-[0.2em]">Ready to blast on WhatsApp</p>
+                    <p className="text-[10px] md:text-xs font-bold text-emerald-500 uppercase tracking-widest animate-pulse">
+                      💡 Tip: Post one offer daily to increase sales
+                    </p>
+                  </div>
                 </div>
                 <div className={cn(
                   "flex p-1.5 rounded-2xl border self-center md:self-auto",
@@ -398,17 +406,30 @@ export default function Home() {
                   >
                     Graphics
                   </button>
-                  <button
-                    onClick={() => setOutputMode('video')}
-                    className={cn(
-                      "px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all",
-                      outputMode === 'video'
-                        ? isPro ? "bg-indigo-600 text-white shadow-lg" : "bg-white text-primary shadow-sm"
-                        : "text-slate-500 hover:text-slate-400"
+                  <div className="relative group">
+                    <button
+                      onClick={() => {
+                        if (!isPro) {
+                          setShowAccessModal(true);
+                        } else {
+                          setOutputMode('video');
+                        }
+                      }}
+                      className={cn(
+                        "px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2",
+                        outputMode === 'video'
+                          ? isPro ? "bg-indigo-600 text-white shadow-lg" : "bg-white text-primary shadow-sm"
+                          : "text-slate-500 hover:text-slate-400"
+                      )}
+                    >
+                      Video Ad {isPro ? "" : <Lock size={10} />}
+                    </button>
+                    {!isPro && (
+                      <div className="absolute -top-3 right-0 bg-indigo-600 text-white px-2 py-0.5 rounded text-[8px] font-bold uppercase tracking-widest hidden group-hover:block whitespace-nowrap z-10">
+                        Pro Only
+                      </div>
                     )}
-                  >
-                    Video Ad
-                  </button>
+                  </div>
                 </div>
               </div>
 
@@ -596,7 +617,7 @@ export default function Home() {
                     Unlock Pro - Only ₹99
                   </button>
                 )}
-                <p className="mt-8 text-[10px] font-black uppercase tracking-[0.3em] opacity-40">Trusted by over 5000+ local businesses</p>
+                <p className="mt-8 text-[10px] font-black uppercase tracking-[0.3em] opacity-40">Join the fast growing community</p>
               </div>
               {/* Animated Accents */}
               <div className="absolute top-0 left-0 w-full h-full pointer-events-none">
@@ -606,6 +627,107 @@ export default function Home() {
             </div>
           </section>
         )}
+
+        {/* My Posters / History Section */}
+        {recentHistory.length > 0 && (
+          <section className="scroll-mt-24 mb-20 md:mb-32">
+            <div className="flex items-end justify-between mb-8 md:mb-12">
+              <div>
+                <h2 className={cn(
+                  "text-2xl md:text-4xl font-black mb-2 tracking-tight",
+                  isPro ? "text-white" : "text-slate-900"
+                )}>My Posters History</h2>
+                <p className={cn(
+                  "text-xs font-bold uppercase tracking-[0.2em]",
+                  isPro ? "text-slate-500" : "text-slate-400"
+                )}>Your recent creations</p>
+              </div>
+              <Link href="/history" className={cn(
+                "text-[10px] font-black uppercase tracking-widest flex items-center gap-2 hover:gap-3 transition-all",
+                isPro ? "text-indigo-400" : "text-primary"
+              )}>
+                View All <CheckCircle2 size={12} />
+              </Link>
+            </div>
+
+            <div className="flex overflow-x-auto gap-4 md:gap-6 pb-6 scrollbar-hide snap-x">
+              {recentHistory.map((item: any, i) => (
+                <div key={i} className={cn(
+                  "min-w-[200px] md:min-w-[240px] p-4 rounded-[2rem] border snap-center cursor-pointer hover:scale-95 transition-transform",
+                  isPro ? "bg-white/5 border-white/10" : "bg-white border-slate-100 shadow-xl"
+                )} onClick={() => {
+                  setGeneratedOffer(item.offerText);
+                  setLastInputData(item.inputData);
+                  setOfferOptions([item.offerText]);
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }}>
+                  <div className={cn(
+                    "aspect-[4/5] rounded-2xl mb-4 flex items-center justify-center text-center p-4 border border-dashed relative overflow-hidden",
+                    isPro ? "bg-black/20 border-white/10" : "bg-slate-50 border-slate-200"
+                  )}>
+                    <div className="z-10">
+                      <div className="text-[8px] font-black uppercase opacity-50 mb-1">{item.inputData?.shopName}</div>
+                      <div className="text-lg font-black text-amber-500 leading-none mb-1">{item.inputData?.discount}</div>
+                      <div className="text-[8px] font-bold opacity-70 line-clamp-2">{item.inputData?.productName}</div>
+                    </div>
+                    <div className="absolute inset-0 bg-gradient-to-br from-transparent to-black/5" />
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">{new Date(item.timestamp).toLocaleDateString()}</span>
+                    <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center text-primary"><Sparkles size={10} /></div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* Testimonials Social Proof */}
+        <section className="py-12 md:py-20 relative overflow-hidden">
+          <div className="text-center mb-16">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-500/10 text-emerald-600 text-[9px] font-black uppercase tracking-widest mb-4 border border-emerald-500/20">
+              <ShieldCheck size={12} /> Verified App for Business
+            </div>
+            <h2 className={cn(
+              "text-3xl md:text-5xl font-black tracking-tight mb-4",
+              isPro ? "text-white" : "text-slate-900"
+            )}>Shop Owners Love Us</h2>
+            <p className="text-sm text-slate-400 font-medium">Join the fastest growing community of smart shopkeepers.</p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
+            {[
+              { name: "Rajesh Kumar", shop: "Rajesh Kirana Store", text: "My sales doubled in just 1 week! The WhatsApp messages are magic.", loc: "Delhi" },
+              { name: "Amit Singh", shop: "Mobile World", text: "Best app for festivals. I made 50 posters for Diwali in 10 mins.", loc: "Mumbai" },
+              { name: "Priya Sharma", shop: "Priya Boutique", text: "Very easy to use. My customers love the professional designs.", loc: "Jaipur" }
+            ].map((t, i) => (
+              <motion.div
+                key={i}
+                whileHover={{ y: -5 }}
+                className={cn(
+                  "p-8 rounded-[2rem] border relative",
+                  isPro ? "bg-white/5 border-white/5" : "bg-white border-slate-100 shadow-xl"
+                )}>
+                <div className="flex gap-1 mb-4">
+                  {[1, 2, 3, 4, 5].map(s => <Sparkles key={s} size={14} className="text-amber-400 fill-amber-400" />)}
+                </div>
+                <p className={cn(
+                  "text-base font-bold mb-6 italic leading-relaxed",
+                  isPro ? "text-slate-300" : "text-slate-600"
+                )}>"{t.text}"</p>
+                <div className="flex items-center gap-4">
+                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center text-white font-black text-xs">
+                    {t.name[0]}
+                  </div>
+                  <div>
+                    <h4 className={cn("font-black text-sm", isPro ? "text-white" : "text-slate-900")}>{t.name}</h4>
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{t.shop}, {t.loc}</p>
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </section>
 
         {/* Support Hub */}
         <section className="py-20 md:py-32">

@@ -45,13 +45,35 @@ export default function AccessCodeModal({ isOpen, onClose }: AccessCodeModalProp
                     <div className="bg-white/20 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 backdrop-blur-sm">
                         <Lock className="w-8 h-8" />
                     </div>
-                    <h2 className="text-2xl font-bold relative z-10">Pro Access Locked</h2>
-                    <p className="text-indigo-100 text-sm mt-1 relative z-10">Get your code to unlock unlimited offers</p>
+                    <h2 className="text-2xl font-bold relative z-10">Unlock OfferMitra Pro 🚀</h2>
+                    <p className="text-indigo-100 text-sm mt-1 relative z-10">Scale your business with premium tools</p>
                 </div>
 
                 {/* Trial Message */}
                 <div className="bg-orange-50 p-3 text-center text-orange-700 text-xs font-semibold border-b border-orange-100">
-                    Your 3 free daily uses are over!
+                    Your 3 free daily uses are over! Upgrade to continue.
+                </div>
+
+                {/* Benefits Included */}
+                <div className="bg-indigo-50/50 p-5 border-b border-indigo-100">
+                    <h3 className="text-[10px] font-black uppercase tracking-widest text-indigo-400 mb-3 flex items-center gap-2">
+                        <Check className="w-3 h-3" /> What You Get in PRO
+                    </h3>
+                    <div className="grid grid-cols-2 gap-y-2 gap-x-1">
+                        {[
+                            "Unlimited Posters",
+                            "No Watermark",
+                            "WhatsApp Copy",
+                            "Festival Offers",
+                            "Priority Support",
+                            "Revenue Tracker"
+                        ].map((benefit, i) => (
+                            <div key={i} className="flex items-center gap-1.5 text-[11px] font-bold text-slate-600">
+                                <Check className="w-3 h-3 text-green-500 shrink-0" />
+                                {benefit}
+                            </div>
+                        ))}
+                    </div>
                 </div>
 
                 <div className="p-6 space-y-6">
@@ -140,10 +162,15 @@ export default function AccessCodeModal({ isOpen, onClose }: AccessCodeModalProp
 
                 <button
                     onClick={onClose}
-                    className="w-full py-4 text-xs text-gray-400 hover:text-gray-600 font-medium bg-slate-50 border-t border-slate-100"
+                    className="w-full py-4 text-xs text-slate-400 hover:text-slate-600 font-bold bg-slate-50 border-t border-slate-100 uppercase tracking-widest"
                 >
                     Maybe Later
                 </button>
+                <div className="absolute top-2 right-2 z-20">
+                    <div className="bg-emerald-500/10 text-emerald-600 px-2 py-0.5 rounded text-[8px] font-black uppercase tracking-widest border border-emerald-500/20">
+                        Early Access
+                    </div>
+                </div>
             </div>
         </div>
     );

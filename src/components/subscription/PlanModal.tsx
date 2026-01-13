@@ -128,7 +128,7 @@ export default function PlanModal({ isOpen, onClose }: PlanModalProps) {
                     <div className="absolute top-0 left-0 w-full h-full bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
                     <h2 className="text-2xl font-bold relative z-10">Upgrade to Pro 🚀</h2>
                     <p className="text-indigo-100 text-sm mt-1 relative z-10 flex items-center justify-center gap-1.5">
-                        <ShieldCheck size={14} /> Trusted by 5000+ Shop Owners
+                        <ShieldCheck size={14} /> Official Business Tool
                     </p>
                 </div>
 

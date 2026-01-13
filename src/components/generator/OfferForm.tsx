@@ -47,6 +47,43 @@ export default function OfferForm({ onGenerate, isGenerating, isPro, defaultValu
         }
     }, [shopDetails, setValue]);
 
+    // Festival Magic Logic 🪄
+    const festivalValue = watch("festival");
+    const [magicActive, setMagicActive] = useState(false);
+
+    useEffect(() => {
+        const MAGIC_SUGGESTIONS: Record<string, string> = {
+            "diwali": "✨ Shubh Deepawali! Big Festival Sale 🪔",
+            "holi": "🎨 Happy Holi! Colors of Joy Sale 🌈",
+            "eid": "🌙 Eid Mubarak! Special Festive Offer ✨",
+            "christmas": "🎄 Merry Christmas! Santa's Special Deal 🎅",
+            "navratri": "💃 Happy Navratri! Dandiya Night Special 🕉️",
+            "new year": "🎉 Happy New Year! New Beginnings Sale 🎆",
+            "rakhi": "🎁 Happy Rakshabandhan! Sibling Special 🧵",
+            "independence": "🇮🇳 Jai Hind! Freedom Sale 🇮🇳",
+            "republic": "🇮🇳 Republic Day Special Offer 🇮🇳",
+            "wedding": "💍 Wedding Season Special! Shadi Shopping 👰",
+            "summer": "☀️ Beat the Heat! Summer Cool Offer 🍦",
+            "monsoon": "☔ Monsoon Madness! Rainy Day Sale 🌧️",
+            "winter": "❄️ Winter Warmth! Cozy Deals 🧣"
+        };
+
+        if (festivalValue) {
+            const lowerOccasion = festivalValue.toLowerCase();
+            const matchedKey = Object.keys(MAGIC_SUGGESTIONS).find(k => lowerOccasion.includes(k));
+
+            if (matchedKey) {
+                // Only auto-fill if extraInfo is empty to avoid overwriting user input
+                const currentExtra = watch("extraInfo");
+                if (!currentExtra || currentExtra === MAGIC_SUGGESTIONS[matchedKey]) {
+                    setValue("extraInfo", MAGIC_SUGGESTIONS[matchedKey]);
+                    setMagicActive(true);
+                    setTimeout(() => setMagicActive(false), 2000);
+                }
+            }
+        }
+    }, [festivalValue, setValue, watch]);
+
     const businessConfig = businessType ? getBusinessConfig(businessType as any) : getBusinessConfig('grocery');
     const template = businessConfig ? getTemplateForBusiness(businessConfig.defaultTemplate) : null;
     const shopType = watch("shopType") || "kirana";
@@ -202,6 +239,11 @@ export default function OfferForm({ onGenerate, isGenerating, isPro, defaultValu
                             {...register("festival")}
                             className={inputClasses}
                         />
+                        {magicActive && (
+                            <div className="absolute top-0 right-0 -mt-2 -mr-2 bg-gradient-to-r from-amber-400 to-orange-500 text-white text-[9px] font-black px-2 py-1 rounded-full shadow-lg animate-bounce">
+                                ✨ Magic Applied!
+                            </div>
+                        )}
                     </div>
                 </div>
 

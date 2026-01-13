@@ -1,9 +1,10 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import { toPng } from "html-to-image";
-import { Download, Share2, Loader2, Image as ImageIcon, MessageCircle } from "lucide-react";
+import { Download, Share2, Loader2, Image as ImageIcon, MessageCircle, RefreshCw, Sparkles, Palette } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { DesignConfig, getCategoryFromShopType, getRandomStyle } from "@/lib/design-system";
 
 interface BannerGeneratorProps {
     text: string;
@@ -20,32 +21,42 @@ interface BannerGeneratorProps {
     shopImage?: string;
 }
 
-const PREMIUM_BACKGROUNDS = [
-    "bg-slate-900 border border-amber-500/30",         // Premium Black
-    "bg-gradient-to-br from-indigo-950 via-primary to-indigo-900", // Deep Blue
-    "bg-gradient-to-br from-slate-900 via-purple-950 to-slate-900", // Royal Purple
-    "bg-gradient-to-br from-gray-900 via-slate-800 to-gray-900", // Sleek
-    "bg-gradient-to-br from-yellow-100 to-orange-200 border-none", // Festival (Brighter)
-    "bg-gradient-to-br from-blue-100 to-indigo-200 border-none",   // Professional (Brighter)
-];
-
 export default function BannerGenerator({
     text, shopType, shopName, isPro, language, address, contactNumber,
     productName, shopDescription, onShare, productImage, shopImage
 }: BannerGeneratorProps) {
     const bannerRef = useRef<HTMLDivElement>(null);
-    const [bgIndex, setBgIndex] = useState(0);
     const [isCapturing, setIsCapturing] = useState(false);
 
-    const activeBackgrounds = PREMIUM_BACKGROUNDS;
-    const finalBgIndex = Math.min(bgIndex, activeBackgrounds.length - 1);
-    const isDarkBg = finalBgIndex < 4; // First 4 are dark premium themes
+    // Design System State
+    const [currentStyle, setCurrentStyle] = useState<DesignConfig | null>(null);
+    const [category, setCategory] = useState<string>('general');
+
+    // Initialize or Update Style when relevant props change
+    useEffect(() => {
+        const cat = getCategoryFromShopType(shopType || 'general', productName);
+        setCategory(cat);
+        // Only set initial style if not set (to avoid reset on unrelated rerenders) or if text changed radically
+        if (!currentStyle) {
+            setCurrentStyle(getRandomStyle(cat));
+        }
+    }, [shopType, productName, text]);
+
+    // Regeneration Handler
+    const handleRegenerate = () => {
+        if (!currentStyle) return;
+        const newStyle = getRandomStyle(category as any, currentStyle.id);
+        setCurrentStyle(newStyle);
+    };
 
     const handleDownload = async () => {
         if (!bannerRef.current) return;
         setIsCapturing(true);
 
         try {
+            // Force fonts to load before capture (hacky but often needed)
+            await document.fonts.ready;
+
             const dataUrl = await toPng(bannerRef.current, {
                 quality: 0.95,
                 pixelRatio: 2,
@@ -53,13 +64,13 @@ export default function BannerGenerator({
             });
 
             const link = document.createElement("a");
-            link.download = `offer-mitra-poster-${Date.now()}.png`;
+            link.download = `offer-mitra-${shopName?.replace(/\s+/g, '-').toLowerCase()}-${Date.now()}.png`;
             link.href = dataUrl;
             link.click();
             onShare?.();
         } catch (err) {
             console.error("Capture failed", err);
-            alert("Download failed. Please try again or take a screenshot.");
+            alert("Download failed. Please try again.");
         } finally {
             setIsCapturing(false);
         }
@@ -70,6 +81,7 @@ export default function BannerGenerator({
         setIsCapturing(true);
 
         try {
+            await document.fonts.ready;
             const dataUrl = await toPng(bannerRef.current, {
                 quality: 0.95,
                 pixelRatio: 2,
@@ -83,15 +95,16 @@ export default function BannerGenerator({
                 await navigator.share({
                     files: [file],
                     title: 'My Business Offer',
-                    text: 'Check out this offer from ' + (shopName || 'my shop!'),
+                    text: `🔥 *${shopName || "My Shop"} Special Offer* 🔥\n\n${text}\n\n📍 *Visit us:* ${address || "At Store"}\n📞 *Call:* ${contactNumber || ""}\n\n⏳ *Limited Time Offer - Hurry Up!*`,
                 });
                 onShare?.();
             } else {
                 const link = document.createElement("a");
-                link.download = `offer-mitra-poster-${Date.now()}.png`;
+                link.download = `offer-mitra-${Date.now()}.png`;
                 link.href = dataUrl;
                 link.click();
-                alert("Poster saved to gallery! You can now share it manually on WhatsApp.");
+                alert("Poster saved! Sending to WhatsApp...");
+                window.open(`https://wa.me/?text=${encodeURIComponent(`🔥 *${shopName || "My Shop"} Special Offer* 🔥\n\n${text}\n\n📍 *Visit:* ${address || "Store"}`)}`, '_blank');
                 onShare?.();
             }
         } catch (err) {
@@ -102,194 +115,260 @@ export default function BannerGenerator({
         }
     };
 
+    if (!currentStyle) return <div className="p-10 flex justify-center"><Loader2 className="animate-spin text-indigo-500" /></div>;
+
+    // Parse Text Content for Layouts
+    const lines = text.split('\n').map(l => l.trim().replace(/\*/g, "")).filter(l => l.length > 2);
+    const headline = lines[0] || "Special Offer";
+    let description = lines[1] || "";
+    if (description.toUpperCase().includes("ATTENTION") || description.toUpperCase().includes("ANNOUNCEMENT")) {
+        description = lines[2] || description;
+    }
+    const productDisplay = productName || description.substring(0, 20);
+    // Extract Offer
+    let mainOffer = text.match(/(\d+(?:%|₹)\s*OFF)|(Flat\s*\d+(?:%|₹))|(Buy\s*\d+\s*Get\s*\d+)|(₹\s*\d+)/gi)?.[0] || "";
+    if (!mainOffer) {
+        const genericMatch = text.match(/OFF|Sale|Discount|Loot|Dhamaka/i)?.[0];
+        if (genericMatch) mainOffer = "SUPER SALE";
+    }
+
+    // --- RENDER LAYOUTS ---
+
+    // Common Elements
+    const ShopBranding = () => (
+        <div className={cn("flex flex-col items-center gap-2", currentStyle.layout === 'modern_split' ? "items-start" : "")}>
+            {shopImage && (
+                <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-white/20 shadow-lg">
+                    <img src={shopImage} alt="Shop" className="w-full h-full object-cover" />
+                </div>
+            )}
+            <div className={cn(
+                "px-4 py-1 rounded-full text-[10px] font-black uppercase tracking-[0.2em] border shadow-sm",
+                currentStyle.theme === 'premium_dark' ? "bg-white/10 text-white border-white/10" : "bg-white/80 text-slate-800 border-slate-200"
+            )}>
+                {shopName || "My Shop"}
+            </div>
+        </div>
+    );
+
+    const ProductImage = () => productImage ? (
+        <div className={cn("overflow-hidden relative", currentStyle.imageStyle)}>
+            <img src={productImage} alt="Product" className="w-full h-full object-cover" />
+        </div>
+    ) : null;
+
+    const FooterDetails = () => (
+        <div className={cn(
+            "p-4 rounded-xl backdrop-blur-md border w-full text-center relative z-10",
+            currentStyle.theme === 'premium_dark' ? "bg-black/40 border-white/10 text-slate-300" : "bg-white/60 border-white text-slate-600"
+        )}>
+            <div className="flex flex-col gap-1 text-[10px] md:text-xs font-bold uppercase tracking-wide">
+                {address && <span>📍 {address}</span>}
+                {contactNumber && <span className={cn("text-sm md:text-base font-black", currentStyle.theme === 'premium_dark' ? "text-white" : "text-black")}>📞 {contactNumber}</span>}
+            </div>
+        </div>
+    );
+
     return (
-        <div className="space-y-8 w-full">
-            {/* Background Selector */}
-            <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide px-1">
-                {activeBackgrounds.map((bg, i) => (
-                    <button
-                        key={i}
-                        onClick={() => setBgIndex(i)}
-                        className={cn(
-                            "w-12 h-12 rounded-xl transition-all shadow-md transform active:scale-95 flex-shrink-0 border-2",
-                            bg,
-                            bgIndex === i ? "ring-4 ring-primary/20 scale-110 border-white" : "grayscale-[50%] opacity-60 border-transparent"
-                        )}
-                    />
-                ))}
+        <div className="space-y-6 w-full max-w-[500px] mx-auto">
+            {/* Generator Controls */}
+            <div className="flex items-center justify-between bg-white p-3 rounded-2xl shadow-sm border border-slate-100">
+                <div className="flex items-center gap-2">
+                    <div className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600">
+                        <Palette size={14} />
+                    </div>
+                    <div>
+                        <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Style</div>
+                        <div className="text-xs font-black text-slate-800">{currentStyle.name}</div>
+                    </div>
+                </div>
+                <button
+                    onClick={handleRegenerate}
+                    className="flex items-center gap-2 px-4 py-2 bg-slate-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-indigo-600 transition-colors shadow-lg active:scale-95"
+                >
+                    <RefreshCw size={12} /> Regenerate
+                </button>
             </div>
 
-            {/* Canvas Area */}
-            <div className="w-full flex justify-center py-2">
+            {/* Canvas */}
+            <div className="w-full flex justify-center transform transition-all duration-500">
                 <div
                     ref={bannerRef}
                     className={cn(
-                        "relative p-6 md:p-14 rounded-3xl md:rounded-[3rem] shadow-[0_30px_60px_-15px_rgba(0,0,0,0.3)] min-h-[450px] md:min-h-[650px] w-full max-w-[500px] flex flex-col items-center text-center overflow-hidden transition-all duration-700",
-                        activeBackgrounds[finalBgIndex]
+                        "relative w-full aspect-[4/5] overflow-hidden flex flex-col shadow-2xl transition-all duration-700",
+                        currentStyle.bgClasses,
+                        // Add padding based on layout
+                        currentStyle.layout === 'modern_split' ? "p-0" : "p-6 md:p-8"
                     )}
                 >
-                    {/* Decorative Premium Overlay */}
-                    <div className="absolute top-0 right-0 w-64 h-64 bg-amber-500/10 blur-[100px] rounded-full" />
-                    <div className="absolute bottom-0 left-0 w-64 h-64 bg-primary/10 blur-[100px] rounded-full" />
-                    <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-[0.03] pointer-events-none" />
+                    {/* Dynamic Overlay */}
+                    <div className={cn("absolute inset-0 pointer-events-none z-0", currentStyle.overlayStyle)} />
 
-                    <div {... (shopImage ? { className: "mb-6 flex flex-col items-center gap-2" } : { className: "mb-10" })}>
-                        {shopImage && (
-                            <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-amber-500 shadow-lg">
-                                <img src={shopImage} alt="Shop" className="w-full h-full object-cover" />
-                            </div>
-                        )}
-                        <div className={cn(
-                            "p-3 px-10 rounded-2xl text-[12px] font-black uppercase tracking-[0.3em] border-2 shadow-xl backdrop-blur-md",
-                            isDarkBg
-                                ? "bg-amber-500/20 text-amber-400 border-amber-500/40"
-                                : "bg-white/90 text-primary border-primary/10"
-                        )}>
-                            {shopName || `${shopType} Exclusive`}
-                        </div>
-                    </div>
+                    {/* --- LAYOUT SWITCHER --- */}
 
-                    {/* Main Content Area */}
-                    <div className="flex-1 flex flex-col justify-center items-center w-full space-y-6">
-                        {(() => {
-                            const lines = text.split('\n').map(l => l.trim().replace(/\*/g, "")).filter(l => l.length > 2);
-                            const headline = lines[0] || (language === 'hindi' ? "विशेष ऑफर" : "Special Offer");
-                            let description = lines[1] || "";
-                            if (description.toUpperCase().includes("ATTENTION") || description.toUpperCase().includes("ANNOUNCEMENT")) {
-                                description = lines[2] || description;
-                            }
-                            const productDisplay = productName || description;
-                            let mainOffer = text.match(/(\d+(?:%|₹)\s*OFF)|(Flat\s*\d+(?:%|₹))|(Buy\s*\d+\s*Get\s*\d+)|(₹\s*\d+)/gi)?.[0] || "";
-                            if (!mainOffer) {
-                                const genericMatch = text.match(/OFF|Sale|Discount|Loot|Dhamaka/i)?.[0];
-                                if (genericMatch) mainOffer = "SUPER SALE";
-                            }
-
-                            return (
-                                <>
-                                    <h2 className={cn(
-                                        "font-black tracking-tighter leading-[1.1] transition-all",
-                                        headline.length > 30 ? "text-lg md:text-xl" : "text-xl md:text-5xl",
-                                        isDarkBg ? "text-white/90" : "text-slate-900"
-                                    )}>
-                                        {headline}
-                                    </h2>
-
-                                    {productImage && (
-                                        <div className="my-2 md:my-4 w-full flex justify-center">
-                                            <div className="w-32 h-32 md:w-64 md:h-64 rounded-2xl md:rounded-3xl overflow-hidden border-4 border-white shadow-2xl transform rotate-1">
-                                                <img src={productImage} alt="Product" className="w-full h-full object-cover" />
-                                            </div>
-                                        </div>
-                                    )}
-
-                                    {productDisplay && (
-                                        <h1 className={cn(
-                                            "text-3xl md:text-7xl font-black uppercase tracking-tighter my-1 md:my-2 drop-shadow-2xl",
-                                            isDarkBg ? "text-transparent bg-clip-text bg-gradient-to-r from-indigo-200 to-purple-200" : "text-slate-900"
-                                        )}>
-                                            {productDisplay}
-                                        </h1>
-                                    )}
-
-                                    {description && description !== productDisplay && (
-                                        <p className={cn(
-                                            "text-sm md:text-lg font-bold opacity-80 max-w-[90%] md:max-w-[80%] line-clamp-3 leading-tight",
-                                            isDarkBg ? "text-indigo-200/80" : "text-slate-600"
-                                        )}>
-                                            {description}
-                                        </p>
-                                    )}
-
-                                    {mainOffer && mainOffer !== "OFF" && (
-                                        <div className={cn(
-                                            "mt-4 md:mt-6 p-4 md:p-10 rounded-2xl md:rounded-[3rem] transform rotate-[-2deg] shadow-2xl transition-all",
-                                            isDarkBg
-                                                ? "bg-gradient-to-r from-accent to-orange-600 text-white scale-110"
-                                                : "bg-red-600 text-white scale-105"
-                                        )}>
-                                            <div className="text-[10px] font-black uppercase tracking-[0.3em] mb-1 opacity-80">
-                                                {language === 'hindi' ? "सीमित समय" : "Limited Time"}
-                                            </div>
-                                            <div className={cn(
-                                                "font-black tracking-tighter drop-shadow-lg",
-                                                mainOffer.length > 8 ? "text-lg md:text-4xl" : "text-2xl md:text-6xl"
-                                            )}>
-                                                {mainOffer}
-                                            </div>
-                                        </div>
-                                    )}
-                                </>
-                            );
-                        })()}
-                    </div>
-
-                    {/* Contact Section */}
-                    <div className="w-full mt-10 space-y-4">
-                        <div className={cn(
-                            "p-4 md:p-6 rounded-2xl md:rounded-[2.5rem] backdrop-blur-xl border transition-all",
-                            isDarkBg
-                                ? "bg-black/30 border-white/5 shadow-2xl"
-                                : "bg-white/50 border-white shadow-xl"
-                        )}>
-                            <div className="grid grid-cols-1 gap-3">
-                                {address && (
-                                    <div className={cn(
-                                        "flex items-center justify-center gap-2 text-[10px] font-bold uppercase tracking-widest",
-                                        isDarkBg ? "text-indigo-300" : "text-slate-500"
-                                    )}>
-                                        📍 {address}
-                                    </div>
-                                )}
-                                {contactNumber && (
-                                    <div className={cn(
-                                        "flex items-center justify-center gap-2 text-base md:text-lg font-black",
-                                        isDarkBg ? "text-accent" : "text-primary"
-                                    )}>
-                                        📞 {contactNumber}
+                    {/* 1. CLASSIC LAYOUT */}
+                    {currentStyle.layout === 'classic' && (
+                        <div className="relative z-10 flex flex-col h-full items-center text-center justify-between">
+                            <ShopBranding />
+                            <div className="flex-1 flex flex-col justify-center items-center gap-4 w-full">
+                                <h2 className={cn("text-3xl md:text-4xl", currentStyle.fontHead, currentStyle.textPrimary)}>{headline}</h2>
+                                {productImage && <div className="w-48 h-48 md:w-64 md:h-64 my-2"><ProductImage /></div>}
+                                <div className={cn("text-base", currentStyle.fontBody, currentStyle.textSecondary)}>{description.substring(0, 60)}...</div>
+                                {mainOffer && (
+                                    <div className={cn("px-6 py-2 rounded-lg text-xl md:text-3xl font-black shadow-xl scale-110", currentStyle.accentColor, currentStyle.fontHead)}>
+                                        {mainOffer}
                                     </div>
                                 )}
                             </div>
+                            <FooterDetails />
                         </div>
-                        {shopDescription && (
-                            <div className="mt-4 px-4">
-                                <p className={cn(
-                                    "text-[9px] font-black uppercase tracking-[0.2em] leading-relaxed opacity-60 italic",
-                                    isDarkBg ? "text-white" : "text-slate-900"
-                                )}>
-                                    "{shopDescription}"
-                                </p>
+                    )}
+
+                    {/* 2. FEATURE IMAGE LAYOUT */}
+                    {currentStyle.layout === 'feature_image' && (
+                        <div className="relative z-10 flex flex-col h-full items-center justify-between">
+                            <div className="absolute top-6 left-6 z-20"><ShopBranding /></div>
+                            <div className="w-full flex-1 relative flex items-center justify-center my-4">
+                                {productImage ? (
+                                    <div className={cn("w-[90%] aspect-square relative z-10", currentStyle.imageStyle)}>
+                                        <img src={productImage} className="w-full h-full object-cover rounded-[inherit]" />
+                                    </div>
+                                ) : (
+                                    <div className="text-4xl font-black text-center opacity-20 rotate-12">NO IMAGE</div>
+                                )}
                             </div>
-                        )}
-                    </div>
+                            <div className="w-full mt-auto relative z-20 bg-white/10 backdrop-blur-md p-6 rounded-3xl border border-white/20">
+                                <h2 className={cn("text-2xl md:text-4xl mb-2", currentStyle.fontHead, currentStyle.textPrimary)}>{productDisplay}</h2>
+                                <div className="flex justify-between items-end">
+                                    <div className={cn("text-sm max-w-[60%]", currentStyle.fontBody, currentStyle.textSecondary)}>{description.substring(0, 50)}</div>
+                                    <div className={cn("text-xl font-black", currentStyle.accentColor)}>{mainOffer}</div>
+                                </div>
+                                <div className="mt-4 pt-4 border-t border-white/10 text-center">
+                                    <FooterDetails />
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* 3. MODERN SPLIT LAYOUT */}
+                    {currentStyle.layout === 'modern_split' && (
+                        <div className="relative z-10 h-full flex flex-col">
+                            <div className="h-[55%] relative overflow-hidden">
+                                {productImage ? <img src={productImage} className="w-full h-full object-cover" /> : <div className="w-full h-full bg-slate-200" />}
+                                <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-t from-black/80 to-transparent flex items-end p-6">
+                                    <h2 className={cn("text-3xl font-black text-white", currentStyle.fontHead)}>{productDisplay}</h2>
+                                </div>
+                                <div className="absolute top-4 left-4"><ShopBranding /></div>
+                            </div>
+                            <div className={cn("flex-1 p-6 flex flex-col justify-between", currentStyle.bgClasses)}>
+                                <div>
+                                    <h3 className={cn("text-xl mb-2", currentStyle.fontHead, currentStyle.textPrimary)}>{headline}</h3>
+                                    <p className={cn("text-sm", currentStyle.fontBody, currentStyle.textSecondary)}>{description}</p>
+                                </div>
+                                <div className="flex items-center justify-between mt-4">
+                                    <div className={cn("text-xs font-bold", currentStyle.textSecondary)}>{address}</div>
+                                    {mainOffer && <div className={cn("px-4 py-2 text-lg font-black rounded-lg", currentStyle.accentColor)}>{mainOffer}</div>}
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* 4. BOLD OFFER LAYOUT */}
+                    {currentStyle.layout === 'bold_offer' && (
+                        <div className="relative z-10 flex flex-col h-full items-center justify-center text-center p-4">
+                            <div className="absolute top-4 w-full flex justify-center opacity-80"><ShopBranding /></div>
+                            <div className={cn("text-5xl md:text-7xl font-black leading-none mb-4 uppercase", currentStyle.fontHead, currentStyle.textPrimary)}>
+                                {mainOffer || "SALE"}
+                            </div>
+                            <div className="w-full max-w-[200px] aspect-square mx-auto mb-6 relative">
+                                {productImage && (
+                                    <div className={cn("w-full h-full overflow-hidden", currentStyle.imageStyle)}>
+                                        <img src={productImage} className="w-full h-full object-cover" />
+                                    </div>
+                                )}
+                            </div>
+                            <h2 className={cn("text-xl md:text-2xl mb-2 uppercase tracking-widest", currentStyle.fontHead, currentStyle.textSecondary)}>{productDisplay}</h2>
+                            <div className={cn("px-6 py-1 rounded-full text-sm font-bold mt-4", currentStyle.accentColor)}>
+                                Call: {contactNumber}
+                            </div>
+                            <div className="absolute bottom-4 left-0 w-full text-center text-[10px] opacity-50 uppercase tracking-[0.2em] px-4">
+                                {address}
+                            </div>
+                        </div>
+                    )}
+
+                    {/* 5. MINIMAL TYPOGRAPHY */}
+                    {currentStyle.layout === 'minimal_typography' && (
+                        <div className="relative z-10 flex flex-col h-full text-left p-8">
+                            <div className="mb-auto">
+                                <div className={cn("text-[10px] uppercase tracking-[0.3em] mb-4 font-bold", currentStyle.textSecondary)}>{shopName}</div>
+                                <h1 className={cn("text-5xl md:text-6xl font-black leading-none mb-6", currentStyle.fontHead, currentStyle.textPrimary)}>
+                                    {headline.split(' ').map((word, i) => <span key={i} className="block">{word}</span>)}
+                                </h1>
+                                <p className={cn("text-sm max-w-[80%]", currentStyle.textSecondary)}>{description}</p>
+                            </div>
+                            <div className="absolute right-0 top-1/4 w-[40%] aspect-[3/4] opacity-50 mix-blend-multiply">
+                                {productImage && <img src={productImage} className={cn("w-full h-full object-cover", currentStyle.imageStyle)} />}
+                            </div>
+                            <div className="mt-8 border-t-2 pt-4 w-full" style={{ borderColor: 'currentColor' }}>
+                                <div className="flex justify-between items-end">
+                                    <div className={cn("text-4xl font-black", currentStyle.accentColor)}>{mainOffer}</div>
+                                    <div className="text-right">
+                                        <div className="text-xs font-bold uppercase tracking-wider">{contactNumber}</div>
+                                        <div className="text-[10px] opacity-60">{address}</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* 6. ASYMMETRIC / MAGAZINE */}
+                    {(currentStyle.layout === 'asymmetric' || currentStyle.layout === 'magazine') && (
+                        <div className="relative z-10 flex flex-col h-full">
+                            <div className="absolute top-4 right-4 z-30"><ShopBranding /></div>
+                            <div className="w-[85%] aspect-square relative z-20 mt-8 self-center">
+                                {productImage && <div className={cn("w-full h-full overflow-hidden", currentStyle.imageStyle)}><img src={productImage} className="w-full h-full object-cover" /></div>}
+                                <div className={cn("absolute -bottom-6 -right-6 px-6 py-4 text-2xl font-black rounded-xl shadow-xl z-30", currentStyle.accentColor)}>
+                                    {mainOffer || "Best Deal"}
+                                </div>
+                            </div>
+                            <div className="mt-auto p-4 relative z-10">
+                                <h2 className={cn("text-3xl font-black mb-2", currentStyle.fontHead, currentStyle.textPrimary)}>{productDisplay}</h2>
+                                <p className={cn("text-sm mb-4 line-clamp-2", currentStyle.textSecondary)}>{description}</p>
+                                <FooterDetails />
+                            </div>
+                        </div>
+                    )}
+
+
+                    {/* Watermark for Free Users */}
+                    {!isPro && (
+                        <div className="absolute bottom-4 right-4 bg-black/60 backdrop-blur-md px-3 py-1 rounded-lg text-[8px] font-bold text-white uppercase tracking-widest pointer-events-none z-50">
+                            Made with OfferMitra
+                        </div>
+                    )}
                 </div>
             </div>
 
-            {/* Actions */}
-            <div className="flex flex-col sm:flex-row gap-4 w-full pt-6">
+            {/* Action Buttons */}
+            <div className="flex flex-col sm:flex-row gap-4 w-full">
                 <button
                     onClick={handleDownload}
                     disabled={isCapturing}
-                    className={cn(
-                        "flex-1 py-5 rounded-[2rem] font-black uppercase tracking-[0.2em] text-[10px] flex items-center justify-center gap-2 transition-all active:scale-95 border-2",
-                        isDarkBg
-                            ? "bg-white/5 border-white/10 text-white hover:bg-white/10"
-                            : "bg-white border-slate-200 text-primary hover:bg-slate-50"
-                    )}
+                    className="flex-1 py-4 rounded-xl border-2 border-slate-200 font-black uppercase tracking-[0.2em] text-[10px] flex items-center justify-center gap-2 hover:bg-slate-50 transition-colors"
                 >
                     {isCapturing ? <Loader2 className="animate-spin w-4 h-4" /> : <Download className="w-4 h-4" />}
-                    Save Poster
+                    Save Image
                 </button>
                 <button
                     onClick={handleShare}
                     disabled={isCapturing}
-                    className="flex-1 bg-[#25D366] text-white py-5 rounded-[2rem] font-black uppercase tracking-[0.2em] text-[10px] flex items-center justify-center gap-2 hover:opacity-90 transition-all shadow-xl shadow-green-500/20 active:scale-95"
+                    className="flex-1 bg-[#25D366] text-white py-4 rounded-xl font-black uppercase tracking-[0.2em] text-[10px] flex items-center justify-center gap-2 hover:shadow-lg hover:bg-green-600 transition-all"
                 >
-                    <MessageCircle className="w-4 h-4" />
+                    <Share2 className="w-4 h-4" />
                     Share WhatsApp
                 </button>
             </div>
-
         </div>
     );
 }

@@ -293,7 +293,7 @@ export default function ShopSetup({ onComplete }: ShopSetupProps) {
                 <div className="bg-slate-900 border border-white/10 p-4 flex items-center justify-center gap-3 max-w-lg w-full rounded-3xl relative z-20 shadow-xl">
                     <ShieldCheck size={18} className="text-emerald-500 shrink-0" />
                     <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.15em] leading-tight">
-                        Trusted by 5000+ local shop owners in India
+                        Made for Local Shop Owners in India
                     </span>
                 </div>
             </div>

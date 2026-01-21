@@ -241,9 +241,16 @@ export default function UnifiedAuth() {
         </div>
 
         {/* Footer info */}
-        <p className="text-center text-slate-500 text-xs font-medium px-12 leading-relaxed">
-          Secure enterprise infrastructure powered by <span className="text-slate-400 font-bold">Smarth Intelligence</span>. Data encryption active.
-        </p>
+        <div className="text-center space-y-3 px-12">
+          <p className="text-slate-500 text-xs font-medium leading-relaxed">
+            Secure enterprise infrastructure powered by <span className="text-slate-400 font-bold">Smarth Intelligence</span>. Data encryption active.
+          </p>
+          <div className="flex flex-col gap-1 text-[10px] text-slate-600 font-bold">
+            <p>📞 Support: <span className="text-primary">+91 84689 43268</span></p>
+            <p>📧 Email: <span className="text-primary">saffarlabs@gmail.com</span></p>
+          </div>
+          <p className="text-[9px] text-slate-700 uppercase tracking-widest">✓ Live GPS Tracking Available</p>
+        </div>
       </motion.div>
     </div>
   )
